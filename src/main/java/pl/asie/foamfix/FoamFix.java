@@ -55,7 +55,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-@Mod(modid = "foamfix", name = "FoamFix", version = "0.3.1", clientSideOnly = true)
+@Mod(modid = "foamfix", name = "FoamFix", version = "0.3.1", clientSideOnly = true, acceptedMinecraftVersions = "[1.10.2,1.11]")
 public class FoamFix {
     public static final IBakedModel DUMMY_MODEL = new IBakedModel() {
         private final ItemOverrideList itemOverrideList = ItemOverrideList.NONE;
