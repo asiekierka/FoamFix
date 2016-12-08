@@ -23,15 +23,16 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix;
+package pl.asie.foamfix.client;
 
 import net.minecraftforge.fml.common.ProgressManager;
-import pl.asie.foamfix.util.Deduplicator;
+import pl.asie.foamfix.FoamFix;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import pl.asie.foamfix.util.FoamUtils;
+import pl.asie.foamfix.ProxyClient;
+import pl.asie.foamfix.shared.FoamFixShared;
 
 public class FoamFixModelDeduplicate {
     @SubscribeEvent
@@ -40,31 +41,31 @@ public class FoamFixModelDeduplicate {
         // TODO: figure out why it breaks Botania (#1, refer to vazkii/botania/client/model/FloatingFlowerModel.java)
         //FoamUtils.wipeModelLoaderRegistryCache();
 
-        if (FoamFix.mcDeduplicate) {
+        if (FoamFixShared.config.clDeduplicate) {
             ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
 
-            if (FoamFix.deduplicator == null) {
-                FoamFix.deduplicator = new Deduplicator();
+            if (ProxyClient.deduplicator == null) {
+                ProxyClient.deduplicator = new Deduplicator();
             }
 
             FoamFix.logger.info("Deduplicating models...");
-            FoamFix.deduplicator.maxRecursion = 6;
+            ProxyClient.deduplicator.maxRecursion = 6;
 
             for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
                 IBakedModel model = event.getModelRegistry().getObject(loc);
                 String modelName = loc.toString();
                 bakeBar.step(String.format("[%s]", modelName));
                 try {
-                    FoamFix.deduplicator.deduplicateObject(model, 0);
+                    ProxyClient.deduplicator.deduplicateObject(model, 0);
                 } catch (Exception e) {
 
                 }
             }
 
             ProgressManager.pop(bakeBar);
-            FoamFix.logger.info("Deduplicated " + FoamFix.deduplicator.successfuls + " objects.");
+            FoamFix.logger.info("Deduplicated " + ProxyClient.deduplicator.successfuls + " objects.");
         }
 
-        FoamFix.deduplicator = null; // release deduplicator to save memory
+        ProxyClient.deduplicator = null; // release deduplicator to save memory
     }
 }

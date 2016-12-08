@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassWriter;
@@ -40,8 +38,8 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+import pl.asie.foamfix.shared.FoamFixShared;
 
-@IFMLLoadingPlugin.SortingIndex(1001)
 public class FoamFixTransformer implements IClassTransformer
 {
     public byte[] spliceMethods(final byte[] data, final String className, final String targetClassName, final String... methods) {
@@ -65,13 +63,22 @@ public class FoamFixTransformer implements IClassTransformer
             for (int i = 0; i < nodeSplice.methods.size(); i++) {
                 if (methodSet.contains(nodeSplice.methods.get(i).name)) {
                     MethodNode mn = nodeSplice.methods.get(i);
+                    boolean added = false;
+
                     for (int j = 0; j < nodeData.methods.size(); j++) {
                         if (nodeData.methods.get(j).name.equals(mn.name)
                                 && nodeData.methods.get(j).desc.equals(mn.desc)) {
                             System.out.println("Spliced in: " + targetClassName + "." + mn.name);
                             nodeData.methods.set(j, mn);
+                            added = true;
                             break;
                         }
+                    }
+
+                    if (!added) {
+                        System.out.println("Added: " + targetClassName + "." + mn.name);
+                        nodeData.methods.add(mn);
+                        added = true;
                     }
                 }
             }
@@ -84,9 +91,19 @@ public class FoamFixTransformer implements IClassTransformer
         }
     }
 
-    public byte[] transform(final String name, final String transformedName, final byte[] data) {
-        if (transformedName.equals("net.minecraftforge.client.model.pipeline.UnpackedBakedQuad")) {
-            return spliceMethods(data, "pl.asie.foamfix.coremod.CachingUnpackedBakedQuad", transformedName, "<init>");
+    public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
+        byte[] data = dataOrig;
+        if (FoamFixShared.config.geBlockPosPatch) {
+            if ("net.minecraft.util.math.Vec3i".equals(transformedName)) {
+                data = BlockPosPatch.patchVec3i(data);
+            } else {
+                data = BlockPosPatch.patchOtherClass(data, "net.minecraft.util.math.BlockPos$MutableBlockPos".equals(transformedName));
+            }
+        }
+        if (FoamFixShared.config.clDeduplicate) {
+            if ("net.minecraftforge.client.model.pipeline.UnpackedBakedQuad".equals(transformedName)) {
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.CachingUnpackedBakedQuad", transformedName, "<init>");
+            }
         }
         return data;
     }

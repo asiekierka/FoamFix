@@ -23,7 +23,7 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix;
+package pl.asie.foamfix.client;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.block.state.IBlockState;
@@ -36,12 +36,11 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.ItemModelMesherForge;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import pl.asie.foamfix.util.Deduplicator;
+import pl.asie.foamfix.FoamFix;
+import pl.asie.foamfix.ProxyClient;
 
 import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
@@ -52,7 +51,7 @@ import java.util.Map;
  */
 public class FoamFixModelRegistryDuplicateWipe {
     @SubscribeEvent
-    public void onTextureStitchPre(TextureStitchEvent.Pre event) {
+    public void onTextureStitchPost(TextureStitchEvent.Post event) {
         ItemModelMesher imm = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
         BlockModelShapes bms = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
         ModelManager mgr = bms.getModelManager();
@@ -61,7 +60,7 @@ public class FoamFixModelRegistryDuplicateWipe {
             IRegistry<ModelResourceLocation, IBakedModel> registry = (IRegistry<ModelResourceLocation, IBakedModel>) f.get(mgr);
             FoamFix.logger.info("Clearing unnecessary model registry of size " + registry.getKeys().size() + ".");
             for (ModelResourceLocation l : registry.getKeys()) {
-                registry.putObject(l, FoamFix.DUMMY_MODEL);
+                registry.putObject(l, ProxyClient.DUMMY_MODEL);
             }
         } catch (Exception e) {
             e.printStackTrace();

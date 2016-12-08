@@ -23,15 +23,13 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix.util;
+package pl.asie.foamfix.client;
 
-import com.google.common.base.*;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import gnu.trove.set.hash.TCustomHashSet;
-import gnu.trove.strategy.HashingStrategy;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -41,13 +39,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.Logger;
-import pl.asie.foamfix.FoamFix;
+import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.foamfix.util.HashingStrategies;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -144,7 +142,7 @@ public class Deduplicator {
 
         // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
 
-        if (o instanceof UnpackedBakedQuad && !FoamFixThingy.enabled) {
+        if (o instanceof UnpackedBakedQuad && !FoamFixShared.enabled) {
             try {
                 float[][][] array = (float[][][]) FIELD_UNPACKED_DATA.get(o);
                 FIELD_UNPACKED_DATA.set(o, deduplicate0(array));

@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import pl.asie.foamfix.FoamFix;
+import pl.asie.foamfix.ProxyClient;
 
 public class CachingUnpackedBakedQuad extends BakedQuad {
     protected final float[][][] unpackedData;
@@ -37,7 +38,7 @@ public class CachingUnpackedBakedQuad extends BakedQuad {
 
     public CachingUnpackedBakedQuad(float[][][] unpackedData, int tint, EnumFacing orientation, TextureAtlasSprite texture, boolean applyDiffuseLighting, VertexFormat format) {
         super(new int[format.getNextOffset()], tint, orientation, texture, applyDiffuseLighting, format);
-        this.unpackedData = FoamFix.deduplicator != null ? (float[][][]) FoamFix.deduplicator.deduplicate0(unpackedData) : unpackedData;
+        this.unpackedData = ProxyClient.deduplicator != null ? (float[][][]) ProxyClient.deduplicator.deduplicate0(unpackedData) : unpackedData;
         this.format = format;
     }
 }

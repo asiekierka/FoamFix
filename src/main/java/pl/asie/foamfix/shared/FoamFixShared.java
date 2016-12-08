@@ -23,8 +23,11 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix.util;
+package pl.asie.foamfix.shared;
 
-public class FoamFixThingy {
+import pl.asie.foamfix.FoamFixConfig;
+
+public class FoamFixShared {
+	public static FoamFixConfig config = new FoamFixConfig();
 	public static boolean enabled = false;
 }

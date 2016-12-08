@@ -25,14 +25,18 @@
  */
 package pl.asie.foamfix.coremod;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.common.DummyModContainer;
-import pl.asie.foamfix.util.Deduplicator;
-import pl.asie.foamfix.util.FoamFixThingy;
+import pl.asie.foamfix.shared.FoamFixShared;
 
+@IFMLLoadingPlugin.MCVersion("1.10.2")
+@IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFix (or replace with FoamFix-Lawful) and try again.")
+@IFMLLoadingPlugin.SortingIndex(1001)
+@IFMLLoadingPlugin.TransformerExclusions({"pl.asie.foamfix", "gnu.trove"})
 public class FoamFixCore extends DummyModContainer implements IFMLLoadingPlugin {
     private static final ModMetadata md;
 
@@ -53,7 +57,8 @@ public class FoamFixCore extends DummyModContainer implements IFMLLoadingPlugin 
     }
     
     public void injectData(final Map<String, Object> data) {
-        FoamFixThingy.enabled = true;
+        FoamFixShared.enabled = true;
+        FoamFixShared.config.init(new File(new File("config"), "foamfix.cfg"), true);
     }
     
     public String getAccessTransformerClass() {
