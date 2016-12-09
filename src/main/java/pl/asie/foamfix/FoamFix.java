@@ -36,7 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.shared.FoamFixShared;
 
-@Mod(modid = "foamfix", name = "FoamFix", version = "0.4.0", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.11]")
+@Mod(modid = "foamfix", name = "FoamFix", version = "0.4.0a", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.11]")
 public class FoamFix {
     @SidedProxy(clientSide = "pl.asie.foamfix.ProxyClient", serverSide = "pl.asie.foamfix.ProxyCommon", modId = "foamfix")
     public static ProxyCommon proxy;

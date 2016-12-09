@@ -37,7 +37,6 @@ public final class HashingStrategies {
     public static final HashingStrategy<byte[]> BYTE_ARRAY = new ByteArray();
     public static final HashingStrategy<float[]> FLOAT_ARRAY = new FloatArray();
     public static final HashingStrategy<float[][]> FLOAT_ARRAY_ARRAY = new FloatArrayArray();
-    public static final HashingStrategy<float[][][]> FLOAT_ARRAY_ARRAY_ARRAY = new FloatArrayArrayArray();
     public static final HashingStrategy<int[]> INT_ARRAY = new IntArray();
     public static final HashingStrategy GENERIC = new ObjectStrategy();
     public static final HashingStrategy IDENTITY = new IdentityHashingStrategy();
@@ -118,24 +117,28 @@ public final class HashingStrategies {
     private static final class FloatArrayArray implements HashingStrategy<float[][]> {
         @Override
         public int computeHashCode(float[][] object) {
-            return Arrays.deepHashCode(object);
+            int hash = 1;
+            for (int i = 0; i < object.length; i++) {
+                hash = hash * 31 + Arrays.hashCode(object[i]);
+            }
+            return hash;
         }
 
         @Override
         public boolean equals(float[][] o1, float[][] o2) {
-            return Arrays.deepEquals(o1, o2);
-        }
-    }
+            if (o1 == null) {
+                return o1 == o2;
+            } else {
+                if (o1.length != o2.length)
+                    return false;
 
-    private static final class FloatArrayArrayArray implements HashingStrategy<float[][][]> {
-        @Override
-        public int computeHashCode(float[][][] object) {
-            return Arrays.deepHashCode(object);
-        }
+                for (int i = 0; i < o1.length; i++) {
+                    if (!Arrays.equals(o1[i], o2[i]))
+                        return false;
+                }
+            }
 
-        @Override
-        public boolean equals(float[][][] o1, float[][][] o2) {
-            return Arrays.deepEquals(o1, o2);
+            return true;
         }
     }
 }

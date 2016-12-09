@@ -100,7 +100,7 @@ public class FoamFixTransformer implements IClassTransformer
                 data = BlockPosPatch.patchOtherClass(data, "net.minecraft.util.math.BlockPos$MutableBlockPos".equals(transformedName));
             }
         }
-        if (FoamFixShared.config.clDeduplicate) {
+        if (FoamFixShared.enabledCoremodDeduplicator && FoamFixShared.config.clDeduplicate) {
             if ("net.minecraftforge.client.model.pipeline.UnpackedBakedQuad".equals(transformedName)) {
                 data = spliceMethods(data, "pl.asie.foamfix.coremod.CachingUnpackedBakedQuad", transformedName, "<init>");
             }

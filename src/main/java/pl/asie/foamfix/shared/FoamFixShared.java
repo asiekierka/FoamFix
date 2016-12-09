@@ -28,4 +28,5 @@ package pl.asie.foamfix.shared;
 public class FoamFixShared {
 	public static FoamFixConfig config = new FoamFixConfig();
 	public static boolean enabled = false;
+	public static boolean enabledCoremodDeduplicator = false;
 }

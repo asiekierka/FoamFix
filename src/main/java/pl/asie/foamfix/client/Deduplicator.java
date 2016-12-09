@@ -142,7 +142,7 @@ public class Deduplicator {
 
         // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
 
-        if (o instanceof UnpackedBakedQuad && !FoamFixShared.enabled) {
+        if (o instanceof UnpackedBakedQuad && !FoamFixShared.enabledCoremodDeduplicator) {
             try {
                 float[][][] array = (float[][][]) FIELD_UNPACKED_DATA.get(o);
                 FIELD_UNPACKED_DATA.set(o, deduplicate0(array));
