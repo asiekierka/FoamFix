@@ -1,6 +1,30 @@
-package pl.asie.foamfix;
+/**
+ * This file is part of FoamFix.
+ *
+ * FoamFix is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * FoamFix is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FoamFix.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Additional permission under GNU GPL version 3 section 7
+ *
+ * If you modify this Program, or any covered work, by linking or
+ * combining it with the Minecraft game engine, the Mojang Launchwrapper,
+ * the Mojang AuthLib and the Minecraft Realms library (and/or modified
+ * versions of said software), containing parts covered by the terms of
+ * their respective licenses, the licensors of this Program grant you
+ * additional permission to convey the resulting work.
+ */
+package pl.asie.foamfix.shared;
 
-import gnu.trove.set.hash.TIntHashSet;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
@@ -8,12 +32,9 @@ import java.io.File;
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
-	public boolean geImprovedChunkProvider;
 	public boolean geBlockPosPatch;
-	public TIntHashSet gePermanentWorldsSet = new TIntHashSet();
 
 	private Configuration config;
-	private int[] gePermanentWorlds;
 
 	public void init(File file, boolean isCoremod) {
 		if (config == null) {
@@ -23,9 +44,7 @@ public class FoamFixConfig {
 			lwWeakenResourceCache = config.getBoolean("weakenResourceCache", "launchwrapper", true, "Weaken LaunchWrapper's byte[] resource cache to make it cleanuppable by the GC. Safe.");
 			clDeduplicate = config.getBoolean("deduplicateModels", "client", true, "Enable deduplication of redundant objects in memory.");
 			clCleanRedundantModelRegistry = config.getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.");
-			geImprovedChunkProvider = config.getBoolean("improvedChunkProvider", "experimental", true, "Replaces the server chunk provider with an optimized variant.");
-			gePermanentWorlds = config.get("experimental", "improvedChunkProviderPermanentWorlds", new int[]{0, -1, 1}, "The list of permanent worlds which will never be fully unloaded with improvedChunkProvider.").getIntList();
-			gePermanentWorldsSet.addAll(gePermanentWorlds);
+
 			if (isCoremod) {
 				geBlockPosPatch = config.getBoolean("optimizedBlockPos", "experimental", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 			}

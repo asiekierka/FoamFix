@@ -33,7 +33,6 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.common.DummyModContainer;
 import pl.asie.foamfix.shared.FoamFixShared;
 
-@IFMLLoadingPlugin.MCVersion("1.10.2")
 @IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFix (or replace with FoamFix-Lawful) and try again.")
 @IFMLLoadingPlugin.SortingIndex(1001)
 @IFMLLoadingPlugin.TransformerExclusions({"pl.asie.foamfix", "gnu.trove"})
