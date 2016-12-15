@@ -29,4 +29,5 @@ public class FoamFixShared {
 	public static FoamFixConfig config = new FoamFixConfig();
 	public static boolean enabled = false;
 	public static boolean enabledCoremodDeduplicator = false;
+	public static int ramSaved = 0;
 }

@@ -107,14 +107,22 @@ public class Deduplicator {
     public Object deduplicate0(Object o) {
         Class c = o.getClass();
         Object n = o;
+        int size = 0;
 
         if (float[].class.isAssignableFrom(c)) {
+            size = 24 + ((float[]) o).length * 4;
             n = FLOATA_STORAGE.deduplicate((float[]) o);
-        } else if (ResourceLocation.class == c || TRSRTransformation.class == c) {
+        } else if (ResourceLocation.class == c) {
+            size = 16; // can't be bothered to measure string size
+            n = OBJECT_STORAGE.deduplicate(o);
+        } else if (TRSRTransformation.class == c) {
+            size = 257; // size after full, x86_64
             n = OBJECT_STORAGE.deduplicate(o);
         } else if (ItemCameraTransforms.class == c) {
+            size = 80; // minimum size
             n = ICT_STORAGE.deduplicate((ItemCameraTransforms) o);
         } else if (float[][].class.isAssignableFrom(c)) {
+            size = 16 + ((float[][]) o).length * 4; // assuming 32-bit pointers (worse case)
             float[][] arr = FLOATAA_STORAGE.deduplicate((float[][]) o);
             if (arr != o) {
                 n = arr;
@@ -133,8 +141,10 @@ public class Deduplicator {
             return null;
         }
 
-        if (n != o)
+        if (n != o) {
             successfuls++;
+            FoamFixShared.ramSaved += size;
+        }
         return n;
     }
 

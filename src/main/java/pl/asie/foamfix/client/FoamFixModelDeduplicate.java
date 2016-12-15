@@ -67,5 +67,6 @@ public class FoamFixModelDeduplicate {
         }
 
         ProxyClient.deduplicator = null; // release deduplicator to save memory
+        FoamFix.updateRamSaved();
     }
 }

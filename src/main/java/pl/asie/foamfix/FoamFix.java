@@ -36,6 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.shared.FoamFixShared;
 
+import java.text.DecimalFormat;
+
 @Mod(modid = "foamfix", name = "FoamFix", version = "0.4.1", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.11]")
 public class FoamFix {
     @SidedProxy(clientSide = "pl.asie.foamfix.ProxyClient", serverSide = "pl.asie.foamfix.ProxyCommon", modId = "foamfix")
@@ -69,5 +71,11 @@ public class FoamFix {
     @Mod.EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
 
+    }
+
+    private static final DecimalFormat RAM_SAVED_DF = new DecimalFormat("0.#");
+
+    public static void updateRamSaved() {
+//        logger.info("So far, FoamFix saved you (at least, approximately - guessing a bit here) " + RAM_SAVED_DF.format((FoamFixShared.ramSaved / 1048576.0f)) + " MB! (Note that not every optimization can be counted here.)");
     }
 }

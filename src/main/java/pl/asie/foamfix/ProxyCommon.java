@@ -102,6 +102,7 @@ public class ProxyCommon {
 				}
 			}
 
+			FoamFixShared.ramSaved += optimizedSavings;
 			FoamFix.logger.info("Optimized " + optimizedRegs + " FML registries, saving " + optimizedSavings + " bytes.");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -120,5 +121,7 @@ public class ProxyCommon {
 		if (FoamFixShared.config.geDynamicRegistrySizeScaling) {
 			optimizeForgeRegistries();
 		}
+
+		FoamFix.updateRamSaved();
 	}
 }
