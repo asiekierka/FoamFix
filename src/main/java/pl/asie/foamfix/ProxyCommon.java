@@ -26,13 +26,23 @@
 package pl.asie.foamfix;
 
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.BiMap;
 import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
+import net.minecraftforge.fml.common.registry.PersistentRegistryManager;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import pl.asie.foamfix.shared.FoamFixConfig;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.common.PretendPackageMap;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.BitSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ProxyCommon {
 	private void optimizeLaunchWrapper() {
@@ -61,6 +71,43 @@ public class ProxyCommon {
 		}
 	}
 
+	private void optimizeForgeRegistries() {
+		// BitSets scale dynamically, you really don't need to preallocate 8MB for 64 million IDs... *yawn*
+		try {
+			int optimizedRegs = 0;
+			int optimizedSavings = 0;
+
+			Class persistentRegistryClass = Class.forName("net.minecraftforge.fml.common.registry.PersistentRegistryManager$PersistentRegistry");
+			Field biMapField = persistentRegistryClass.getDeclaredField("registries");
+			Field availMapField = FMLControlledNamespacedRegistry.class.getDeclaredField("availabilityMap");
+			Field sizeStickyField = BitSet.class.getDeclaredField("sizeIsSticky");
+			Method trimToSizeMethod = BitSet.class.getDeclaredMethod("trimToSize");
+
+			biMapField.setAccessible(true);
+			availMapField.setAccessible(true);
+			sizeStickyField.setAccessible(true);
+			trimToSizeMethod.setAccessible(true);
+
+			for (Object registryHolder : persistentRegistryClass.getEnumConstants()) {
+				BiMap biMap = (BiMap) biMapField.get(registryHolder);
+				for (FMLControlledNamespacedRegistry registry : (Set<FMLControlledNamespacedRegistry>) biMap.values()) {
+					BitSet availMap = (BitSet) availMapField.get(registry);
+					int size = availMap.size();
+					if (size > 65536) {
+						sizeStickyField.set(availMap, false);
+						trimToSizeMethod.invoke(availMap);
+						optimizedRegs++;
+						optimizedSavings += ((size - availMap.size()) >> 3);
+					}
+				}
+			}
+
+			FoamFix.logger.info("Optimized " + optimizedRegs + " FML registries, saving " + optimizedSavings + " bytes.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void preInit() {
 	}
 
@@ -69,5 +116,9 @@ public class ProxyCommon {
 
 	public void postInit() {
 		optimizeLaunchWrapper();
+
+		if (FoamFixShared.config.geDynamicRegistrySizeScaling) {
+			optimizeForgeRegistries();
+		}
 	}
 }
