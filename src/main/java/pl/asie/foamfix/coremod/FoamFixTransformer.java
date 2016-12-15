@@ -34,7 +34,6 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.ClassReader;
 import com.google.common.io.ByteStreams;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -100,11 +99,16 @@ public class FoamFixTransformer implements IClassTransformer
                 data = BlockPosPatch.patchOtherClass(data, "net.minecraft.util.math.BlockPos$MutableBlockPos".equals(transformedName));
             }
         }
+
         if (FoamFixShared.enabledCoremodDeduplicator && FoamFixShared.config.clDeduplicate) {
             if ("net.minecraftforge.client.model.pipeline.UnpackedBakedQuad".equals(transformedName)) {
                 data = spliceMethods(data, "pl.asie.foamfix.coremod.CachingUnpackedBakedQuad", transformedName, "<init>");
             }
         }
+
+        /* if ("net.minecraft.client.Minecraft".equals(transformedName)) {
+            data = MinecraftPatch.patchMinecraft(data);
+        } */
         return data;
     }
 }

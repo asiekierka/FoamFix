@@ -32,7 +32,7 @@ import java.io.File;
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
-	public boolean geBlockPosPatch;
+	public boolean geBlockPosPatch, clTextureDoubleBuffering;
 
 	private Configuration config;
 
@@ -46,6 +46,7 @@ public class FoamFixConfig {
 			clCleanRedundantModelRegistry = config.getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.");
 
 			if (isCoremod) {
+				// clTextureDoubleBuffering = config.getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
 				geBlockPosPatch = config.getBoolean("optimizedBlockPos", "experimental", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 			}
 

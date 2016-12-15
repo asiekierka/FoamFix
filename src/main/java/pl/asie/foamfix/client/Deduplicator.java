@@ -28,6 +28,7 @@ package pl.asie.foamfix.client;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import gnu.trove.set.hash.TCustomHashSet;
 import net.minecraft.block.Block;
@@ -47,12 +48,15 @@ import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.HashingStrategies;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class Deduplicator {
     private static final Set<Class> BLACKLIST_CLASS = new HashSet<>();
-    private static final Map<Class, Set<Field>> CLASS_FIELDS = new HashMap<>();
+    private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new HashMap<>();
 
     private static final Field FIELD_UNPACKED_DATA = ReflectionHelper.findField(UnpackedBakedQuad.class, "unpackedData");
     private static final Field FIELD_VERTEX_DATA = ReflectionHelper.findField(BakedQuad.class, "vertexData", "field_178215_a");
@@ -85,9 +89,13 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(Gson.class);
         BLACKLIST_CLASS.add(ModelLoader.class);
         BLACKLIST_CLASS.add(Class.class);
-
-        //BLACKLIST_CLASS.add(TRSRTransformation.class);
         BLACKLIST_CLASS.add(BlockPart.class);
+
+        BLACKLIST_CLASS.add(BakedQuad.class);
+
+        if (FoamFixShared.enabledCoremodDeduplicator) {
+            BLACKLIST_CLASS.add(UnpackedBakedQuad.class);
+        }
 
         // Intentionally smaller field sets in order to optimize
     }
@@ -149,8 +157,6 @@ public class Deduplicator {
             } catch (IllegalAccessException e) {
 
             }
-        } else if (o instanceof BakedQuad) {
-
         } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || (c == ItemCameraTransforms.class)) {
             return deduplicate0(o);
         } else if (o instanceof Item || o instanceof Block || o instanceof World
@@ -206,37 +212,42 @@ public class Deduplicator {
                 deduplicateObject(i.next(), recursion + 1);
             }
         } else {
-            if (CLASS_FIELDS.containsKey(c)) {
-                for (Field f : CLASS_FIELDS.get(c)) {
-                    try {
-                        // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
-                        Object value = f.get(o);
-                        Object valueD = deduplicateObject(value, recursion + 1);
-                        if (valueD != null && value != valueD)
-                            f.set(o, valueD);
-                    } catch (IllegalAccessException e) {
-
-                    }
-                }
-            } else {
-                HashSet<Field> fieldSet = new HashSet<>();
+            if (!CLASS_FIELDS.containsKey(c)) {
+                ImmutableSet.Builder<MethodHandle[]> fsBuilder = ImmutableSet.builder();
                 Class cc = c;
                 do {
                     for (Field f : cc.getDeclaredFields()) {
                         f.setAccessible(true);
-                        fieldSet.add(f);
-                        try {
-                            // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
-                            Object value = f.get(o);
-                            Object valueD = deduplicateObject(value, recursion + 1);
-                            if (valueD != null && value != valueD)
-                                f.set(o, valueD);
-                        } catch (IllegalAccessException e) {
+                        if ((f.getModifiers() & Modifier.STATIC) != 0)
+                            continue;
 
+                        if (!f.getType().isPrimitive() && !f.getType().isEnum() && !BLACKLIST_CLASS.contains(f.getType())) {
+                            try {
+                                fsBuilder.add(new MethodHandle[]{
+                                        MethodHandles.lookup().unreflectGetter(f),
+                                        MethodHandles.lookup().unreflectSetter(f)
+                                });
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 } while ((cc = cc.getSuperclass()) != Object.class);
-                CLASS_FIELDS.put(c, fieldSet);
+                CLASS_FIELDS.put(c, fsBuilder.build());
+            }
+
+            for (MethodHandle[] mh : CLASS_FIELDS.get(c)) {
+                try {
+                    // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
+                    Object value = mh[0].invoke(o);
+                    Object valueD = deduplicateObject(value, recursion + 1);
+                    if (valueD != null && value != valueD)
+                        mh[1].invoke(o, valueD);
+                } catch (IllegalAccessException e) {
+
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
             }
         }
 

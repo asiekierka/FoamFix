@@ -29,7 +29,7 @@ import com.google.common.cache.CacheBuilder;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.shared.FoamFixShared;
-import pl.asie.foamfix.util.PretendPackageMap;
+import pl.asie.foamfix.common.PretendPackageMap;
 
 import java.lang.reflect.Field;
 import java.util.Map;

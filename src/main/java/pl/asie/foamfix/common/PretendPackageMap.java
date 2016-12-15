@@ -23,7 +23,7 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix.util;
+package pl.asie.foamfix.common;
 
 import java.util.*;
 import java.util.jar.Manifest;

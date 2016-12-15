@@ -89,6 +89,7 @@ public class ProxyClient extends ProxyCommon {
 	@Override
 	public void preInit() {
 		super.preInit();
+
 		if (!FoamFixShared.config.clDeduplicate) {
 			deduplicator = null;
 		}
@@ -98,6 +99,7 @@ public class ProxyClient extends ProxyCommon {
 	public void init() {
 		super.init();
 		MinecraftForge.EVENT_BUS.register(new FoamFixModelDeduplicate());
+
 		if (FoamFixShared.config.clCleanRedundantModelRegistry) {
 			MinecraftForge.EVENT_BUS.register(new FoamFixModelRegistryDuplicateWipe());
 		}
