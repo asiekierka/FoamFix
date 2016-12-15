@@ -50,6 +50,7 @@ import pl.asie.foamfix.util.HashingStrategies;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -220,6 +221,17 @@ public class Deduplicator {
             Iterator i = ((Collection) o).iterator();
             while (i.hasNext()) {
                 deduplicateObject(i.next(), recursion + 1);
+            }
+        } else if (c.isArray()) {
+            if (!c.getComponentType().isPrimitive()) {
+                for (int i = 0; i < Array.getLength(o); i++) {
+                    Object entry = Array.get(o, i);
+                    Object entryD = deduplicateObject(entry, recursion + 1);
+                    if (entryD != null && entry != entryD)
+                        Array.set(o, i, entryD);
+                }
+            } else {
+                BLACKLIST_CLASS.add(c);
             }
         } else {
             if (!CLASS_FIELDS.containsKey(c)) {

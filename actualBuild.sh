@@ -3,7 +3,7 @@ gradle build
 mkdir tmp
 cd tmp
 rm -r *
-unzip ../build/libs/modid-1.0.jar
+unzip ../build/libs/foamfix-$1.jar
 rm -rf chan #old stuff
 mv META-INF/MANIFEST.MF NOT_MANIFEST.MF
 cat <<EOF >META-INF/MANIFEST.MF
