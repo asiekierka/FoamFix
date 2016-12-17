@@ -75,3 +75,24 @@ processResources
         exclude 'mcmod.info'
     }
 }
+
+task anarchyJar(type: Jar, dependsOn: classes) {
+    from(sourceSets.main.output)
+    manifest.attributes "Manifest-Version": "1.0"
+    manifest.attributes "FMLCorePluginContainsFMLMod-Version": "true"
+    manifest.attributes "FMLCorePlugin": "pl.asie.foamfix.coremod.FoamFixCore"
+    archiveName = (archiveName - ".jar") + "-anarchy.jar"
+}
+
+task lawfulJar(type: Jar, dependsOn: classes) {
+    from(sourceSets.main.output)
+    exclude("pl/asie/foamfix/coremod")
+    archiveName = (archiveName - ".jar") + "-law.jar"
+}
+
+reobf {
+    anarchyJar { mappingType = 'SEARGE' }
+    lawfulJar { mappingType = 'SEARGE' }
+}
+
+assemble.dependsOn(anarchyJar, lawfulJar)
