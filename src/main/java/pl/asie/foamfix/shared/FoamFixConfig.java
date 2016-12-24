@@ -34,6 +34,7 @@ public class FoamFixConfig {
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
 	public boolean geBlockPosPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
+	public int clDeduplicateRecursionLevel;
 
 	private Configuration config;
 
@@ -44,6 +45,7 @@ public class FoamFixConfig {
 			lwDummyPackageManifestMap = config.getBoolean("dummyPackageManifestMap", "launchwrapper", true, "Dummy out LaunchWrapper's unused package manifest map. This will only break things if some other mod reflects into the LaunchClassLoader to get the private map, which as far as I know is not the case.");
 			lwWeakenResourceCache = config.getBoolean("weakenResourceCache", "launchwrapper", true, "Weaken LaunchWrapper's byte[] resource cache to make it cleanuppable by the GC. Safe.");
 			clDeduplicate = config.getBoolean("deduplicateModels", "client", true, "Enable deduplication of redundant objects in memory.");
+			clDeduplicateRecursionLevel = config.getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.");
 			clCleanRedundantModelRegistry = config.getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.");
 			geDynamicRegistrySizeScaling = config.getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.");
 

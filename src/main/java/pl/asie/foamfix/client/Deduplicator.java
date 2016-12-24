@@ -32,6 +32,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import gnu.trove.set.hash.TCustomHashSet;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
@@ -91,6 +93,9 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(ModelLoader.class);
         BLACKLIST_CLASS.add(Class.class);
         BLACKLIST_CLASS.add(BlockPart.class);
+        BLACKLIST_CLASS.add(Minecraft.class);
+        BLACKLIST_CLASS.add(BlockModelShapes.class);
+        BLACKLIST_CLASS.add(ModelManager.class);
 
         BLACKLIST_CLASS.add(BakedQuad.class);
 

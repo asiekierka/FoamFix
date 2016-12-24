@@ -49,7 +49,8 @@ public class FoamFixModelDeduplicate {
             }
 
             FoamFix.logger.info("Deduplicating models...");
-            ProxyClient.deduplicator.maxRecursion = 6;
+            ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
+
 
             for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
                 IBakedModel model = event.getModelRegistry().getObject(loc);
