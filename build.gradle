@@ -10,7 +10,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
-version = "0.4.2"
+version = "0.4.3"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -79,7 +79,7 @@ processResources
 task anarchyJar(type: Jar, dependsOn: classes) {
     from(sourceSets.main.output)
     manifest.attributes "Manifest-Version": "1.0"
-    manifest.attributes "FMLCorePluginContainsFMLMod-Version": "true"
+    manifest.attributes "FMLCorePluginContainsFMLMod": "true"
     manifest.attributes "FMLCorePlugin": "pl.asie.foamfix.coremod.FoamFixCore"
     archiveName = (archiveName - ".jar") + "-anarchy.jar"
 }
