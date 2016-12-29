@@ -59,6 +59,7 @@ import java.util.*;
 
 public class Deduplicator {
     private static final Set<Class> BLACKLIST_CLASS = new HashSet<>();
+    private static final Set<Class> TRIM_ARRAYS_CLASSES = new HashSet<>();
     private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new HashMap<>();
 
     private static final Field FIELD_UNPACKED_DATA = ReflectionHelper.findField(UnpackedBakedQuad.class, "unpackedData");
@@ -77,6 +78,10 @@ public class Deduplicator {
     }
 
     static {
+        TRIM_ARRAYS_CLASSES.add(ItemOverrideList.class);
+        TRIM_ARRAYS_CLASSES.add(SimpleBakedModel.class);
+        TRIM_ARRAYS_CLASSES.add(WeightedBakedModel.class);
+
         BLACKLIST_CLASS.add(Class.class);
         BLACKLIST_CLASS.add(String.class);
         BLACKLIST_CLASS.add(Integer.class);
@@ -268,6 +273,13 @@ public class Deduplicator {
                     // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
                     Object value = mh[0].invoke(o);
                     Object valueD = deduplicateObject(value, recursion + 1);
+
+                    if (TRIM_ARRAYS_CLASSES.contains(c)) {
+                        if (valueD instanceof ArrayList) {
+                            ((ArrayList) valueD).trimToSize();
+                        }
+                    }
+
                     if (valueD != null && value != valueD)
                         mh[1].invoke(o, valueD);
                 } catch (IllegalAccessException e) {
