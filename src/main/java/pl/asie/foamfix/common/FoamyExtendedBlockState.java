@@ -21,17 +21,16 @@ import java.util.Map;
 public class FoamyExtendedBlockState extends FoamyBlockState implements IExtendedBlockState {
 	private final ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties;
 
-	public FoamyExtendedBlockState(Object owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
+	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
 	}
 
-	public FoamyExtendedBlockState(Object owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, int value) {
+	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, int value) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
 		this.value = value;
 	}
-
 
 	@Override
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V propertyValue)
@@ -51,12 +50,12 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 				{
 					return this;
 				}
-				int newValue = PropertyValueMapper.withPropertyValue(this, value, property, propertyValue);
-				IBlockState state = PropertyValueMapper.getPropertyByValue(this, value);
+				int newValue = owner.withPropertyValue(value, property, propertyValue);
+				IBlockState state = owner.getPropertyByValue(value);
 				if (Iterables.all(unlistedProperties.values(), Predicates.<Optional<?>>equalTo(Optional.absent()))) {
 					return state;
 				}
-				return new FoamyExtendedBlockState(getStateContainer(), getBlock(), state.getProperties(), unlistedProperties, newValue);
+				return new FoamyExtendedBlockState(owner, getBlock(), state.getProperties(), unlistedProperties, newValue);
 			}
 		}
 	}
@@ -76,9 +75,9 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		newMap.put(property, Optional.fromNullable(value));
 		if(Iterables.all(newMap.values(), Predicates.<Optional<?>>equalTo(Optional.absent())))
 		{ // no dynamic properties, lookup normal state
-			return (IExtendedBlockState) PropertyValueMapper.getPropertyByValue(this, this.value);
+			return (IExtendedBlockState) owner.getPropertyByValue(this.value);
 		}
-		return new FoamyExtendedBlockState(getStateContainer(), getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
+		return new FoamyExtendedBlockState(owner, getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
 	}
 
 	@Override
@@ -105,6 +104,6 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 
 	@Override
 	public IBlockState getClean() {
-		return PropertyValueMapper.getPropertyByValue(this, this.value);
+		return owner.getPropertyByValue(this.value);
 	}
 }

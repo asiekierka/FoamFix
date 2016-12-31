@@ -18,9 +18,9 @@ public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
 	protected BlockStateContainer.StateImplementation createState(Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties)
 	{
 		if (unlistedProperties == null || unlistedProperties.isEmpty()) {
-			return new FoamyBlockState(this, block, properties);
+			return new FoamyBlockState(PropertyValueMapper.getOrCreate(this), block, properties);
 		} else {
-			return new FoamyExtendedBlockState(this, block, properties, unlistedProperties);
+			return new FoamyExtendedBlockState(PropertyValueMapper.getOrCreate(this), block, properties, unlistedProperties);
 		}
 	}
 }

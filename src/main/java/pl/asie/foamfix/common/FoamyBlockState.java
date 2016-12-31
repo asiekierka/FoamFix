@@ -8,16 +8,15 @@ import net.minecraft.block.state.IBlockState;
 
 import java.util.Map;
 
-public class FoamyBlockState extends BlockStateContainer.StateImplementation implements IFoamBlockState {
-	private final Object owner;
+public class FoamyBlockState extends BlockStateContainer.StateImplementation {
+	protected final PropertyValueMapper owner;
 	protected ImmutableMap < IProperty<?>, Comparable<? >> properties;
 	protected int value;
 
-	public FoamyBlockState(Object owner, Block blockIn, ImmutableMap < IProperty<?>, Comparable<? >> propertiesIn) {
+	public FoamyBlockState(PropertyValueMapper owner, Block blockIn, ImmutableMap < IProperty<?>, Comparable<? >> propertiesIn) {
 		super(blockIn, propertiesIn);
 		this.owner = owner;
 		this.properties = propertiesIn;
-		PropertyValueMapper.getPropertiesOrdered(blockIn, propertiesIn.keySet());
 	}
 
 	@Override
@@ -29,7 +28,7 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation imp
 		} else if (comparable == value) {
 			return this;
 		} else {
-			IBlockState state = PropertyValueMapper.withProperty(this, this.value, property, value);
+			IBlockState state = owner.withProperty(this.value, property, value);
 
 			if (state == null) {
 				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(this.getBlock()) + ", it is not an allowed value");
@@ -41,11 +40,6 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation imp
 
 	@Override
 	public void buildPropertyValueTable(Map <Map< IProperty<?>, Comparable<? >>, BlockStateContainer.StateImplementation > map) {
-		this.value = PropertyValueMapper.generateValue(this);
-	}
-
-	@Override
-	public Object getStateContainer() {
-		return owner;
+		this.value = owner.generateValue(this);
 	}
 }

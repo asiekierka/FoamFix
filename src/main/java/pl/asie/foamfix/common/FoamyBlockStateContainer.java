@@ -13,6 +13,6 @@ public class FoamyBlockStateContainer extends BlockStateContainer {
 
 	@Override
 	protected BlockStateContainer.StateImplementation createState(Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<net.minecraftforge.common.property.IUnlistedProperty<?>, com.google.common.base.Optional<?>> unlistedProperties) {
-		return new FoamyBlockState(this, block, properties);
+		return new FoamyBlockState(PropertyValueMapper.getOrCreate(this), block, properties);
 	}
 }
