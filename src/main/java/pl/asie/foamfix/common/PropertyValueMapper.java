@@ -30,7 +30,7 @@ public class PropertyValueMapper {
 
 		public Entry(IProperty property) {
 			this.property = property;
-			this.values = new TObjectIntHashMap();
+			this.values = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 			this.bitSize = MathHelper.roundUpToPowerOfTwo(property.getAllowedValues().size());
 			int bits = 0;
 			int b = bitSize;
@@ -64,8 +64,8 @@ public class PropertyValueMapper {
 		}
 	}
 
-	private static final Map<IProperty, Entry> entryMap = new HashMap<>();
-	private static final Map<Object, PropertyValueMapper> mapperMap = new HashMap<>();
+	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
+	private static final Map<Object, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
 	private final Entry[] entryList;
 	private final TObjectIntMap<IProperty> entryPositionMap;
@@ -136,12 +136,15 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(int value, IProperty<T> property, V propertyValue) {
-		Entry e = getPropertyEntry(property);
-		if (e != null) {
-			int bitPos = entryPositionMap.get(property);
-			if (bitPos >= 0) {
+		int bitPos = entryPositionMap.get(property);
+		if (bitPos >= 0) {
+			Entry e = getPropertyEntry(property);
+			if (e != null) {
+				int nv = e.get(propertyValue);
+				if (nv < 0) return null;
+
 				value &= ~((e.bitSize - 1) << bitPos);
-				value |= e.get(propertyValue) << bitPos;
+				value |= nv << bitPos;
 				return stateMap[value];
 			}
 		}
@@ -154,17 +157,20 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> int withPropertyValue(int value, IProperty<T> property, V propertyValue) {
-		Entry e = getPropertyEntry(property);
-		if (e != null) {
-			int bitPos = entryPositionMap.get(property);
-			if (bitPos >= 0) {
+		int bitPos = entryPositionMap.get(property);
+		if (bitPos >= 0) {
+			Entry e = getPropertyEntry(property);
+			if (e != null) {
+				int nv = e.get(propertyValue);
+				if (nv < 0) return  -1;
+
 				value &= ~((e.bitSize - 1) << bitPos);
-				value |= e.get(propertyValue) << bitPos;
+				value |= nv << bitPos;
 
 				return value;
 			}
 		}
 
-		return value;
+		return -1;
 	}
 }

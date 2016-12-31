@@ -51,7 +51,10 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 					return this;
 				}
 				int newValue = owner.withPropertyValue(value, property, propertyValue);
-				IBlockState state = owner.getPropertyByValue(value);
+				if (newValue == -1) {
+					throw new IllegalArgumentException("Cannot set property " + property + " because FoamFix could not find a mapping for it! Please reproduce without FoamFix first!");
+				}
+				IBlockState state = owner.getPropertyByValue(newValue);
 				if (Iterables.all(unlistedProperties.values(), Predicates.<Optional<?>>equalTo(Optional.absent()))) {
 					return state;
 				}
