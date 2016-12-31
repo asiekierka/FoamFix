@@ -56,7 +56,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 				if (Iterables.all(unlistedProperties.values(), Predicates.<Optional<?>>equalTo(Optional.absent()))) {
 					return state;
 				}
-				return new FoamyExtendedBlockState(getFoamyOwner(), getBlock(), state.getProperties(), unlistedProperties, newValue);
+				return new FoamyExtendedBlockState(getStateContainer(), getBlock(), state.getProperties(), unlistedProperties, newValue);
 			}
 		}
 	}
@@ -78,7 +78,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		{ // no dynamic properties, lookup normal state
 			return (IExtendedBlockState) PropertyValueMapper.getPropertyByValue(this, this.value);
 		}
-		return new FoamyExtendedBlockState(getFoamyOwner(), getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
+		return new FoamyExtendedBlockState(getStateContainer(), getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
 	}
 
 	@Override

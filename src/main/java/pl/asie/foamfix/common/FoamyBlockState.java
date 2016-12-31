@@ -8,7 +8,7 @@ import net.minecraft.block.state.IBlockState;
 
 import java.util.Map;
 
-public class FoamyBlockState extends BlockStateContainer.StateImplementation implements IFoamyBlockState {
+public class FoamyBlockState extends BlockStateContainer.StateImplementation implements IFoamBlockState {
 	private final Object owner;
 	protected ImmutableMap < IProperty<?>, Comparable<? >> properties;
 	protected int value;
@@ -21,29 +21,20 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation imp
 	}
 
 	@Override
-	public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V value)
-	{
+	public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V value) {
 		Comparable<?> comparable = (Comparable)this.properties.get(property);
 
-		if (comparable == null)
-		{
+		if (comparable == null) {
 			throw new IllegalArgumentException("Cannot set property " + property + " as it does not exist in " + this.getBlock().getBlockState());
-		}
-		else if (comparable == value)
-		{
+		} else if (comparable == value) {
 			return this;
-		}
-		else
-		{
-			IBlockState iblockstate = PropertyValueMapper.withProperty(this, this.value, property, value);
+		} else {
+			IBlockState state = PropertyValueMapper.withProperty(this, this.value, property, value);
 
-			if (iblockstate == null)
-			{
+			if (state == null) {
 				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(this.getBlock()) + ", it is not an allowed value");
-			}
-			else
-			{
-				return iblockstate;
+			} else {
+				return state;
 			}
 		}
 	}
@@ -54,7 +45,7 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation imp
 	}
 
 	@Override
-	public Object getFoamyOwner() {
+	public Object getStateContainer() {
 		return owner;
 	}
 }
