@@ -34,7 +34,7 @@ public class FoamFixConfig {
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
 	public boolean geBlockPosPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
-	public boolean geSmallPropertyStorage = true; // TODO
+	public boolean geSmallPropertyStorage;
 	public int clDeduplicateRecursionLevel;
 
 	private Configuration config;
@@ -52,7 +52,8 @@ public class FoamFixConfig {
 
 			if (isCoremod) {
 				// clTextureDoubleBuffering = config.getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
-				geBlockPosPatch = config.getBoolean("optimizedBlockPos", "experimental", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
+				geSmallPropertyStorage = config.getBoolean("smallPropertyStorage", "experimental", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
+				geBlockPosPatch = config.getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 			}
 
 			config.save();

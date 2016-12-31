@@ -3,13 +3,11 @@ package pl.asie.foamfix.coremod;
 import com.google.common.collect.ImmutableMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -41,10 +39,24 @@ public class PropertyValueMapper {
 		public int get(Object v) {
 			return values.get(v);
 		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (!(other instanceof Entry))
+				return false;
+
+			return ((Entry) other).property.equals(property);
+		}
+
+		@Override
+		public int hashCode() {
+			return property.hashCode();
+		}
 	}
 
 	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
-	private static final Map<Object, Entry[]> blockEntryMap = new IdentityHashMap<>();
+	private static final Map<Object, Entry[]> blockEntryList = new IdentityHashMap<>();
+	private static final Map<Object, TObjectIntMap<IProperty>> blockEntryPositionMap = new IdentityHashMap<>();
 	private static final Map<Object, IProperty[]> blockPropertyMap = new IdentityHashMap<>();
 	private static final Map<Object, IBlockState[]> blockStateMap = new IdentityHashMap<>();
 
@@ -72,14 +84,29 @@ public class PropertyValueMapper {
 
 	protected static Entry[] getPropertyEntryList(IBlockState state) {
 		Object owner = ((IFoamyBlockState) state).getFoamyOwner();
-		Entry[] e = blockEntryMap.get(owner);
+		Entry[] e = blockEntryList.get(owner);
 		if (e == null) {
 			e = new Entry[state.getPropertyNames().size()];
 			int i = 0;
 			for (IProperty p : state.getPropertyNames()) {
 				e[i++] = getPropertyEntry(p);
 			}
-			blockEntryMap.put(owner, e);
+			blockEntryList.put(owner, e);
+		}
+		return e;
+	}
+
+	protected static TObjectIntMap<IProperty> getPropertyEntryPositionMap(IBlockState state) {
+		Object owner = ((IFoamyBlockState) state).getFoamyOwner();
+		TObjectIntMap<IProperty> e = blockEntryPositionMap.get(owner);
+		if (e == null) {
+			e = new TObjectIntHashMap<>();
+			int bitPos = 0;
+			for (Entry ee : getPropertyEntryList(state)) {
+				e.put(ee.property, bitPos);
+				bitPos += ee.bits;
+			}
+			blockEntryPositionMap.put(owner, e);
 		}
 		return e;
 	}
@@ -128,17 +155,14 @@ public class PropertyValueMapper {
 	}
 
 	public static <T extends Comparable<T>, V extends T> int withPropertyValue(IBlockState state, int value, IProperty<T> property, V propertyValue) {
-		// TODO: use a better structure for cheaper lookup
-		Entry[] entries = getPropertyEntryList(state);
-		int bitPos = 0;
+		Entry e = getPropertyEntry(property);
+		if (e != null) {
+			int bitPos = getPropertyEntryPositionMap(state).get(property);
 
-		for (Entry e : entries) {
-			if (e.property.equals(property)) {
-				value &= ~((e.bitSize - 1) << bitPos);
-				value |= e.get(propertyValue) << bitPos;
-				return value;
-			}
-			bitPos += e.bits;
+			value &= ~((e.bitSize - 1) << bitPos);
+			value |= e.get(propertyValue) << bitPos;
+
+			return value;
 		}
 
 		return value;
