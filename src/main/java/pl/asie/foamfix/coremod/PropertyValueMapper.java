@@ -1,6 +1,7 @@
 package pl.asie.foamfix.coremod;
 
 import com.google.common.collect.ImmutableMap;
+import gnu.trove.impl.Constants;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.block.properties.IProperty;
@@ -100,9 +101,10 @@ public class PropertyValueMapper {
 		Object owner = ((IFoamyBlockState) state).getFoamyOwner();
 		TObjectIntMap<IProperty> e = blockEntryPositionMap.get(owner);
 		if (e == null) {
-			e = new TObjectIntHashMap<>();
+			Entry[] entries = getPropertyEntryList(state);
+			e = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 			int bitPos = 0;
-			for (Entry ee : getPropertyEntryList(state)) {
+			for (Entry ee : entries) {
 				e.put(ee.property, bitPos);
 				bitPos += ee.bits;
 			}
@@ -158,11 +160,12 @@ public class PropertyValueMapper {
 		Entry e = getPropertyEntry(property);
 		if (e != null) {
 			int bitPos = getPropertyEntryPositionMap(state).get(property);
+			if (bitPos >= 0) {
+				value &= ~((e.bitSize - 1) << bitPos);
+				value |= e.get(propertyValue) << bitPos;
 
-			value &= ~((e.bitSize - 1) << bitPos);
-			value |= e.get(propertyValue) << bitPos;
-
-			return value;
+				return value;
+			}
 		}
 
 		return value;
