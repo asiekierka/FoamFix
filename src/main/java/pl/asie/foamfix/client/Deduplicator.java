@@ -60,9 +60,9 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class Deduplicator {
-    private static final Set<Class> BLACKLIST_CLASS = new HashSet<>();
-    private static final Set<Class> TRIM_ARRAYS_CLASSES = new HashSet<>();
-    private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new HashMap<>();
+    private static final Set<Class> BLACKLIST_CLASS = new TCustomHashSet<Class>(HashingStrategies.IDENTITY);
+    private static final Set<Class> TRIM_ARRAYS_CLASSES = new TCustomHashSet<Class>(HashingStrategies.IDENTITY);
+    private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new IdentityHashMap<>();
 
     private static final MethodHandle FIELD_UNPACKED_DATA_GETTER = MethodHandleHelper.findFieldGetter(UnpackedBakedQuad.class, "unpackedData");
     private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");

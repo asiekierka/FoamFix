@@ -25,11 +25,16 @@
  */
 package pl.asie.foamfix.util;
 
+import com.google.common.collect.Sets;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.FoamFix;
 
 import java.lang.reflect.Field;
+import java.util.Iterator;
 import java.util.Map;
 
 public final class FoamUtils {
@@ -40,9 +45,15 @@ public final class FoamUtils {
 	public static void wipeModelLoaderRegistryCache() {
 	    Field resourceCacheField = ReflectionHelper.findField(ModelLoaderRegistry.class, "cache");
 	    try {
-	        Map oldResourceCache = (Map) resourceCacheField.get(null);
+			Map<ResourceLocation, IModel> oldResourceCache = (Map<ResourceLocation, IModel>) resourceCacheField.get(null);
+			int itemsCleared = 0;
 		    FoamFix.logger.info("Clearing ModelLoaderRegistry cache (" + oldResourceCache.size() + " items)...");
-	        oldResourceCache.clear();
+			for (ResourceLocation r : Sets.newHashSet(oldResourceCache.keySet())) {
+				// System.out.println(r + " -> " + oldResourceCache.get(r).getClass().getName());
+				oldResourceCache.remove(r);
+				itemsCleared++;
+			}
+			FoamFix.logger.info("Cleared " + itemsCleared + " objects.");
 	    } catch (IllegalAccessException e) {
 	        e.printStackTrace();
 	    }

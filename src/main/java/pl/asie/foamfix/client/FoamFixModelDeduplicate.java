@@ -39,7 +39,7 @@ public class FoamFixModelDeduplicate {
     public void onModelBake(ModelBakeEvent event) {
         // TODO: analyze impact + obj. references
         // TODO: figure out why it breaks Botania (#1, refer to vazkii/botania/client/model/FloatingFlowerModel.java)
-        //FoamUtils.wipeModelLoaderRegistryCache();
+        // FoamUtils.wipeModelLoaderRegistryCache();
 
         if (FoamFixShared.config.clDeduplicate) {
             ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFixAPI: deduplicating", event.getModelRegistry().getKeys().size());
