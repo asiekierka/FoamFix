@@ -42,7 +42,7 @@ public class FoamFixModelDeduplicate {
         // FoamUtils.wipeModelLoaderRegistryCache();
 
         if (FoamFixShared.config.clDeduplicate) {
-            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFixAPI: deduplicating", event.getModelRegistry().getKeys().size());
+            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
 
             if (ProxyClient.deduplicator == null) {
                 ProxyClient.deduplicator = new Deduplicator();

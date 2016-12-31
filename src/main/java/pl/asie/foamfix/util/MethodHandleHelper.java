@@ -27,4 +27,22 @@ public final class MethodHandleHelper {
             return null;
         }
     }
+
+    public static MethodHandle findFieldGetter(String s, String... names) {
+        try {
+            return findFieldGetter(Class.forName(s), names);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static MethodHandle findFieldSetter(String s, String... names) {
+        try {
+            return findFieldSetter(Class.forName(s), names);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

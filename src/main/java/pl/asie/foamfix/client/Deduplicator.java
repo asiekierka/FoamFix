@@ -43,6 +43,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
@@ -66,7 +67,13 @@ public class Deduplicator {
 
     private static final MethodHandle FIELD_UNPACKED_DATA_GETTER = MethodHandleHelper.findFieldGetter(UnpackedBakedQuad.class, "unpackedData");
     private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");
-    private static final Field FIELD_VERTEX_DATA = ReflectionHelper.findField(BakedQuad.class, "vertexData", "field_178215_a");
+
+    private static final MethodHandle IPAM_MW_TRANSFORMS_GETTER = MethodHandleHelper.findFieldGetter(IPerspectiveAwareModel.MapWrapper.class, "transforms");
+    private static final MethodHandle IPAM_MW_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter(IPerspectiveAwareModel.MapWrapper.class, "transforms");
+    private static final MethodHandle BIM_TRANSFORMS_GETTER = MethodHandleHelper.findFieldGetter("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel", "transforms");
+    private static final MethodHandle BIM_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel", "transforms");
+
+    // private static final Field FIELD_VERTEX_DATA = ReflectionHelper.findField(BakedQuad.class, "vertexData", "field_178215_a");
 
     public int successfuls = 0;
     public int maxRecursion = 0;
@@ -115,23 +122,13 @@ public class Deduplicator {
     }
 
     public Object deduplicate0(Object o) {
-        Class c = o.getClass();
         Object n = o;
         int size = 0;
 
-        if (float[].class.isAssignableFrom(c)) {
+        if (o instanceof float[]) {
             size = 24 + ((float[]) o).length * 4;
             n = FLOATA_STORAGE.deduplicate((float[]) o);
-        } else if (ResourceLocation.class == c) {
-            size = 16; // can't be bothered to measure string size
-            n = OBJECT_STORAGE.deduplicate(o);
-        } else if (TRSRTransformation.class == c) {
-            size = 257; // size after full, x86_64
-            n = OBJECT_STORAGE.deduplicate(o);
-        } else if (ItemCameraTransforms.class == c) {
-            size = 80; // minimum size
-            n = ICT_STORAGE.deduplicate((ItemCameraTransforms) o);
-        } else if (float[][].class.isAssignableFrom(c)) {
+        } else if (o instanceof float[][]) {
             size = 16 + ((float[][]) o).length * 4; // assuming 32-bit pointers (worse case)
             float[][] arr = FLOATAA_STORAGE.deduplicate((float[][]) o);
             if (arr != o) {
@@ -142,13 +139,28 @@ public class Deduplicator {
                     arr[i] = (float[]) deduplicate0(arr[i]);
                 }
             }
-        } else if (float[][][].class.isAssignableFrom(c)) {
+        } else if (o instanceof float[][][]) {
             float[][][] arr = (float[][][]) o;
             for (int i = 0; i < arr.length; i++) {
                 arr[i] = (float[][]) deduplicate0(arr[i]);
             }
+        } else if (o instanceof ImmutableList || o instanceof ImmutableSet || o instanceof ImmutableMap) {
+            n = OBJECT_STORAGE.deduplicate(o);
         } else {
-            return null;
+            Class c = o.getClass();
+
+            if (ResourceLocation.class == c) {
+                size = 16; // can't be bothered to measure string size
+                n = OBJECT_STORAGE.deduplicate(o);
+            } else if (TRSRTransformation.class == c) {
+                size = 257; // size after full, x86_64
+                n = OBJECT_STORAGE.deduplicate(o);
+            } else if (ItemCameraTransforms.class == c) {
+                size = 80; // minimum size
+                n = ICT_STORAGE.deduplicate((ItemCameraTransforms) o);
+            } else {
+                return null;
+            }
         }
 
         if (n != o) {
@@ -169,6 +181,30 @@ public class Deduplicator {
             deduplicatedObjects.add(o);
 
         // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
+
+        if (o instanceof IBakedModel) {
+            if (o instanceof IPerspectiveAwareModel.MapWrapper) {
+                try {
+                    Object to = IPAM_MW_TRANSFORMS_GETTER.invoke(o);
+                    Object toD = deduplicate0(to);
+                    if (toD != null && to != toD) {
+                        IPAM_MW_TRANSFORMS_SETTER.invoke(o, toD);
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            } else if ("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel".equals(c.getName())) {
+                try {
+                    Object to = BIM_TRANSFORMS_GETTER.invoke(o);
+                    Object toD = deduplicate0(to);
+                    if (toD != null && to != toD) {
+                        BIM_TRANSFORMS_SETTER.invoke(o, toD);
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+        }
 
         if (c == UnpackedBakedQuad.class) {
             try {
