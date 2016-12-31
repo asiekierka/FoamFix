@@ -1,6 +1,5 @@
-package pl.asie.foamfix.coremod;
+package pl.asie.foamfix.common;
 
-import com.google.common.collect.ImmutableMap;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;

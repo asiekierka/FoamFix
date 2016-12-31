@@ -1,16 +1,12 @@
-package pl.asie.foamfix.coremod;
+package pl.asie.foamfix.common;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
@@ -22,15 +18,15 @@ import java.util.Map;
 /**
  * Created by asie on 12/31/16.
  */
-public class ExtendedStateImplementation extends StateImplementation implements IExtendedBlockState {
+public class FoamyExtendedBlockState extends FoamyBlockState implements IExtendedBlockState {
 	private final ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties;
 
-	public ExtendedStateImplementation(Object owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
+	public FoamyExtendedBlockState(Object owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
 	}
 
-	public ExtendedStateImplementation(Object owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, int value) {
+	public FoamyExtendedBlockState(Object owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, int value) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
 		this.value = value;
@@ -60,7 +56,7 @@ public class ExtendedStateImplementation extends StateImplementation implements 
 				if (Iterables.all(unlistedProperties.values(), Predicates.<Optional<?>>equalTo(Optional.absent()))) {
 					return state;
 				}
-				return new ExtendedStateImplementation(getFoamyOwner(), getBlock(), state.getProperties(), unlistedProperties, newValue);
+				return new FoamyExtendedBlockState(getFoamyOwner(), getBlock(), state.getProperties(), unlistedProperties, newValue);
 			}
 		}
 	}
@@ -82,7 +78,7 @@ public class ExtendedStateImplementation extends StateImplementation implements 
 		{ // no dynamic properties, lookup normal state
 			return (IExtendedBlockState) PropertyValueMapper.getPropertyByValue(this, this.value);
 		}
-		return new ExtendedStateImplementation(getFoamyOwner(), getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
+		return new FoamyExtendedBlockState(getFoamyOwner(), getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
 	}
 
 	@Override

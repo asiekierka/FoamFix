@@ -1,18 +1,18 @@
 /**
- * This file is part of FoamFix.
+ * This file is part of FoamFixAPI.
  *
- * FoamFix is free software: you can redistribute it and/or modify
+ * FoamFixAPI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * FoamFix is distributed in the hope that it will be useful,
+ * FoamFixAPI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with FoamFix.  If not, see <http://www.gnu.org/licenses/>.
+ * along with FoamFixAPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Additional permission under GNU GPL version 3 section 7
  *
@@ -34,11 +34,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pl.asie.foamfix.api.FoamFixAPI;
+import pl.asie.foamfix.common.FoamFixHelper;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.text.DecimalFormat;
 
-@Mod(modid = "foamfix", name = "FoamFix", version = "0.4.3", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.11.2]")
+@Mod(modid = "foamfix", name = "FoamFixAPI", version = "0.4.3", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.11.2]")
 public class FoamFix {
     @SidedProxy(clientSide = "pl.asie.foamfix.ProxyClient", serverSide = "pl.asie.foamfix.ProxyCommon", modId = "foamfix")
     public static ProxyCommon proxy;
@@ -48,8 +50,11 @@ public class FoamFix {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        FoamFixAPI.HELPER = new FoamFixHelper();
+
         logger = LogManager.getLogger("foamfix");
         stage = 0;
+
         FoamFixShared.config.init(event.getSuggestedConfigurationFile(), false);
 
         proxy.preInit();
@@ -76,6 +81,6 @@ public class FoamFix {
     private static final DecimalFormat RAM_SAVED_DF = new DecimalFormat("0.#");
 
     public static void updateRamSaved() {
-//        logger.info("So far, FoamFix saved you (at least, approximately - guessing a bit here) " + RAM_SAVED_DF.format((FoamFixShared.ramSaved / 1048576.0f)) + " MB! (Note that not every optimization can be counted here.)");
+//        logger.info("So far, FoamFixAPI saved you (at least, approximately - guessing a bit here) " + RAM_SAVED_DF.format((FoamFixShared.ramSaved / 1048576.0f)) + " MB! (Note that not every optimization can be counted here.)");
     }
 }

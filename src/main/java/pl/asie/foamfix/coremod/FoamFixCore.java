@@ -1,18 +1,18 @@
 /**
- * This file is part of FoamFix.
+ * This file is part of FoamFixAPI.
  *
- * FoamFix is free software: you can redistribute it and/or modify
+ * FoamFixAPI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * FoamFix is distributed in the hope that it will be useful,
+ * FoamFixAPI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with FoamFix.  If not, see <http://www.gnu.org/licenses/>.
+ * along with FoamFixAPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Additional permission under GNU GPL version 3 section 7
  *
@@ -33,7 +33,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.common.DummyModContainer;
 import pl.asie.foamfix.shared.FoamFixShared;
 
-@IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFix (or replace with FoamFix-Lawful) and try again.")
+@IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFixAPI (or replace with FoamFixAPI-Lawful) and try again.")
 @IFMLLoadingPlugin.SortingIndex(1001)
 @IFMLLoadingPlugin.TransformerExclusions({"pl.asie.foamfix", "gnu.trove"})
 public class FoamFixCore extends DummyModContainer implements IFMLLoadingPlugin {

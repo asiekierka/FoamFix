@@ -1,18 +1,18 @@
 /**
- * This file is part of FoamFix.
+ * This file is part of FoamFixAPI.
  *
- * FoamFix is free software: you can redistribute it and/or modify
+ * FoamFixAPI is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * FoamFix is distributed in the hope that it will be useful,
+ * FoamFixAPI is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with FoamFix.  If not, see <http://www.gnu.org/licenses/>.
+ * along with FoamFixAPI.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Additional permission under GNU GPL version 3 section 7
  *
@@ -106,11 +106,11 @@ public class FoamFixTransformer implements IClassTransformer
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
             if ("net.minecraft.block.state.BlockStateContainer".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.PropertyValueMapperBSCPatch", transformedName, "createState");
+                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyBlockStateContainer", transformedName, "createState");
             }
 
             if ("net.minecraftforge.common.property.ExtendedBlockState".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.PropertyValueMapperEBSPatch", transformedName, "createState");
+                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer", transformedName, "createState");
             }
         }
 
