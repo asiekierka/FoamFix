@@ -36,6 +36,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -49,6 +50,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.HashingStrategies;
+import pl.asie.foamfix.util.MethodHandleHelper;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -62,7 +64,8 @@ public class Deduplicator {
     private static final Set<Class> TRIM_ARRAYS_CLASSES = new HashSet<>();
     private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new HashMap<>();
 
-    private static final Field FIELD_UNPACKED_DATA = ReflectionHelper.findField(UnpackedBakedQuad.class, "unpackedData");
+    private static final MethodHandle FIELD_UNPACKED_DATA_GETTER = MethodHandleHelper.findFieldGetter(UnpackedBakedQuad.class, "unpackedData");
+    private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");
     private static final Field FIELD_VERTEX_DATA = ReflectionHelper.findField(BakedQuad.class, "vertexData", "field_178215_a");
 
     public int successfuls = 0;
@@ -103,10 +106,6 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(ModelManager.class);
 
         BLACKLIST_CLASS.add(BakedQuad.class);
-
-        if (FoamFixShared.enabledCoremodDeduplicator) {
-            BLACKLIST_CLASS.add(UnpackedBakedQuad.class);
-        }
 
         // Intentionally smaller field sets in order to optimize
     }
@@ -171,12 +170,13 @@ public class Deduplicator {
 
         // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
 
-        if (o instanceof UnpackedBakedQuad && !FoamFixShared.enabledCoremodDeduplicator) {
+        if (c == UnpackedBakedQuad.class) {
             try {
-                float[][][] array = (float[][][]) FIELD_UNPACKED_DATA.get(o);
-                FIELD_UNPACKED_DATA.set(o, deduplicate0(array));
-            } catch (IllegalAccessException e) {
-
+                float[][][] array = (float[][][]) FIELD_UNPACKED_DATA_GETTER.invokeExact((UnpackedBakedQuad) o);
+                // float[][][]s are not currently deduplicated
+                deduplicate0(array);
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
         } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || (c == ItemCameraTransforms.class)) {
             return deduplicate0(o);

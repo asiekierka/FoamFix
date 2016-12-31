@@ -34,6 +34,7 @@ public class FoamFixConfig {
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
 	public boolean geBlockPosPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
+	public boolean geSmallPropertyStorage = true; // TODO
 	public int clDeduplicateRecursionLevel;
 
 	private Configuration config;

@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassWriter;
@@ -42,52 +43,55 @@ import pl.asie.foamfix.shared.FoamFixShared;
 public class FoamFixTransformer implements IClassTransformer
 {
     public byte[] spliceMethods(final byte[] data, final String className, final String targetClassName, final String... methods) {
-        final Set<String> methodSet = Sets.newHashSet(methods);
         try {
             final byte[] dataSplice = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream(className.replace('.', '/') + ".class"));
-            final ClassReader readerData = new ClassReader(data);
-            final ClassReader readerSplice = new ClassReader(dataSplice);
-            final ClassWriter writer = new ClassWriter(8);
-            final String className2 = className.replace('.', '/');
-            final String targetClassName2 = targetClassName.replace('.', '/');
-            final Remapper remapper = new Remapper() {
-                public String map(final String name) {
-                    return className2.equals(name) ? targetClassName2 : name;
-                }
-            };
-            ClassNode nodeData = new ClassNode();
-            ClassNode nodeSplice = new ClassNode();
-            readerData.accept(nodeData, 8);
-            readerSplice.accept(new RemappingClassAdapter(nodeSplice, remapper), 8);
-            for (int i = 0; i < nodeSplice.methods.size(); i++) {
-                if (methodSet.contains(nodeSplice.methods.get(i).name)) {
-                    MethodNode mn = nodeSplice.methods.get(i);
-                    boolean added = false;
+            return spliceMethods(data, dataSplice, className, targetClassName, methods);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-                    for (int j = 0; j < nodeData.methods.size(); j++) {
-                        if (nodeData.methods.get(j).name.equals(mn.name)
-                                && nodeData.methods.get(j).desc.equals(mn.desc)) {
-                            System.out.println("Spliced in: " + targetClassName + "." + mn.name);
-                            nodeData.methods.set(j, mn);
-                            added = true;
-                            break;
-                        }
-                    }
+    public byte[] spliceMethods(final byte[] data, final byte[] dataSplice, final String className, final String targetClassName, final String... methods) {
+        final Set<String> methodSet = Sets.newHashSet(methods);
 
-                    if (!added) {
-                        System.out.println("Added: " + targetClassName + "." + mn.name);
-                        nodeData.methods.add(mn);
+        final ClassReader readerData = new ClassReader(data);
+        final ClassReader readerSplice = new ClassReader(dataSplice);
+        final ClassWriter writer = new ClassWriter(8);
+        final String className2 = className.replace('.', '/');
+        final String targetClassName2 = targetClassName.replace('.', '/');
+        final Remapper remapper = new Remapper() {
+            public String map(final String name) {
+                return className2.equals(name) ? targetClassName2 : name;
+            }
+        };
+        ClassNode nodeData = new ClassNode();
+        ClassNode nodeSplice = new ClassNode();
+        readerData.accept(nodeData, 8);
+        readerSplice.accept(new RemappingClassAdapter(nodeSplice, remapper), 8);
+        for (int i = 0; i < nodeSplice.methods.size(); i++) {
+            if (methodSet.contains(nodeSplice.methods.get(i).name)) {
+                MethodNode mn = nodeSplice.methods.get(i);
+                boolean added = false;
+
+                for (int j = 0; j < nodeData.methods.size(); j++) {
+                    if (nodeData.methods.get(j).name.equals(mn.name)
+                            && nodeData.methods.get(j).desc.equals(mn.desc)) {
+                        System.out.println("Spliced in: " + targetClassName + "." + mn.name);
+                        nodeData.methods.set(j, mn);
                         added = true;
+                        break;
                     }
+                }
+
+                if (!added) {
+                    System.out.println("Added: " + targetClassName + "." + mn.name);
+                    nodeData.methods.add(mn);
+                    added = true;
                 }
             }
-            nodeData.accept(writer);
-            return writer.toByteArray();
         }
-        catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        nodeData.accept(writer);
+        return writer.toByteArray();
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
@@ -100,9 +104,13 @@ public class FoamFixTransformer implements IClassTransformer
             }
         }
 
-        if (FoamFixShared.enabledCoremodDeduplicator && FoamFixShared.config.clDeduplicate) {
-            if ("net.minecraftforge.client.model.pipeline.UnpackedBakedQuad".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.CachingUnpackedBakedQuad", transformedName, "<init>");
+        if (FoamFixShared.config.geSmallPropertyStorage) {
+            if ("net.minecraft.block.state.BlockStateContainer".equals(transformedName)) {
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.PropertyValueMapperBSCPatch", transformedName, "createState");
+            }
+
+            if ("net.minecraftforge.common.property.ExtendedBlockState".equals(transformedName)) {
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.PropertyValueMapperEBSPatch", transformedName, "createState");
             }
         }
 
