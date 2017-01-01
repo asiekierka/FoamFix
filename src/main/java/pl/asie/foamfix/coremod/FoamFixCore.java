@@ -36,19 +36,14 @@ import pl.asie.foamfix.shared.FoamFixShared;
 @IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFixAPI (or replace with FoamFixAPI-Lawful) and try again.")
 @IFMLLoadingPlugin.SortingIndex(1001)
 @IFMLLoadingPlugin.TransformerExclusions({"pl.asie.foamfix", "gnu.trove"})
-public class FoamFixCore extends DummyModContainer implements IFMLLoadingPlugin {
-    private static final ModMetadata md;
+public class FoamFixCore implements IFMLLoadingPlugin {
 
-    public FoamFixCore() {
-        super(FoamFixCore.md);
-    }
-    
     public String[] getASMTransformerClass() {
         return new String[] { "pl.asie.foamfix.coremod.FoamFixTransformer" };
     }
     
     public String getModContainerClass() {
-        return "pl.asie.foamfix.coremod.FoamFixCore";
+        return "pl.asie.foamfix.coremod.FoamFixCoreContainer";
     }
     
     public String getSetupClass() {
@@ -57,20 +52,10 @@ public class FoamFixCore extends DummyModContainer implements IFMLLoadingPlugin 
     
     public void injectData(final Map<String, Object> data) {
         FoamFixShared.enabled = true;
-//        FoamFixShared.enabledCoremodDeduplicator = true;
         FoamFixShared.config.init(new File(new File("config"), "foamfix.cfg"), true);
     }
     
     public String getAccessTransformerClass() {
         return null;
-    }
-
-    static {
-        md = new ModMetadata();
-        FoamFixCore.md.modId = "foamfixcore";
-        FoamFixCore.md.name = "FoamFixCore";
-        FoamFixCore.md.description = "Yes, I'm optional. Delete META-INF to disable?";
-        (FoamFixCore.md.authorList = new ArrayList()).add("asie");
-        FoamFixCore.md.version = "0.0.0";
     }
 }
