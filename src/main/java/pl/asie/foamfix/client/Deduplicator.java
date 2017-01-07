@@ -82,6 +82,7 @@ public class Deduplicator {
     private IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<float[][]>(HashingStrategies.FLOAT_ARRAY_ARRAY);
     private IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
     private IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
+    private IDeduplicatingStorage<ItemTransformVec3f> IT3_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_TRANSFORM_VEC3F);
     private Set<Object> deduplicatedObjects = new TCustomHashSet<Object>(HashingStrategies.IDENTITY);
 
     public Deduplicator() {
@@ -223,8 +224,14 @@ public class Deduplicator {
             } catch (Throwable t) {
                 t.printStackTrace();
             }
-        } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || (c == ItemCameraTransforms.class)) {
+        } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation) {
             return deduplicate0(o);
+        } else if (c == ItemCameraTransforms.class) {
+            Object d = deduplicate0(o);
+            if (d != o)
+                return d;
+            // TODO: Add ItemTransformVec3f dedup, maybe
+            return o;
         } else if (o instanceof Item || o instanceof Block || o instanceof World
                 || o instanceof Entity || o instanceof Logger || o instanceof IRegistry) {
             BLACKLIST_CLASS.add(c);

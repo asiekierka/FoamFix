@@ -104,6 +104,12 @@ public class FoamFixTransformer implements IClassTransformer
             }
         }
 
+        if (FoamFixShared.config.clBlockInfoPatch) {
+            if ("net.minecraftforge.client.model.pipeline.BlockInfo".equals(transformedName)) {
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.BlockInfoPatch", transformedName, "updateLightMatrix");
+            }
+        }
+
         if (FoamFixShared.config.geSmallPropertyStorage) {
             if ("net.minecraft.block.state.BlockStateContainer".equals(transformedName)) {
                 data = spliceMethods(data, "pl.asie.foamfix.common.FoamyBlockStateContainer", transformedName, "createState");

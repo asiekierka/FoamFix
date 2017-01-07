@@ -44,6 +44,7 @@ public final class HashingStrategies {
     public static final HashingStrategy GENERIC = new ObjectStrategy();
     public static final HashingStrategy IDENTITY = new IdentityHashingStrategy();
     public static final HashingStrategy<ItemCameraTransforms> ITEM_CAMERA_TRANSFORMS = new ItemCameraTransformsStrategy();
+    public static final HashingStrategy<ItemTransformVec3f> ITEM_TRANSFORM_VEC3F = new ItemTransformVecStrategy();
 
     private static final class ItemCameraTransformsStrategy implements HashingStrategy<ItemCameraTransforms> {
         @Override
@@ -71,6 +72,22 @@ public final class HashingStrategies {
                     && Objects.equals(o1.head, o2.head)
                     && Objects.equals(o1.thirdperson_left, o2.thirdperson_left)
                     && Objects.equals(o1.thirdperson_right, o2.thirdperson_right);
+        }
+    }
+
+    private static final class ItemTransformVecStrategy implements HashingStrategy<ItemTransformVec3f> {
+        @Override
+        public int computeHashCode(ItemTransformVec3f transform) {
+            int hash = 1;
+            for (org.lwjgl.util.vector.Vector3f vector : ImmutableSet.of(transform.rotation, transform.scale, transform.translation)) {
+                hash = ((hash * 31 + Float.floatToIntBits(vector.getX())) * 31 + Float.floatToIntBits(vector.getY())) * 31 + Float.floatToIntBits(vector.getZ());
+            }
+            return hash;
+        }
+
+        @Override
+        public boolean equals(ItemTransformVec3f o1, ItemTransformVec3f o2) {
+            return Objects.equals(o1, o2);
         }
     }
 

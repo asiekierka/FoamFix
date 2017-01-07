@@ -32,7 +32,7 @@ import java.io.File;
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
-	public boolean geBlockPosPatch, clTextureDoubleBuffering;
+	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
 	public int clDeduplicateRecursionLevel;
@@ -54,6 +54,7 @@ public class FoamFixConfig {
 				// clTextureDoubleBuffering = config.getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
 				geSmallPropertyStorage = config.getBoolean("smallPropertyStorage", "experimental", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = config.getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
+				clBlockInfoPatch = config.getBoolean("optimizedBlockInfo", "coremod", true, "Prevents BlockInfo from generating as many BlockPos objects; also, fixes a lighting bug.");
 			}
 
 			config.save();
