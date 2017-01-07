@@ -25,6 +25,9 @@
  */
 package pl.asie.foamfix.client;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ProgressManager;
 import pl.asie.foamfix.FoamFix;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -51,12 +54,15 @@ public class FoamFixModelDeduplicate {
             FoamFix.logger.info("Deduplicating models...");
             ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
 
+            ProxyClient.deduplicator.addObjects(Block.REGISTRY.getKeys());
+            ProxyClient.deduplicator.addObjects(Item.REGISTRY.getKeys());
 
             for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
                 IBakedModel model = event.getModelRegistry().getObject(loc);
                 String modelName = loc.toString();
                 bakeBar.step(String.format("[%s]", modelName));
                 try {
+                    ProxyClient.deduplicator.addObject(loc);
                     ProxyClient.deduplicator.deduplicateObject(model, 0);
                 } catch (Exception e) {
 

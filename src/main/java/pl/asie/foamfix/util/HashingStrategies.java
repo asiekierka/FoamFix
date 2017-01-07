@@ -25,11 +25,14 @@
  */
 package pl.asie.foamfix.util;
 
+import com.google.common.collect.ImmutableSet;
 import gnu.trove.strategy.HashingStrategy;
 import gnu.trove.strategy.IdentityHashingStrategy;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import net.minecraftforge.common.model.TRSRTransformation;
 
+import javax.vecmath.Vector3f;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -43,12 +46,17 @@ public final class HashingStrategies {
     public static final HashingStrategy<ItemCameraTransforms> ITEM_CAMERA_TRANSFORMS = new ItemCameraTransformsStrategy();
 
     private static final class ItemCameraTransformsStrategy implements HashingStrategy<ItemCameraTransforms> {
-
         @Override
         public int computeHashCode(ItemCameraTransforms object) {
-            return Objects.hash(object.firstperson_left, object.firstperson_right,
+            int hash = 1;
+            for (ItemTransformVec3f transform : ImmutableSet.of(object.firstperson_left, object.firstperson_right,
                     object.fixed, object.ground, object.gui, object.head,
-                    object.thirdperson_left, object.thirdperson_right);
+                    object.thirdperson_left, object.thirdperson_right)) {
+                for (org.lwjgl.util.vector.Vector3f vector : ImmutableSet.of(transform.rotation, transform.scale, transform.translation)) {
+                    hash = ((hash * 31 + Float.floatToIntBits(vector.getX())) * 31 + Float.floatToIntBits(vector.getY())) * 31 + Float.floatToIntBits(vector.getZ());
+                }
+            }
+            return hash;
         }
 
         @Override

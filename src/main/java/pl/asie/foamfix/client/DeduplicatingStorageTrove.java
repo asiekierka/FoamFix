@@ -28,11 +28,12 @@ package pl.asie.foamfix.client;
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
 
-public class DeduplicatingStorage<T> extends TCustomHashSet<T> {
-    public DeduplicatingStorage(HashingStrategy<T> strategy) {
+public class DeduplicatingStorageTrove<T> extends TCustomHashSet<T> implements IDeduplicatingStorage<T> {
+    public DeduplicatingStorageTrove(HashingStrategy<T> strategy) {
         super(strategy);
     }
 
+    @Override
     public T deduplicate(T o) {
         int i = index(o);
         if (i >= 0) {

@@ -36,7 +36,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -47,7 +46,6 @@ import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.HashingStrategies;
@@ -55,6 +53,7 @@ import pl.asie.foamfix.util.MethodHandleHelper;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -64,6 +63,7 @@ public class Deduplicator {
     private static final Set<Class> BLACKLIST_CLASS = new TCustomHashSet<Class>(HashingStrategies.IDENTITY);
     private static final Set<Class> TRIM_ARRAYS_CLASSES = new TCustomHashSet<Class>(HashingStrategies.IDENTITY);
     private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new IdentityHashMap<>();
+    private static final Map<Class, MethodHandle> COLLECTION_CONSTRUCTORS = new IdentityHashMap<>();
 
     private static final MethodHandle FIELD_UNPACKED_DATA_GETTER = MethodHandleHelper.findFieldGetter(UnpackedBakedQuad.class, "unpackedData");
     private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");
@@ -78,10 +78,10 @@ public class Deduplicator {
     public int successfuls = 0;
     public int maxRecursion = 0;
 
-    private DeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorage<float[]>(HashingStrategies.FLOAT_ARRAY);
-    private DeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorage<float[][]>(HashingStrategies.FLOAT_ARRAY_ARRAY);
-    private DeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorage(HashingStrategies.GENERIC);
-    private DeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorage<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
+    private IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<float[]>(HashingStrategies.FLOAT_ARRAY);
+    private IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<float[][]>(HashingStrategies.FLOAT_ARRAY_ARRAY);
+    private IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
+    private IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
     private Set<Object> deduplicatedObjects = new TCustomHashSet<Object>(HashingStrategies.IDENTITY);
 
     public Deduplicator() {
@@ -118,8 +118,18 @@ public class Deduplicator {
         // Intentionally smaller field sets in order to optimize
     }
 
-    public void addObjectsToObjectStorage(Collection<Object> coll) {
-        OBJECT_STORAGE.addAll(coll);
+    private boolean shouldCheckClass(Class c) {
+        return !BLACKLIST_CLASS.contains(c) && !c.isPrimitive() && !c.isEnum()
+                && !(c.isArray() && c.getComponentType().isPrimitive());
+    }
+
+    public void addObject(Object o) {
+        OBJECT_STORAGE.deduplicate(o);
+    }
+
+    public void addObjects(Collection coll) {
+        for (Object o : coll)
+            OBJECT_STORAGE.deduplicate(o);
     }
 
     public Object deduplicate0(Object o) {
@@ -150,7 +160,7 @@ public class Deduplicator {
         } else {
             Class c = o.getClass();
 
-            if (ResourceLocation.class == c) {
+            if (ResourceLocation.class == c || ModelResourceLocation.class == c) {
                 size = 16; // can't be bothered to measure string size
                 n = OBJECT_STORAGE.deduplicate(o);
             } else if (TRSRTransformation.class == c) {
@@ -172,14 +182,12 @@ public class Deduplicator {
     }
 
     public Object deduplicateObject(Object o, int recursion) {
-        if (o == null || recursion > maxRecursion)
+        if (o == null || recursion > maxRecursion || !deduplicatedObjects.add(o))
             return o;
 
         Class c = o.getClass();
-        if (BLACKLIST_CLASS.contains(c) || deduplicatedObjects.contains(o))
+        if (!shouldCheckClass(c))
             return o;
-        else
-            deduplicatedObjects.add(o);
 
         // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
 
@@ -218,9 +226,11 @@ public class Deduplicator {
         } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || (c == ItemCameraTransforms.class)) {
             return deduplicate0(o);
         } else if (o instanceof Item || o instanceof Block || o instanceof World
-                || o instanceof Entity || o instanceof Logger
-                || o instanceof IRegistry || c.isPrimitive() || c.isEnum()) {
+                || o instanceof Entity || o instanceof Logger || o instanceof IRegistry) {
             BLACKLIST_CLASS.add(c);
+        } else if (o != ItemOverrideList.NONE && c == ItemOverrideList.class && ((ItemOverrideList) o).getOverrides().isEmpty()) {
+            successfuls++;
+            return ItemOverrideList.NONE;
         } else if (o instanceof com.google.common.base.Optional) {
             Optional opt = (Optional) o;
             if (opt.isPresent()) {
@@ -257,28 +267,52 @@ public class Deduplicator {
             if (deduplicated) {
                 return ImmutableMap.copyOf(newMap);
             }
-        } else if (Map.class.isAssignableFrom(c)) {
+        } else if (o instanceof Map) {
             for (Object key : ((Map) o).keySet()) {
                 Object value = ((Map) o).get(key);
                 Object valueD = deduplicateObject(value, recursion + 1);
                 if (valueD != null && value != valueD)
                     ((Map) o).put(key, valueD);
             }
-        } else if (Collection.class.isAssignableFrom(c)) {
+        } else if (o instanceof List) {
+            List l = (List) o;
+            for (int i = 0; i < l.size(); i++) {
+                l.set(i, deduplicateObject(l.get(i), recursion + 1));
+            }
+        } else if (o instanceof Collection) {
+            if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
+                try {
+                    COLLECTION_CONSTRUCTORS.put(c, MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class)));
+                } catch (Exception e) {
+                    COLLECTION_CONSTRUCTORS.put(c, null);
+                }
+            }
+
+            MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(o);
+            if (constructor != null) {
+                try {
+                    Collection nc = (Collection) constructor.invoke();
+                    Iterator i = ((Collection) o).iterator();
+                    while (i.hasNext()) {
+                        nc.add(deduplicateObject(i.next(), recursion + 1));
+                    }
+                    return nc;
+                } catch (Throwable t) {
+
+                }
+            }
+
+            // fallback
             Iterator i = ((Collection) o).iterator();
             while (i.hasNext()) {
                 deduplicateObject(i.next(), recursion + 1);
             }
         } else if (c.isArray()) {
-            if (!c.getComponentType().isPrimitive()) {
-                for (int i = 0; i < Array.getLength(o); i++) {
-                    Object entry = Array.get(o, i);
-                    Object entryD = deduplicateObject(entry, recursion + 1);
-                    if (entryD != null && entry != entryD)
-                        Array.set(o, i, entryD);
-                }
-            } else {
-                BLACKLIST_CLASS.add(c);
+            for (int i = 0; i < Array.getLength(o); i++) {
+                Object entry = Array.get(o, i);
+                Object entryD = deduplicateObject(entry, recursion + 1);
+                if (entryD != null && entry != entryD)
+                    Array.set(o, i, entryD);
             }
         } else {
             if (!CLASS_FIELDS.containsKey(c)) {
@@ -290,7 +324,7 @@ public class Deduplicator {
                         if ((f.getModifiers() & Modifier.STATIC) != 0)
                             continue;
 
-                        if (!f.getType().isPrimitive() && !f.getType().isEnum() && !BLACKLIST_CLASS.contains(f.getType())) {
+                        if (shouldCheckClass(f.getType())) {
                             try {
                                 fsBuilder.add(new MethodHandle[]{
                                         MethodHandles.lookup().unreflectGetter(f),
