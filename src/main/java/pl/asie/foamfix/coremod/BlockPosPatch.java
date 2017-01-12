@@ -25,6 +25,7 @@
  */
 package pl.asie.foamfix.coremod;
 
+import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -35,6 +36,7 @@ import java.util.HashSet;
 public class BlockPosPatch {
 	private static final HashMap<String, String> mutableFieldSwaps = new HashMap<>();
 	private static final HashSet<String> mutableDeletedMethods = new HashSet<>();
+	private static final HashSet<String> mutableOwners = new HashSet<>();
 
 	static {
 		mutableFieldSwaps.put("x", "x");
@@ -52,6 +54,8 @@ public class BlockPosPatch {
 		mutableDeletedMethods.add("func_177958_n");
 		mutableDeletedMethods.add("func_177956_o");
 		mutableDeletedMethods.add("func_177952_p");
+
+		mutableOwners.add("net/minecraft/util/math/BlockPos$MutableBlockPos");
 	}
 
 	private static class BlockPosClassVisitor extends ClassVisitor {
@@ -60,6 +64,15 @@ public class BlockPosPatch {
 		public BlockPosClassVisitor(int api, ClassVisitor next, boolean isMutable) {
 			super(api, next);
 			this.isMutable = isMutable;
+		}
+
+		@Override
+		public void visit(int version, int access, String name, String signature,
+		                  String superName, String[] interfaces) {
+			if (mutableOwners.contains(superName)) {
+				mutableOwners.add(name);
+			}
+			cv.visit(version, access, name, signature, superName, interfaces);
 		}
 
 		@Override
@@ -91,7 +104,7 @@ public class BlockPosPatch {
 		@Override
 		public void visitFieldInsn(int opcode, String owner, String name,
 		                           String desc) {
-			if ("net/minecraft/util/math/BlockPos$MutableBlockPos".equals(owner)) {
+			if (mutableOwners.contains(owner)) {
 				String dst = mutableFieldSwaps.get(name);
 				if (dst != null) {
 					mv.visitFieldInsn(opcode, "net/minecraft/util/math/Vec3i", dst, desc);
