@@ -30,6 +30,7 @@ import net.minecraftforge.common.config.Configuration;
 import java.io.File;
 
 public class FoamFixConfig {
+	public boolean delayChunkUpdates = true;
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
 	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
@@ -38,6 +39,7 @@ public class FoamFixConfig {
 	public int clDeduplicateRecursionLevel;
 
 	private Configuration config;
+	public boolean geSmallLightingOptimize = false;
 
 	public void init(File file, boolean isCoremod) {
 		if (config == null) {
@@ -55,6 +57,8 @@ public class FoamFixConfig {
 				geSmallPropertyStorage = config.getBoolean("smallPropertyStorage", "experimental", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = config.getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 				clBlockInfoPatch = config.getBoolean("optimizedBlockInfo", "coremod", true, "Prevents BlockInfo from generating as many BlockPos objects; also, fixes a lighting bug.");
+				geSmallLightingOptimize = config.getBoolean("smallLightingOptimize", "experimental", true, "Currently minor lighting calculation code optimization.");
+				delayChunkUpdates = config.getBoolean("delayChunkRenderUpdates", "experimental", true, "Delays chunk render updates to prevent stutter at the cost of minor chunk render update lag.");
 			}
 
 			config.save();

@@ -38,6 +38,7 @@ import com.google.common.io.ByteStreams;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 public class FoamFixTransformer implements IClassTransformer
@@ -117,6 +118,18 @@ public class FoamFixTransformer implements IClassTransformer
 
             if ("net.minecraftforge.common.property.ExtendedBlockState".equals(transformedName)) {
                 data = spliceMethods(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer", transformedName, "createState");
+            }
+        }
+
+        if (FoamFixShared.config.geSmallLightingOptimize) {
+            if ("net.minecraft.world.World".equals(transformedName)) {
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.WorldLightingPatch", transformedName, "checkLightFor");
+            }
+        }
+
+        if (FoamFixShared.config.delayChunkUpdates) {
+            if ("net.minecraft.client.renderer.chunk.ChunkRenderDispatcher".equals(transformedName)) {
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.ChunkRenderDispatcherPatch", transformedName, "updateChunkNow");
             }
         }
 
