@@ -17,9 +17,25 @@ public class ChunkRenderDispatcherPatch {
 	}
 
 	public boolean updateChunkNow(RenderChunk chunkRenderer) {
-		// TODO: Make the latter a config option again if we use this method for sth else
-//		if (FoamFixShared.config.delayChunkUpdates) {
+		if (!chunkRenderer.isNeedsUpdateCustom()) {
 			return updateChunkLater(chunkRenderer);
-//		}
+		}
+
+		chunkRenderer.getLockCompileTask().lock();
+		boolean flag;
+
+		try {
+			ChunkCompileTaskGenerator chunkcompiletaskgenerator = chunkRenderer.makeCompileTaskChunk();
+
+			try {
+				this.renderWorker.processTask(chunkcompiletaskgenerator);
+			} catch (InterruptedException var7) { }
+
+			flag = true;
+		} finally {
+			chunkRenderer.getLockCompileTask().unlock();
+		}
+
+		return flag;
 	}
 }
