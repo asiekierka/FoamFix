@@ -36,7 +36,6 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import java.io.File;
 
 public class FoamFixConfig {
-	public boolean delayChunkUpdates = true;
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry;
 	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
@@ -79,7 +78,6 @@ public class FoamFixConfig {
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 				clBlockInfoPatch = getBoolean("optimizedBlockInfo", "coremod", true, "Prevents BlockInfo from generating as many BlockPos objects; also, fixes a lighting bug.");
 				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
-				delayChunkUpdates = getBoolean("delayChunkRenderUpdates", "experimental", true, "Delays chunk render updates to prevent stutter at the cost of minor chunk render update lag.", "(,13.20.0.2220)");
 			}
 
 			config.save();
