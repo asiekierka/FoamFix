@@ -46,26 +46,29 @@ import java.util.Set;
 
 public class ProxyCommon {
 	private void optimizeLaunchWrapper() {
-		LaunchClassLoader loader = (LaunchClassLoader) this.getClass().getClassLoader();
-		Field resourceCacheField = ReflectionHelper.findField(LaunchClassLoader.class, "resourceCache");
-		Field packageManifestsField = ReflectionHelper.findField(LaunchClassLoader.class, "packageManifests");
 		if (FoamFixShared.config.lwWeakenResourceCache) {
 			FoamFix.logger.info("Weakening LaunchWrapper resource cache...");
 			try {
+				LaunchClassLoader loader = (LaunchClassLoader) this.getClass().getClassLoader();
+
+				Field resourceCacheField = ReflectionHelper.findField(LaunchClassLoader.class, "resourceCache");
 				Map oldResourceCache = (Map) resourceCacheField.get(loader);
 				Map newResourceCache = CacheBuilder.newBuilder().weakValues().build().asMap();
 				newResourceCache.putAll(oldResourceCache);
 				resourceCacheField.set(loader, newResourceCache);
-			} catch (IllegalAccessException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+
 		if (FoamFixShared.config.lwDummyPackageManifestMap) {
 			FoamFix.logger.info("Dummying out LaunchWrapper's unused package manifests...");
 			try {
-				// Map<Package, Manifest> packageManifests = (Map) packageManifestsField.get(loader);
+				LaunchClassLoader loader = (LaunchClassLoader) this.getClass().getClassLoader();
+
+				Field packageManifestsField = ReflectionHelper.findField(LaunchClassLoader.class, "packageManifests");
 				packageManifestsField.set(loader, new PretendPackageMap());
-			} catch (IllegalAccessException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
