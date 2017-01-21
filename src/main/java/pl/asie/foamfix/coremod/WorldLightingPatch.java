@@ -18,10 +18,6 @@ public class WorldLightingPatch extends World {
 		super(saveHandlerIn, info, providerIn, profilerIn, client);
 	}
 
-	private int getRawLight(BlockPos pos, EnumSkyBlock lightType) {
-		return 0;
-	}
-
 	// TODO: Actually optimize (for now, we just mutablify some BlockPos objects)
 	@Override
 	public boolean checkLightFor(EnumSkyBlock lightType, BlockPos pos) {

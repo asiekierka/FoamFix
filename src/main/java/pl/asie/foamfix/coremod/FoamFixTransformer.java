@@ -26,6 +26,7 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -107,29 +108,40 @@ public class FoamFixTransformer implements IClassTransformer
 
         if (FoamFixShared.config.clBlockInfoPatch) {
             if ("net.minecraftforge.client.model.pipeline.BlockInfo".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.BlockInfoPatch", transformedName, "updateLightMatrix");
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.BlockInfoPatch", transformedName,
+                        "updateLightMatrix");
             }
         }
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
             if ("net.minecraft.block.state.BlockStateContainer".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyBlockStateContainer", transformedName, "createState");
+                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyBlockStateContainer", transformedName,
+                        "createState");
             }
 
             if ("net.minecraftforge.common.property.ExtendedBlockState".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer", transformedName, "createState");
+                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer", transformedName,
+                        "createState");
             }
         }
 
         if (FoamFixShared.config.geSmallLightingOptimize) {
             if ("net.minecraft.world.World".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.WorldLightingPatch", transformedName, "checkLightFor");
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.WorldLightingPatch", transformedName,
+                        "checkLightFor","func_180500_c");
             }
         }
 
         if (FoamFixShared.config.delayChunkUpdates) {
             if ("net.minecraft.client.renderer.chunk.ChunkRenderDispatcher".equals(transformedName)) {
                 data = spliceMethods(data, "pl.asie.foamfix.coremod.ChunkRenderDispatcherPatch", transformedName, "updateChunkNow");
+            }
+        }
+
+        if (FoamFixShared.config.geImmediateLightingUpdates) {
+            if ("net.minecraft.client.renderer.RenderGlobal".equals(transformedName)) {
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.RenderGlobalImmediatePatch", transformedName,
+                        "notifyLightSet","func_174959_b");
             }
         }
 

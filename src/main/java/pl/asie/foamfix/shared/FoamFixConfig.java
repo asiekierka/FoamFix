@@ -42,6 +42,8 @@ public class FoamFixConfig {
 	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
+	public boolean geImmediateLightingUpdates;
+
 	public int clDeduplicateRecursionLevel;
 
 	private Configuration config;
@@ -72,13 +74,14 @@ public class FoamFixConfig {
 			clDeduplicateRecursionLevel = config.getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.");
 			clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.");
 			geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", "(,13.19.1.2190)");
+			geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "expert", false, "Do not delay lighting updates over other types of updates.");
 
 			if (isCoremod) {
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
 				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "experimental", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 				clBlockInfoPatch = getBoolean("optimizedBlockInfo", "coremod", true, "Prevents BlockInfo from generating as many BlockPos objects; also, fixes a lighting bug.");
-				// geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Currently minor lighting calculation code optimization.");
+				geSmallLightingOptimize = getBoolean("lightingDecreaseGC", "experimental", true, "Decrease the amount of GC churn during World lighting updates by ~25%. Warning: if optimizedBlockPos is disabled, it might be less performant CPU-wise.");
 				delayChunkUpdates = getBoolean("delayChunkRenderUpdates", "experimental", true, "Delays chunk render updates to prevent stutter at the cost of minor chunk render update lag.", "(,13.20.0.2220)");
 			}
 
