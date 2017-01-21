@@ -1,5 +1,6 @@
 package pl.asie.foamfix.coremod;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -57,20 +58,22 @@ public class WorldLightingPatch extends World {
 							int distX = MathHelper.abs_int(checkedX - posX);
 							int distY = MathHelper.abs_int(checkedY - posY);
 							int distZ = MathHelper.abs_int(checkedZ - posZ);
+							boolean hasSpace = toCheckCount < this.lightUpdateBlockList.length - 6;
 
-							if (distX + distY + distZ < 17) {
+							if (distX + distY + distZ < 17 && hasSpace) {
 								BlockPos.PooledMutableBlockPos neighborPos = BlockPos.PooledMutableBlockPos.retain();
 
-								for (EnumFacing enumfacing : EnumFacing.values()) {
+								for (EnumFacing enumfacing : EnumFacing.VALUES) {
 									int neighborX = checkedX + enumfacing.getFrontOffsetX();
 									int neighborY = checkedY + enumfacing.getFrontOffsetY();
 									int neighborZ = checkedZ + enumfacing.getFrontOffsetZ();
 									neighborPos.setPos(neighborX, neighborY, neighborZ);
+									IBlockState neighborState = this.getBlockState(neighborPos);
 
-									int l4 = Math.max(1, this.getBlockState(neighborPos).getBlock().getLightOpacity(this.getBlockState(neighborPos), this, neighborPos));
+									int l4 = Math.max(1, neighborState.getBlock().getLightOpacity(neighborState, this, neighborPos));
 									checkedCurrLight = this.getLightFor(lightType, neighborPos);
 
-									if (checkedCurrLight == checkedNewLight - l4 && toCheckCount < this.lightUpdateBlockList.length) {
+									if (checkedCurrLight == checkedNewLight - l4) {
 										this.lightUpdateBlockList[toCheckCount++] = neighborX - posX + 32 | neighborY - posY + 32 << 6 | neighborZ - posZ + 32 << 12 | checkedNewLight - l4 << 18;
 									}
 								}

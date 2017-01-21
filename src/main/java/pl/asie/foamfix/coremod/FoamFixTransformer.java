@@ -132,12 +132,6 @@ public class FoamFixTransformer implements IClassTransformer
             }
         }
 
-        if (FoamFixShared.config.delayChunkUpdates) {
-            if ("net.minecraft.client.renderer.chunk.ChunkRenderDispatcher".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.ChunkRenderDispatcherPatch", transformedName, "updateChunkNow");
-            }
-        }
-
         if (FoamFixShared.config.geImmediateLightingUpdates) {
             if ("net.minecraft.client.renderer.RenderGlobal".equals(transformedName)) {
                 data = spliceMethods(data, "pl.asie.foamfix.coremod.RenderGlobalImmediatePatch", transformedName,
