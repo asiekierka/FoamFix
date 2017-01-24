@@ -26,11 +26,9 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassWriter;
@@ -38,22 +36,22 @@ import org.objectweb.asm.ClassReader;
 import com.google.common.io.ByteStreams;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 public class FoamFixTransformer implements IClassTransformer
 {
-    public byte[] spliceMethods(final byte[] data, final String className, final String targetClassName, final String... methods) {
+    public byte[] spliceClasses(final byte[] data, final String className, final String targetClassName, final String... methods) {
         try {
             final byte[] dataSplice = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream(className.replace('.', '/') + ".class"));
-            return spliceMethods(data, dataSplice, className, targetClassName, methods);
+            return spliceClasses(data, dataSplice, className, targetClassName, methods);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public byte[] spliceMethods(final byte[] data, final byte[] dataSplice, final String className, final String targetClassName, final String... methods) {
+    public byte[] spliceClasses(final byte[] data, final byte[] dataSplice, final String className, final String targetClassName, final String... methods) {
         final Set<String> methodSet = Sets.newHashSet(methods);
 
         final ClassReader readerData = new ClassReader(data);
@@ -78,7 +76,7 @@ public class FoamFixTransformer implements IClassTransformer
                 for (int j = 0; j < nodeData.methods.size(); j++) {
                     if (nodeData.methods.get(j).name.equals(mn.name)
                             && nodeData.methods.get(j).desc.equals(mn.desc)) {
-                        System.out.println("Spliced in: " + targetClassName + "." + mn.name);
+                        System.out.println("Spliced in METHOD: " + targetClassName + "." + mn.name);
                         nodeData.methods.set(j, mn);
                         added = true;
                         break;
@@ -86,8 +84,31 @@ public class FoamFixTransformer implements IClassTransformer
                 }
 
                 if (!added) {
-                    System.out.println("Added: " + targetClassName + "." + mn.name);
+                    System.out.println("Added METHOD: " + targetClassName + "." + mn.name);
                     nodeData.methods.add(mn);
+                    added = true;
+                }
+            }
+        }
+
+        for (int i = 0; i < nodeSplice.fields.size(); i++) {
+            if (methodSet.contains(nodeSplice.fields.get(i).name)) {
+                FieldNode mn = nodeSplice.fields.get(i);
+                boolean added = false;
+
+                for (int j = 0; j < nodeData.fields.size(); j++) {
+                    if (nodeData.fields.get(j).name.equals(mn.name)
+                            && nodeData.fields.get(j).desc.equals(mn.desc)) {
+                        System.out.println("Spliced in FIELD: " + targetClassName + "." + mn.name);
+                        nodeData.fields.set(j, mn);
+                        added = true;
+                        break;
+                    }
+                }
+
+                if (!added) {
+                    System.out.println("Added FIELD: " + targetClassName + "." + mn.name);
+                    nodeData.fields.add(mn);
                     added = true;
                 }
             }
@@ -108,36 +129,41 @@ public class FoamFixTransformer implements IClassTransformer
 
         if (FoamFixShared.config.clBlockInfoPatch) {
             if ("net.minecraftforge.client.model.pipeline.BlockInfo".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.blockinfo.BlockInfoPatch", transformedName,
+                data = spliceClasses(data, "pl.asie.foamfix.coremod.blockinfo.BlockInfoPatch", transformedName,
                         "updateLightMatrix");
             }
         }
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
             if ("net.minecraft.block.state.BlockStateContainer".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyBlockStateContainer", transformedName,
+                data = spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer", transformedName,
                         "createState");
             }
 
             if ("net.minecraftforge.common.property.ExtendedBlockState".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer", transformedName,
+                data = spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer", transformedName,
                         "createState");
             }
         }
 
         if (FoamFixShared.config.geSmallLightingOptimize) {
             if ("net.minecraft.world.World".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.WorldLightingPatch", transformedName,
+                data = spliceClasses(data, "pl.asie.foamfix.coremod.WorldLightingPatch", transformedName,
                         "checkLightFor","func_180500_c");
             }
         }
 
         if (FoamFixShared.config.geImmediateLightingUpdates) {
             if ("net.minecraft.client.renderer.RenderGlobal".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.RenderGlobalImmediatePatch", transformedName,
+                data = spliceClasses(data, "pl.asie.foamfix.coremod.RenderGlobalImmediatePatch", transformedName,
                         "notifyLightSet","func_174959_b");
             }
         }
+
+        /* if ("net.minecraftforge.client.model.pipeline.VertexLighterSmoothAo".equals(transformedName)) {
+            data = spliceClasses(data, "pl.asie.foamfix.coremod.VertexLighterSmoothAoPatch", transformedName,
+                    "updateLightmap", "setBlockPos", "lightmapCache");
+        } */
 
         /* if ("net.minecraft.client.Minecraft".equals(transformedName)) {
             data = MinecraftPatch.patchMinecraft(data);

@@ -12,15 +12,13 @@ public class ChunkInfo {
 	private final int[][][] b = new int[18][18][18];
 	private final float[][][] ao = new float[18][18][18];
 
-	private final IBlockAccess access;
 	private final BlockPos pos;
 
-	public ChunkInfo(IBlockAccess access, BlockPos pos) {
-		this.access = access;
+	public ChunkInfo(BlockPos pos) {
 		this.pos = pos.add(-1, -1, -1);
 	}
 
-	public boolean fill(BlockPos blockPos, boolean[][][] translucent, int[][][] s, int[][][] b, float[][][] ao) {
+	public boolean fill(IBlockAccess access, BlockPos blockPos, boolean[][][] translucent, int[][][] s, int[][][] b, float[][][] ao) {
 		int xo = blockPos.getX() - 1 - pos.getX();
 		int yo = blockPos.getY() - 1 - pos.getY();
 		int zo = blockPos.getZ() - 1 - pos.getZ();
@@ -33,7 +31,7 @@ public class ChunkInfo {
 					int zb = zo+z;
 
 					if (!initialized[xb][yb][zb])
-						initialize(xb,yb,zb);
+						initialize(access,xb,yb,zb);
 
 					translucent[x][y][z] = this.translucent[xb][yb][zb];
 					s[x][y][z] = this.s[xb][yb][zb];
@@ -46,7 +44,7 @@ public class ChunkInfo {
 		return fullCube[xo+1][yo+1][zo+1];
 	}
 
-	private void initialize(int x, int y, int z) {
+	private void initialize(IBlockAccess access, int x, int y, int z) {
 		BlockPos pos = this.pos.add(x, y, z);
 		IBlockState state = access.getBlockState(pos);
 		translucent[x][y][z] = state.isTranslucent();
@@ -56,15 +54,6 @@ public class ChunkInfo {
 		ao[x][y][z] = state.getAmbientOcclusionLightValue();
 		fullCube[x][y][z] = state.isFullCube();
 		initialized[x][y][z] = true;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof ChunkInfo))
-			return false;
-
-		ChunkInfo cOther = (ChunkInfo) other;
-		return cOther.access == access && cOther.pos.equals(pos);
 	}
 
 	@Override

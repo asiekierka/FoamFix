@@ -15,7 +15,7 @@ public class ChunkInfoProvider {
 		if (access instanceof ChunkCache) {
 			ChunkInfo info = infoMap.get(access);
 			if (info == null) {
-				info = new ChunkInfo(access, new BlockPos(pos.getX() & (~15), pos.getY() & (~15), pos.getZ() & (~15)));
+				info = new ChunkInfo(new BlockPos(pos.getX() & (~15), pos.getY() & (~15), pos.getZ() & (~15)));
 				infoMap.put((ChunkCache) access, info);
 			}
 			return info;

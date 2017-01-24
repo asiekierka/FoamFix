@@ -23,7 +23,7 @@ public class BlockInfoPatch {
 		ChunkInfo chunkInfo = ChunkInfoProvider.getChunkInfo(world, blockPos);
 		if (chunkInfo != null) {
 			// cached route
-			full = chunkInfo.fill(blockPos, translucent, s, b, ao);
+			full = chunkInfo.fill(world, blockPos, translucent, s, b, ao);
 		} else {
 			// slow route
 			BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
