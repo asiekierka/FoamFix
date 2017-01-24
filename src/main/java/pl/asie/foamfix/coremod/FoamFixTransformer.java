@@ -108,7 +108,7 @@ public class FoamFixTransformer implements IClassTransformer
 
         if (FoamFixShared.config.clBlockInfoPatch) {
             if ("net.minecraftforge.client.model.pipeline.BlockInfo".equals(transformedName)) {
-                data = spliceMethods(data, "pl.asie.foamfix.coremod.BlockInfoPatch", transformedName,
+                data = spliceMethods(data, "pl.asie.foamfix.coremod.blockinfo.BlockInfoPatch", transformedName,
                         "updateLightMatrix");
             }
         }
