@@ -25,7 +25,6 @@
  */
 package pl.asie.foamfix.coremod;
 
-import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;

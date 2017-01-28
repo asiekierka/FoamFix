@@ -28,13 +28,11 @@ package pl.asie.foamfix.util;
 import com.google.common.collect.Sets;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.FoamFix;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
 import java.util.Map;
 
 public final class FoamUtils {

@@ -30,9 +30,7 @@ import gnu.trove.strategy.HashingStrategy;
 import gnu.trove.strategy.IdentityHashingStrategy;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
-import net.minecraftforge.common.model.TRSRTransformation;
 
-import javax.vecmath.Vector3f;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -62,16 +60,18 @@ public final class HashingStrategies {
 
         @Override
         public boolean equals(ItemCameraTransforms o1, ItemCameraTransforms o2) {
-            if (o1 == null) return o1 == o2;
-
-            return Objects.equals(o1.firstperson_left, o2.firstperson_left)
-                    && Objects.equals(o1.firstperson_right, o2.firstperson_right)
-                    && Objects.equals(o1.fixed, o2.fixed)
-                    && Objects.equals(o1.ground, o2.ground)
-                    && Objects.equals(o1.gui, o2.gui)
-                    && Objects.equals(o1.head, o2.head)
-                    && Objects.equals(o1.thirdperson_left, o2.thirdperson_left)
-                    && Objects.equals(o1.thirdperson_right, o2.thirdperson_right);
+            if (o1 == null) {
+                return o2 == null;
+            } else {
+                return Objects.equals(o1.firstperson_left, o2.firstperson_left)
+                        && Objects.equals(o1.firstperson_right, o2.firstperson_right)
+                        && Objects.equals(o1.fixed, o2.fixed)
+                        && Objects.equals(o1.ground, o2.ground)
+                        && Objects.equals(o1.gui, o2.gui)
+                        && Objects.equals(o1.head, o2.head)
+                        && Objects.equals(o1.thirdperson_left, o2.thirdperson_left)
+                        && Objects.equals(o1.thirdperson_right, o2.thirdperson_right);
+            }
         }
     }
 
@@ -143,8 +143,8 @@ public final class HashingStrategies {
         @Override
         public int computeHashCode(float[][] object) {
             int hash = 1;
-            for (int i = 0; i < object.length; i++) {
-                hash = hash * 31 + Arrays.hashCode(object[i]);
+            for (float[] anObject : object) {
+                hash = hash * 31 + Arrays.hashCode(anObject);
             }
             return hash;
         }
@@ -152,7 +152,7 @@ public final class HashingStrategies {
         @Override
         public boolean equals(float[][] o1, float[][] o2) {
             if (o1 == null) {
-                return o1 == o2;
+                return o2 == null;
             } else {
                 if (o1.length != o2.length)
                     return false;

@@ -28,16 +28,11 @@ package pl.asie.foamfix;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.BiMap;
 import net.minecraft.launchwrapper.LaunchClassLoader;
-import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
-import net.minecraftforge.fml.common.registry.PersistentRegistryManager;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import pl.asie.foamfix.shared.FoamFixConfig;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.common.PretendPackageMap;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.BitSet;

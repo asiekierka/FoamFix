@@ -6,7 +6,6 @@ import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FoamFixCoreContainer extends DummyModContainer {
@@ -31,7 +30,7 @@ public class FoamFixCoreContainer extends DummyModContainer {
         md.modId = "foamfixcore";
         md.name = "FoamFixCore";
         md.description = "I'm actually just an optional part of FoamFix, available exclusively as part of the Anarchy version!";
-        (md.authorList = new ArrayList()).add("asie");
+        md.authorList = ImmutableList.of("asie");
         md.version = "7.7.4";
     }
 }

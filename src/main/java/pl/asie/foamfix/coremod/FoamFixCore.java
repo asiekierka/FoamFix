@@ -26,11 +26,9 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Map;
-import net.minecraftforge.fml.common.ModMetadata;
+
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import net.minecraftforge.fml.common.DummyModContainer;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 @IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFixAPI (or replace with FoamFixAPI-Lawful) and try again.")

@@ -28,7 +28,7 @@ public class PropertyValueMapper {
 		private final int bitSize;
 		private final int bits;
 
-		public Entry(IProperty property) {
+		private Entry(IProperty property) {
 			this.property = property;
 			this.values = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 			this.bitSize = MathHelper.roundUpToPowerOfTwo(property.getAllowedValues().size());
@@ -65,26 +65,19 @@ public class PropertyValueMapper {
 	}
 
 	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
-	private static final Map<Object, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
+	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
 	private final Entry[] entryList;
 	private final TObjectIntMap<IProperty> entryPositionMap;
-	private final IProperty[] propertyMap;
 	private final IBlockState[] stateMap;
 
 	public PropertyValueMapper(BlockStateContainer container) {
 		Collection<IProperty<?>> properties = container.getProperties();
 
-		this.propertyMap = new IProperty[properties.size()];
-		int i = 0;
-		for (IProperty<?> property : properties) {
-			propertyMap[i++] = property;
-		}
-
 		entryList = new Entry[properties.size()];
 		List<IProperty<?>> propertiesSortedFitness = new ArrayList<>(properties);
 		Collections.sort(propertiesSortedFitness, COMPARATOR_BIT_FITNESS);
-		i = 0;
+		int i = 0;
 		for (IProperty p : propertiesSortedFitness) {
 			entryList[i++] = getPropertyEntry(p);
 		}
@@ -105,10 +98,10 @@ public class PropertyValueMapper {
 		}
 	}
 
-	public static PropertyValueMapper getOrCreate(Object owner) {
+	public static PropertyValueMapper getOrCreate(BlockStateContainer owner) {
 		PropertyValueMapper e = mapperMap.get(owner);
 		if (e == null) {
-			e = new PropertyValueMapper((BlockStateContainer) owner);
+			e = new PropertyValueMapper(owner);
 			mapperMap.put(owner, e);
 		}
 		return e;

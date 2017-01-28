@@ -27,7 +27,6 @@ package pl.asie.foamfix.client;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ProgressManager;
 import pl.asie.foamfix.FoamFix;
 import net.minecraft.client.renderer.block.model.IBakedModel;

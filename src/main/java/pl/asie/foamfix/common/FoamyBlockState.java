@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class FoamyBlockState extends BlockStateContainer.StateImplementation {
 	protected final PropertyValueMapper owner;
-	protected ImmutableMap < IProperty<?>, Comparable<? >> properties;
+	protected final ImmutableMap<IProperty<?>, Comparable<?>> properties;
 	protected int value;
 
 	public FoamyBlockState(PropertyValueMapper owner, Block blockIn, ImmutableMap < IProperty<?>, Comparable<? >> propertiesIn) {
@@ -21,7 +21,7 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation {
 
 	@Override
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V value) {
-		Comparable<?> comparable = (Comparable)this.properties.get(property);
+		Comparable<?> comparable = this.properties.get(property);
 
 		if (comparable == null) {
 			throw new IllegalArgumentException("Cannot set property " + property + " as it does not exist in " + this.getBlock().getBlockState());

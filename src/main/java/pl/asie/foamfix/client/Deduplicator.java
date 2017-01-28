@@ -59,9 +59,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+@SuppressWarnings("deprecation")
 public class Deduplicator {
-    private static final Set<Class> BLACKLIST_CLASS = new TCustomHashSet<Class>(HashingStrategies.IDENTITY);
-    private static final Set<Class> TRIM_ARRAYS_CLASSES = new TCustomHashSet<Class>(HashingStrategies.IDENTITY);
+    private static final Set<Class> BLACKLIST_CLASS = new TCustomHashSet<>(HashingStrategies.IDENTITY);
+    private static final Set<Class> TRIM_ARRAYS_CLASSES = new TCustomHashSet<>(HashingStrategies.IDENTITY);
     private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new IdentityHashMap<>();
     private static final Map<Class, MethodHandle> COLLECTION_CONSTRUCTORS = new IdentityHashMap<>();
 
@@ -78,12 +79,12 @@ public class Deduplicator {
     public int successfuls = 0;
     public int maxRecursion = 0;
 
-    private IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<float[]>(HashingStrategies.FLOAT_ARRAY);
-    private IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<float[][]>(HashingStrategies.FLOAT_ARRAY_ARRAY);
-    private IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
-    private IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
-    private IDeduplicatingStorage<ItemTransformVec3f> IT3_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_TRANSFORM_VEC3F);
-    private Set<Object> deduplicatedObjects = new TCustomHashSet<Object>(HashingStrategies.IDENTITY);
+    private final IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY);
+    private final IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY_ARRAY);
+    private final IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
+    private final IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
+    // private final IDeduplicatingStorage<ItemTransformVec3f> IT3_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_TRANSFORM_VEC3F);
+    private final Set<Object> deduplicatedObjects = new TCustomHashSet<>(HashingStrategies.IDENTITY);
 
     public Deduplicator() {
     }
@@ -295,13 +296,12 @@ public class Deduplicator {
                 }
             }
 
-            MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(o);
+            MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(c);
             if (constructor != null) {
                 try {
                     Collection nc = (Collection) constructor.invoke();
-                    Iterator i = ((Collection) o).iterator();
-                    while (i.hasNext()) {
-                        nc.add(deduplicateObject(i.next(), recursion + 1));
+                    for (Object o1 : ((Collection) o)) {
+                        nc.add(deduplicateObject(o1, recursion + 1));
                     }
                     return nc;
                 } catch (Throwable t) {
@@ -310,9 +310,8 @@ public class Deduplicator {
             }
 
             // fallback
-            Iterator i = ((Collection) o).iterator();
-            while (i.hasNext()) {
-                deduplicateObject(i.next(), recursion + 1);
+            for (Object o1 : ((Collection) o)) {
+                deduplicateObject(o1, recursion + 1);
             }
         } else if (c.isArray()) {
             for (int i = 0; i < Array.getLength(o); i++) {

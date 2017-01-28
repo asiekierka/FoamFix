@@ -74,7 +74,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		{
 			throw new IllegalArgumentException("Cannot set unlisted property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(getBlock()) + ", it is not an allowed value");
 		}
-		Map<IUnlistedProperty<?>, Optional<?>> newMap = new HashMap<IUnlistedProperty<?>, Optional<?>>(unlistedProperties);
+		Map<IUnlistedProperty<?>, Optional<?>> newMap = new HashMap<>(unlistedProperties);
 		newMap.put(property, Optional.fromNullable(value));
 		if(Iterables.all(newMap.values(), Predicates.<Optional<?>>equalTo(Optional.absent())))
 		{ // no dynamic properties, lookup normal state
