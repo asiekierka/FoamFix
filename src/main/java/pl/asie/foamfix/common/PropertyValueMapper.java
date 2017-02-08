@@ -50,7 +50,7 @@ public class PropertyValueMapper {
 			return values.get(v);
 		}
 
-		@Override
+		/* @Override
 		public boolean equals(Object other) {
 			if (!(other instanceof Entry))
 				return false;
@@ -61,7 +61,7 @@ public class PropertyValueMapper {
 		@Override
 		public int hashCode() {
 			return property.hashCode();
-		}
+		} */
 	}
 
 	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
