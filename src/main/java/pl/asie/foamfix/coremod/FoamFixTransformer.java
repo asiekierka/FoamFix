@@ -31,6 +31,7 @@ import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import jdk.internal.org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassWriter;
@@ -44,6 +45,14 @@ import pl.asie.foamfix.shared.FoamFixShared;
 
 public class FoamFixTransformer implements IClassTransformer
 {
+    // TODO: NEW, INVOKESPECIAL.<init> PATCHER
+    public byte[] replaceConstructor(final byte[] data, final String className, final String from, final String to, final String... methods) {
+        final ClassReader reader = new ClassReader(data);
+        final ClassWriter writer = new ClassWriter(8);
+        reader.accept(new FoamFixConstructorReplacer(from, to, methods).getClassVisitor(Opcodes.ASM5, writer), 8);
+        return writer.toByteArray();
+    }
+
     public byte[] spliceClasses(final byte[] data, final String className, final String targetClassName, final String... methods) {
         try {
             final byte[] dataSplice = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream(className.replace('.', '/') + ".class"));
@@ -69,6 +78,7 @@ public class FoamFixTransformer implements IClassTransformer
                 return className2.equals(name) ? targetClassName2 : name;
             }
         };
+
         ClassNode nodeData = new ClassNode();
         ClassNode nodeSplice = new ClassNode();
         readerData.accept(nodeData, 8);
@@ -175,6 +185,13 @@ public class FoamFixTransformer implements IClassTransformer
             if ("net.minecraftforge.client.model.ItemLayerModel".equals(transformedName)) {
                 data = spliceClasses(data, "pl.asie.foamfix.client.FoamFixDynamicItemModels", transformedName,
                         "bake", "bake");
+            }
+        }
+
+        if (FoamFixShared.config.clFasterResourceLoading) {
+            if ("net.minecraft.client.Minecraft".equals(transformedName)) {
+                data = replaceConstructor(data, transformedName, "net.minecraft.client.resources.DefaultResourcePack",
+                        "pl.asie.foamfix.client.FoamyDefaultResourcePack", "<init>");
             }
         }
 

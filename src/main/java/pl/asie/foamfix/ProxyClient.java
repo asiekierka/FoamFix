@@ -34,16 +34,21 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.DefaultResourcePack;
+import net.minecraft.client.resources.ResourceIndex;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.client.Deduplicator;
 import pl.asie.foamfix.client.FoamFixDynamicItemModels;
 import pl.asie.foamfix.client.FoamFixModelDeduplicate;
 import pl.asie.foamfix.client.FoamFixModelRegistryDuplicateWipe;
+import pl.asie.foamfix.client.FoamyDefaultResourcePack;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
@@ -98,6 +103,22 @@ public class ProxyClient extends ProxyCommon {
 
 		if (FoamFixShared.config.clDynamicItemModels) {
 			FoamFixDynamicItemModels.register();
+		}
+
+		if (FoamFixShared.config.clFasterResourceLoading) {
+			try {
+				Field f1 = ReflectionHelper.findField(Minecraft.class, "mcDefaultResourcePack", "field_110450_ap");
+				Field f2 = ReflectionHelper.findField(Minecraft.class, "defaultResourcePacks", "field_110449_ao");
+				Field f3 = ReflectionHelper.findField(DefaultResourcePack.class, "resourceIndex", "field_188549_b");
+				Object o = f1.get(Minecraft.getMinecraft());
+				List l = (List) f2.get(Minecraft.getMinecraft());
+				int i = l.indexOf(o);
+				o = new FoamyDefaultResourcePack((ResourceIndex) f3.get(o));
+				l.set(i, o);
+				f1.set(Minecraft.getMinecraft(), o);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
