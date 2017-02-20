@@ -270,7 +270,8 @@ public class FoamyItemLayerModel implements IRetexturableModel {
             throw new RuntimeException(t);
         }
 
-        return new DynamicItemModel(builder.build(), particle, map, list, textureAtlas.build(), format, transform);
+        // This returns otherModel because the 3D model is default
+        return new DynamicItemModel(builder.build(), particle, map, list, textureAtlas.build(), format, transform).otherModel;
     }
 
     @Override
