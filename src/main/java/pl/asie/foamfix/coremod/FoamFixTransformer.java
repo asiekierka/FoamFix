@@ -54,6 +54,8 @@ public class FoamFixTransformer implements IClassTransformer
     }
 
     public byte[] spliceClasses(final byte[] data, final byte[] dataSplice, final String className, final String targetClassName, final String... methods) {
+        // System.out.println("Splicing from " + className + " to " + targetClassName);
+
         final Set<String> methodSet = Sets.newHashSet(methods);
         final List<String> methodList = Lists.newArrayList(methods);
 
@@ -125,6 +127,9 @@ public class FoamFixTransformer implements IClassTransformer
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
         byte[] data = dataOrig;
+        if (data == null)
+            return data;
+
         if (FoamFixShared.config.geBlockPosPatch) {
             if ("net.minecraft.util.math.Vec3i".equals(transformedName)) {
                 data = BlockPosPatch.patchVec3i(data);
