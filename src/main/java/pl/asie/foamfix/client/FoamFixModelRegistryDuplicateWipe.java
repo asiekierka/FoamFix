@@ -55,6 +55,7 @@ public class FoamFixModelRegistryDuplicateWipe {
         ItemModelMesher imm = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
         BlockModelShapes bms = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
         ModelManager mgr = bms.getModelManager();
+
         Field f = ReflectionHelper.findField(ModelManager.class, "modelRegistry", "field_174958_a");
         try {
             IRegistry<ModelResourceLocation, IBakedModel> registry = (IRegistry<ModelResourceLocation, IBakedModel>) f.get(mgr);

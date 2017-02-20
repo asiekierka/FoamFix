@@ -35,7 +35,7 @@ import java.io.File;
 
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
-	public boolean clDeduplicate, clCleanRedundantModelRegistry;
+	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
@@ -78,6 +78,7 @@ public class FoamFixConfig {
 				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "experimental", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 				clBlockInfoPatch = getBoolean("optimizedBlockInfo", "coremod", true, "Prevents BlockInfo from generating as many BlockPos objects; also, fixes a lighting bug.");
+				clDynamicItemModels = getBoolean("dynamicItemModels", "client", true, "Make 3D forms of items be rendered dynamically and cached when necessary.");
 				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 			}
 

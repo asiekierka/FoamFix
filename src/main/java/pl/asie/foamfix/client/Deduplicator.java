@@ -94,6 +94,9 @@ public class Deduplicator {
         TRIM_ARRAYS_CLASSES.add(SimpleBakedModel.class);
         TRIM_ARRAYS_CLASSES.add(WeightedBakedModel.class);
 
+        BLACKLIST_CLASS.add(FoamyItemLayerModel.DynamicItemModel.class);
+        BLACKLIST_CLASS.add(FoamyItemLayerModel.Dynamic3DItemModel.class);
+
         BLACKLIST_CLASS.add(Object.class);
         BLACKLIST_CLASS.add(Class.class);
         BLACKLIST_CLASS.add(String.class);

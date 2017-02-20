@@ -26,8 +26,10 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
@@ -53,6 +55,7 @@ public class FoamFixTransformer implements IClassTransformer
 
     public byte[] spliceClasses(final byte[] data, final byte[] dataSplice, final String className, final String targetClassName, final String... methods) {
         final Set<String> methodSet = Sets.newHashSet(methods);
+        final List<String> methodList = Lists.newArrayList(methods);
 
         final ClassReader readerData = new ClassReader(data);
         final ClassReader readerSplice = new ClassReader(dataSplice);
@@ -76,8 +79,11 @@ public class FoamFixTransformer implements IClassTransformer
                 for (int j = 0; j < nodeData.methods.size(); j++) {
                     if (nodeData.methods.get(j).name.equals(mn.name)
                             && nodeData.methods.get(j).desc.equals(mn.desc)) {
+                        MethodNode oldMn = nodeData.methods.get(j);
                         System.out.println("Spliced in METHOD: " + targetClassName + "." + mn.name);
                         nodeData.methods.set(j, mn);
+                        oldMn.name = methodList.get((methodList.indexOf(oldMn.name)) & (~1)) + "_foamfix_old";
+                        nodeData.methods.add(oldMn);
                         added = true;
                         break;
                     }
@@ -130,19 +136,19 @@ public class FoamFixTransformer implements IClassTransformer
         if (FoamFixShared.config.clBlockInfoPatch) {
             if ("net.minecraftforge.client.model.pipeline.BlockInfo".equals(transformedName)) {
                 data = spliceClasses(data, "pl.asie.foamfix.coremod.blockinfo.BlockInfoPatch", transformedName,
-                        "updateLightMatrix");
+                        "updateLightMatrix", "updateLightMatrix");
             }
         }
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
             if ("net.minecraft.block.state.BlockStateContainer".equals(transformedName)) {
                 data = spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer", transformedName,
-                        "createState");
+                        "createState", "createState");
             }
 
             if ("net.minecraftforge.common.property.ExtendedBlockState".equals(transformedName)) {
                 data = spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer", transformedName,
-                        "createState");
+                        "createState", "createState");
             }
         }
 
@@ -157,6 +163,13 @@ public class FoamFixTransformer implements IClassTransformer
             if ("net.minecraft.client.renderer.RenderGlobal".equals(transformedName)) {
                 data = spliceClasses(data, "pl.asie.foamfix.coremod.RenderGlobalImmediatePatch", transformedName,
                         "notifyLightSet","func_174959_b");
+            }
+        }
+
+        if (FoamFixShared.config.clDynamicItemModels) {
+            if ("net.minecraftforge.client.model.ItemLayerModel".equals(transformedName)) {
+                data = spliceClasses(data, "pl.asie.foamfix.client.FoamFixDynamicItemModels", transformedName,
+                        "bake", "bake");
             }
         }
 

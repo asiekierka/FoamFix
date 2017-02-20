@@ -35,8 +35,10 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import pl.asie.foamfix.client.Deduplicator;
+import pl.asie.foamfix.client.FoamFixDynamicItemModels;
 import pl.asie.foamfix.client.FoamFixModelDeduplicate;
 import pl.asie.foamfix.client.FoamFixModelRegistryDuplicateWipe;
 import pl.asie.foamfix.shared.FoamFixShared;
@@ -92,6 +94,10 @@ public class ProxyClient extends ProxyCommon {
 
 		if (!FoamFixShared.config.clDeduplicate) {
 			deduplicator = null;
+		}
+
+		if (FoamFixShared.config.clDynamicItemModels) {
+			FoamFixDynamicItemModels.register();
 		}
 	}
 
