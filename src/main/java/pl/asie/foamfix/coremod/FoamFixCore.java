@@ -49,7 +49,7 @@ public class FoamFixCore implements IFMLLoadingPlugin {
     }
     
     public void injectData(final Map<String, Object> data) {
-        FoamFixShared.enabled = true;
+        FoamFixShared.coremodEnabled = true;
         FoamFixShared.config.init(new File(new File("config"), "foamfix.cfg"), true);
     }
     

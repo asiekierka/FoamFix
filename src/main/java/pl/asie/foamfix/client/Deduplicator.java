@@ -25,17 +25,22 @@
  */
 package pl.asie.foamfix.client;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.cache.Cache;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.*;
 import com.google.gson.Gson;
 import gnu.trove.set.hash.TCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -47,6 +52,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.logging.log4j.Logger;
+import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.HashingStrategies;
 import pl.asie.foamfix.util.MethodHandleHelper;
@@ -91,6 +97,7 @@ public class Deduplicator {
 
     static {
         TRIM_ARRAYS_CLASSES.add(ItemOverrideList.class);
+        TRIM_ARRAYS_CLASSES.add(FoamyItemLayerModel.DynamicItemModel.class);
         TRIM_ARRAYS_CLASSES.add(SimpleBakedModel.class);
         TRIM_ARRAYS_CLASSES.add(WeightedBakedModel.class);
 
@@ -108,7 +115,6 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(Short.class);
         BLACKLIST_CLASS.add(TextureAtlasSprite.class);
         BLACKLIST_CLASS.add(ItemStack.class);
-        BLACKLIST_CLASS.add(ModelRotation.class);
         BLACKLIST_CLASS.add(Gson.class);
         BLACKLIST_CLASS.add(ModelLoader.class);
         BLACKLIST_CLASS.add(Class.class);
@@ -117,14 +123,29 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(BlockModelShapes.class);
         BLACKLIST_CLASS.add(ModelManager.class);
 
+        BLACKLIST_CLASS.add(Logger.class);
+        BLACKLIST_CLASS.add(Joiner.class);
+        BLACKLIST_CLASS.add(Tessellator.class);
+        BLACKLIST_CLASS.add(VertexBuffer.class);
+        BLACKLIST_CLASS.add(Cache.class);
+        BLACKLIST_CLASS.add(LoadingCache.class);
+        BLACKLIST_CLASS.add(VertexFormatElement.class);
+
         BLACKLIST_CLASS.add(BakedQuad.class);
 
         // Intentionally smaller field sets in order to optimize
     }
 
     private boolean shouldCheckClass(Class c) {
-        return !BLACKLIST_CLASS.contains(c) && !c.isPrimitive() && !c.isEnum()
-                && !(c.isArray() && c.getComponentType().isPrimitive());
+        if (BLACKLIST_CLASS.contains(c))
+            return false;
+
+        if (c.isPrimitive() || c.isEnum() || (c.isArray() && !shouldCheckClass(c.getComponentType()))) {
+            BLACKLIST_CLASS.add(c);
+            return false;
+        }
+
+        return true;
     }
 
     public void addObject(Object o) {
@@ -186,11 +207,14 @@ public class Deduplicator {
     }
 
     public Object deduplicateObject(Object o, int recursion) {
-        if (o == null || recursion > maxRecursion || !deduplicatedObjects.add(o))
+        if (o == null || recursion > maxRecursion)
             return o;
 
         Class c = o.getClass();
         if (!shouldCheckClass(c))
+            return o;
+
+        if (!deduplicatedObjects.add(o))
             return o;
 
         // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
@@ -249,45 +273,62 @@ public class Deduplicator {
                     return Optional.of(b);
                 }
             }
-        } else if (o instanceof ImmutableList) {
-            ImmutableList il = (ImmutableList) o;
-            List newList = new ArrayList();
-            boolean deduplicated = false;
-            for (int i = 0; i < il.size(); i++) {
-                Object a = il.get(i);
-                Object b = deduplicateObject(a, recursion + 1);
-                newList.add(b != null ? b : a);
-                if (b != null && b != a)
-                    deduplicated = true;
-            }
-            if (deduplicated) {
-                return ImmutableList.copyOf(newList);
-            }
-        } else if (o instanceof ImmutableMap) {
-            ImmutableMap im = (ImmutableMap) o;
-            Map newMap = new HashMap();
-            boolean deduplicated = false;
-            for (Object key : im.keySet()) {
-                Object a = im.get(key);
-                Object b = deduplicateObject(a, recursion + 1);
-                newMap.put(key, b != null ? b : a);
-                if (b != null && b != a)
-                    deduplicated = true;
-            }
-            if (deduplicated) {
-                return ImmutableMap.copyOf(newMap);
+        } else if (o instanceof Multimap) {
+            if (o instanceof ImmutableMultimap) {
+                // TODO: Handle me?
+            } else {
+                for (Object key : ((Multimap) o).keySet()) {
+                    List l = Lists.newArrayList(((Multimap) o).values());
+                    for (int i = 0; i < l.size(); i++) {
+                        l.set(i, deduplicateObject(l.get(i), recursion + 1));
+                    }
+
+                    ((Multimap) o).replaceValues(key, l);
+                }
             }
         } else if (o instanceof Map) {
-            for (Object key : ((Map) o).keySet()) {
-                Object value = ((Map) o).get(key);
-                Object valueD = deduplicateObject(value, recursion + 1);
-                if (valueD != null && value != valueD)
-                    ((Map) o).put(key, valueD);
+            if (o instanceof ImmutableMap) {
+                ImmutableMap im = (ImmutableMap) o;
+                Map newMap = new HashMap();
+                boolean deduplicated = false;
+                for (Object key : im.keySet()) {
+                    Object a = im.get(key);
+                    Object b = deduplicateObject(a, recursion + 1);
+                    newMap.put(key, b != null ? b : a);
+                    if (b != null && b != a)
+                        deduplicated = true;
+                }
+                if (deduplicated) {
+                    return ImmutableMap.copyOf(newMap);
+                }
+            } else {
+                for (Object key : ((Map) o).keySet()) {
+                    Object value = ((Map) o).get(key);
+                    Object valueD = deduplicateObject(value, recursion + 1);
+                    if (valueD != null && value != valueD)
+                        ((Map) o).put(key, valueD);
+                }
             }
         } else if (o instanceof List) {
-            List l = (List) o;
-            for (int i = 0; i < l.size(); i++) {
-                l.set(i, deduplicateObject(l.get(i), recursion + 1));
+            if (o instanceof ImmutableList) {
+                ImmutableList il = (ImmutableList) o;
+                List newList = new ArrayList();
+                boolean deduplicated = false;
+                for (int i = 0; i < il.size(); i++) {
+                    Object a = il.get(i);
+                    Object b = deduplicateObject(a, recursion + 1);
+                    newList.add(b != null ? b : a);
+                    if (b != null && b != a)
+                        deduplicated = true;
+                }
+                if (deduplicated) {
+                    return ImmutableList.copyOf(newList);
+                }
+            } else {
+                List l = (List) o;
+                for (int i = 0; i < l.size(); i++) {
+                    l.set(i, deduplicateObject(l.get(i), recursion + 1));
+                }
             }
         } else if (o instanceof Collection) {
             if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {

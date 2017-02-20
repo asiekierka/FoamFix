@@ -28,6 +28,7 @@ package pl.asie.foamfix.client;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.ProgressManager;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import pl.asie.foamfix.FoamFix;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -37,7 +38,7 @@ import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 public class FoamFixModelDeduplicate {
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void onModelBake(ModelBakeEvent event) {
         // TODO: analyze impact + obj. references
         // TODO: figure out why it breaks Botania (#1, refer to vazkii/botania/client/model/FloatingFlowerModel.java)

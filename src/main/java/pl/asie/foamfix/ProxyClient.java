@@ -37,7 +37,6 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.DefaultResourcePack;
 import net.minecraft.client.resources.ResourceIndex;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.client.Deduplicator;
@@ -105,7 +104,7 @@ public class ProxyClient extends ProxyCommon {
 			FoamFixDynamicItemModels.register();
 		}
 
-		if (FoamFixShared.config.clFasterResourceLoading) {
+		if (FoamFixShared.config.clFasterResourceLoading && !FoamFixShared.coremodEnabled) {
 			try {
 				Field f1 = ReflectionHelper.findField(Minecraft.class, "mcDefaultResourcePack", "field_110450_ap");
 				Field f2 = ReflectionHelper.findField(Minecraft.class, "defaultResourcePacks", "field_110449_ao");
