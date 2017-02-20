@@ -74,9 +74,11 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         @Override
         public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType type) {
             Pair<? extends IBakedModel, Matrix4f> pair = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, parent.transforms, type);
-            if(type != ItemCameraTransforms.TransformType.GUI) {
-                return Pair.of(parent, pair.getRight());
+
+            if (type == ItemCameraTransforms.TransformType.GUI && pair.getRight() == null) {
+                return Pair.of(parent, null);
             }
+
             return pair;
         }
 
@@ -192,8 +194,8 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType type) {
             Pair<? extends IBakedModel, Matrix4f> pair = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, transforms, type);
 
-            if (type == ItemCameraTransforms.TransformType.GUI && pair.getRight() == null) {
-                return Pair.of(otherModel, null);
+            if (type != ItemCameraTransforms.TransformType.GUI) {
+                return Pair.of(otherModel, pair.getRight());
             }
 
             return pair;
