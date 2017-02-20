@@ -25,12 +25,13 @@ public class ChunkInfo {
 		int zo = blockPos.getZ() - 1 - pos.getZ();
 
 		for(int x = 0; x <= 2; x++) {
-            int xb = xo+x;
+			int xb = xo + x;
 			for (int y = 0; y <= 2; y++) {
                 int yb = yo+y;
-                int offset = (xb*18*18) + (yb*18) + zo;
+				int zb = zo;
+                int offset = (xb*18*18) + (yb*18) + zb;
+
 				for (int z = 0; z <= 2; z++) {
-					int zb = zo+z;
 
 					if (!initialized[offset])
 						initialize(access,offset,xb,yb,zb);
@@ -40,7 +41,7 @@ public class ChunkInfo {
 					b[x][y][z] = this.b[offset];
 					ao[x][y][z] = this.ao[offset];
 					
-					offset++;
+					offset++; zb++;
 				}
 			}
 		}
@@ -51,12 +52,12 @@ public class ChunkInfo {
 	private void initialize(IBlockAccess access, int offset, int x, int y, int z) {
 		BlockPos pos = this.pos.add(x, y, z);
 		IBlockState state = access.getBlockState(pos);
+		fullCube[x][y][z] = state.isFullCube();
 		translucent[offset] = state.isTranslucent();
 		int brightness = state.getPackedLightmapCoords(access, pos);
+		ao[offset] = state.getAmbientOcclusionLightValue();
 		s[offset] = (brightness >> 0x14) & 0xF;
 		b[offset] = (brightness >> 0x04) & 0xF;
-		ao[offset] = state.getAmbientOcclusionLightValue();
-		fullCube[x][y][z] = state.isFullCube();
 		initialized[offset] = true;
 	}
 

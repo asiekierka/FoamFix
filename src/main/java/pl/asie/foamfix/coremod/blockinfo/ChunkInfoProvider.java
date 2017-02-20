@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import java.util.WeakHashMap;
 
 public class ChunkInfoProvider {
-	private static final WeakHashMap<ChunkCache, ChunkInfo> infoMap = new WeakHashMap<>();
+	private static final WeakHashMap<IBlockAccess, ChunkInfo> infoMap = new WeakHashMap<>();
 
 	@Nullable
 	public static ChunkInfo getChunkInfo(IBlockAccess access, BlockPos pos) {
@@ -16,7 +16,7 @@ public class ChunkInfoProvider {
 			ChunkInfo info = infoMap.get(access);
 			if (info == null) {
 				info = new ChunkInfo(new BlockPos(pos.getX() & (~15), pos.getY() & (~15), pos.getZ() & (~15)));
-				infoMap.put((ChunkCache) access, info);
+				infoMap.put(access, info);
 			}
 			return info;
 		} else {

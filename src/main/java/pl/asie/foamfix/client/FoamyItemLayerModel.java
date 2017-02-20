@@ -32,7 +32,6 @@ import java.lang.ref.SoftReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class FoamyItemLayerModel implements IRetexturableModel {
     private static final ResourceLocation MISSINGNO = new ResourceLocation("missingno");
@@ -51,14 +50,17 @@ public class FoamyItemLayerModel implements IRetexturableModel {
                     float.class, float.class,float.class,float.class,float.class,
                     float.class, float.class,float.class,float.class,float.class));
         } catch (Exception e) {
+            // We don't need this (there's a slow fallback route), so just warn the user.
             e.printStackTrace();
         }
         BUILD_QUAD = handle;
+
         handle = null;
         try {
             handle = MethodHandleHelper.findFieldGetter(ItemLayerModel.class, "overrides");
         } catch (Exception e) {
-            e.printStackTrace();
+            // We DO need THIS, so throw a runtime exception if we can't have it.
+            throw new RuntimeException(e);
         }
         OVERRIDES_GET = handle;
     }
@@ -233,6 +235,7 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         ImmutableList.Builder<TextureAtlasSprite> textureAtlas = new ImmutableList.Builder<>();
 
         if (BUILD_QUAD != null) {
+            // Fast route!
             for (int i = 0; i < textures.size(); i++) {
                 TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
                 textureAtlas.add(sprite);
@@ -248,6 +251,7 @@ public class FoamyItemLayerModel implements IRetexturableModel {
                 }
             }
         } else {
+            // Slow fallback route :-(
             for (int i = 0; i < textures.size(); i++) {
                 TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
                 for (BakedQuad quad : ItemLayerModel.getQuadsForSprite(i, sprite, format, transform)) {
