@@ -36,6 +36,7 @@ configurations {
 }
 
 dependencies {
+    compile "org.openjdk.jmh:jmh-generator-annprocess:1.17.4"
     shadow "org.nanohttpd:nanohttpd:2.3.1"
     shadow "org.nanohttpd:nanohttpd-websocket:2.3.1"
 }
