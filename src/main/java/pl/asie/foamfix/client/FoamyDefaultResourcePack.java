@@ -4,7 +4,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.client.resources.DefaultResourcePack;
 import net.minecraft.client.resources.ResourceIndex;
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,9 +17,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 public class FoamyDefaultResourcePack extends DefaultResourcePack {
-//	private final Cache<ResourceLocation, Boolean> cache =
-//			CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
-	private final Set<ResourceLocation> foundResources = new HashSet<>();
+	private final Cache<ResourceLocation, Boolean> cache =
+			CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
 	private final ResourceIndex resourceIndex;
 
 	public FoamyDefaultResourcePack(ResourceIndex resourceIndexIn) {
@@ -24,10 +26,10 @@ public class FoamyDefaultResourcePack extends DefaultResourcePack {
 		this.resourceIndex = resourceIndexIn;
 	}
 
-	// TODO: Verify what happens when non-mod files get added in this manner
-	/* @Override
+	@Override
 	public InputStream getInputStream(ResourceLocation location) throws IOException {
-		if (!resourceExists(location)) {
+		Boolean b = cache.getIfPresent(location);
+		if (b != null && !b) {
 			return null;
 		}
 
@@ -47,18 +49,21 @@ public class FoamyDefaultResourcePack extends DefaultResourcePack {
 		} catch (Exception e) {
 			return DefaultResourcePack.class.getResource("/assets/" + loc.getResourceDomain() + "/" + loc.getResourcePath()) != null || FoamyDefaultResourcePack.this.resourceIndex.isFileExisting(loc);
 		}
-	} */
+	}
 
-	// I can still cache resources, however, as it's unlikely for something to get *removed* from the ClassLoader
-	@Override
-	public boolean resourceExists(ResourceLocation loc) {
-		if (foundResources.contains(loc)) return true;
-
-		if (DefaultResourcePack.class.getResource("/assets/" + loc.getResourceDomain() + "/" + loc.getResourcePath()) != null || FoamyDefaultResourcePack.this.resourceIndex.isFileExisting(loc)) {
-			foundResources.add(loc);
-			return true;
+	public static String getClassName() {
+		if (FoamFixShared.hasOptifine() || FoamFixShared.config.clFasterResourceLoading == 1) {
+			return "pl.asie.foamfix.client.FoamyDefaultResourcePackLight";
+		} else {
+			return "pl.asie.foamfix.client.FoamyDefaultResourcePack";
 		}
+	}
 
-		return false;
+	public static DefaultResourcePack create(ResourceIndex resourceIndex) {
+		if (FoamFixShared.hasOptifine() || FoamFixShared.config.clFasterResourceLoading == 1) {
+			return new FoamyDefaultResourcePackLight(resourceIndex);
+		} else {
+			return new FoamyDefaultResourcePack(resourceIndex);
+		}
 	}
 }

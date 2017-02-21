@@ -104,7 +104,7 @@ public class ProxyClient extends ProxyCommon {
 			FoamFixDynamicItemModels.register();
 		}
 
-		if (FoamFixShared.config.clFasterResourceLoading && !FoamFixShared.coremodEnabled) {
+		if (FoamFixShared.config.clFasterResourceLoading > 0 && !FoamFixShared.coremodEnabled) {
 			try {
 				Field f1 = ReflectionHelper.findField(Minecraft.class, "mcDefaultResourcePack", "field_110450_ap");
 				Field f2 = ReflectionHelper.findField(Minecraft.class, "defaultResourcePacks", "field_110449_ao");
@@ -112,7 +112,7 @@ public class ProxyClient extends ProxyCommon {
 				Object o = f1.get(Minecraft.getMinecraft());
 				List l = (List) f2.get(Minecraft.getMinecraft());
 				int i = l.indexOf(o);
-				o = new FoamyDefaultResourcePack((ResourceIndex) f3.get(o));
+				o = FoamyDefaultResourcePack.create((ResourceIndex) f3.get(o));
 				l.set(i, o);
 				f1.set(Minecraft.getMinecraft(), o);
 			} catch (Exception e) {

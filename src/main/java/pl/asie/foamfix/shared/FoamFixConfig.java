@@ -36,7 +36,7 @@ import java.io.File;
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
-	public boolean clFasterResourceLoading;
+	public int clFasterResourceLoading;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
@@ -72,7 +72,6 @@ public class FoamFixConfig {
 			clDeduplicate = getBoolean("deduplicateModels", "client", true, "Enable deduplication of redundant objects in memory.");
 			clDeduplicateRecursionLevel = config.getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.");
 			clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.");
-			clFasterResourceLoading = getBoolean("fasterResourceLoading", "client", true, "Slight optimizations to resource loading.");
 			geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", "(,13.19.1.2190)");
 			geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "expert", false, "Do not delay lighting updates over other types of updates.");
 
@@ -85,6 +84,8 @@ public class FoamFixConfig {
 				clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.");
 				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 			}
+
+			// clFasterResourceLoading = config.getInt("fasterResourceLoading", "client", 2, 0, 2, "Slight optimizations to resource loading. Set to 0 to disable, set to 1 to enable a more compatibility-friendly version in case you're having resource issues (missing textures, etc).");
 
 			config.save();
 		}

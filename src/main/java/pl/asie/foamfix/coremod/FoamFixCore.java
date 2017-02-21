@@ -65,6 +65,8 @@ public class FoamFixCore implements IFMLLoadingPlugin {
             classLoader.addTransformerExclusion("oshi.");
             classLoader.addTransformerExclusion("scala.");
         }
+
+        FoamFixTransformer.init();
     }
     
     public String getAccessTransformerClass() {
