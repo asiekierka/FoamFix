@@ -37,6 +37,7 @@ public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public boolean clFasterResourceLoading;
+	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
@@ -77,6 +78,7 @@ public class FoamFixConfig {
 
 			if (isCoremod) {
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
+				geBlacklistLibraryTransformers = getBoolean("blacklistLibraryTransformers", "coremod", true, "Stops certain non-Minecraft-related libraries from being ASM transformed. You shouldn't be transforming those anyway.");
 				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "experimental", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
 				clBlockInfoPatch = getBoolean("optimizedBlockInfo", "coremod", true, "Prevents BlockInfo from generating as many BlockPos objects; also, fixes a lighting bug.");

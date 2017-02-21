@@ -28,6 +28,7 @@ package pl.asie.foamfix.coremod;
 import java.io.File;
 import java.util.Map;
 
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import pl.asie.foamfix.shared.FoamFixShared;
 
@@ -51,6 +52,19 @@ public class FoamFixCore implements IFMLLoadingPlugin {
     public void injectData(final Map<String, Object> data) {
         FoamFixShared.coremodEnabled = true;
         FoamFixShared.config.init(new File(new File("config"), "foamfix.cfg"), true);
+
+        if (FoamFixShared.config.geBlacklistLibraryTransformers) {
+            LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
+            classLoader.addTransformerExclusion("com.ibm.icu.");
+            classLoader.addTransformerExclusion("com.sun.");
+            classLoader.addTransformerExclusion("gnu.trove.");
+            classLoader.addTransformerExclusion("io.netty.");
+            classLoader.addTransformerExclusion("it.unimi.dsi.fastutil.");
+            classLoader.addTransformerExclusion("joptsimple.");
+            classLoader.addTransformerExclusion("org.apache.");
+            classLoader.addTransformerExclusion("oshi.");
+            classLoader.addTransformerExclusion("scala.");
+        }
     }
     
     public String getAccessTransformerClass() {
