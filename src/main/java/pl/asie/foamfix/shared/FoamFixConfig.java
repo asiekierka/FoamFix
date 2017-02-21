@@ -79,9 +79,9 @@ public class FoamFixConfig {
 			if (isCoremod) {
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
 				geBlacklistLibraryTransformers = getBoolean("blacklistLibraryTransformers", "coremod", true, "Stops certain non-Minecraft-related libraries from being ASM transformed. You shouldn't be transforming those anyway.");
-				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "experimental", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
+				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "coremod", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
-				clBlockInfoPatch = getBoolean("optimizedBlockInfo", "coremod", true, "Prevents BlockInfo from generating as many BlockPos objects; also, fixes a lighting bug.");
+				clBlockInfoPatch = getBoolean("chunkedBlockInfo", "experimental", false, "Prevents redundant BlockInfo calculations by keeping ChunkInfo objects around. Buggy!");
 				clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.");
 				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 			}
