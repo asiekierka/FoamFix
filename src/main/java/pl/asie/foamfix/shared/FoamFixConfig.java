@@ -38,6 +38,7 @@ public class FoamFixConfig {
 	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public int clFasterResourceLoading;
 	public boolean geBlacklistLibraryTransformers;
+	public boolean geFasterSideTransformer;
 	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
@@ -83,6 +84,7 @@ public class FoamFixConfig {
 				clBlockInfoPatch = getBoolean("chunkedBlockInfo", "experimental", false, "Prevents redundant BlockInfo calculations by keeping ChunkInfo objects around. Buggy!");
 				clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.");
 				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
+				geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
 			}
 
 			// clFasterResourceLoading = config.getInt("fasterResourceLoading", "client", 2, 0, 2, "Slight optimizations to resource loading. Set to 0 to disable, set to 1 to enable a more compatibility-friendly version in case you're having resource issues (missing textures, etc).");
