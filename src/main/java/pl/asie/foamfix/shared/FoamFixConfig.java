@@ -43,7 +43,7 @@ public class FoamFixConfig {
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
 	public boolean geImmediateLightingUpdates;
-	public boolean shModelLoaderFirstPass;
+	public boolean shModelLoaderFirstPass, shDisableDeobfuscation;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -87,6 +87,7 @@ public class FoamFixConfig {
 				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 				geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
 				shModelLoaderFirstPass = getBoolean("fasterModelLoaderFirstPass", "expert", false, "Speedhack to make the ModelLoader skip additional things on the first loading pass. Will break mods, probably.");
+				shDisableDeobfuscation = getBoolean("disableDeobfuscation", "expert", false, "DO NOT TOUCH THIS.");
 			}
 
 			// clFasterResourceLoading = config.getInt("fasterResourceLoading", "client", 2, 0, 2, "Slight optimizations to resource loading. Set to 0 to disable, set to 1 to enable a more compatibility-friendly version in case you're having resource issues (missing textures, etc).");

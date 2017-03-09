@@ -33,6 +33,7 @@ import java.util.Map;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.asm.ASMTransformerWrapper;
+import net.minecraftforge.fml.common.asm.transformers.DeobfuscationTransformer;
 import net.minecraftforge.fml.common.asm.transformers.SideTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -73,32 +74,43 @@ public class FoamFixCore implements IFMLLoadingPlugin {
             classLoader.addTransformerExclusion("scala.");
         }
 
-        if (FoamFixShared.config.geFasterSideTransformer) {
-            LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
+        LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
 
-            // Not so simple!
-            try {
-                Field transformersField = ReflectionHelper.findField(LaunchClassLoader.class, "transformers");
-                List<IClassTransformer> transformerList = (List<IClassTransformer>) transformersField.get(classLoader);
+        // Not so simple!
+        try {
+            Field transformersField = ReflectionHelper.findField(LaunchClassLoader.class, "transformers");
+            List<IClassTransformer> transformerList = (List<IClassTransformer>) transformersField.get(classLoader);
 
-                for (int i = 0; i < transformerList.size(); i++) {
-                    IClassTransformer transformer = transformerList.get(i);
-                    IClassTransformer parentTransformer = transformer;
-                    if (transformer instanceof ASMTransformerWrapper.TransformerWrapper) {
-                        Field parentTransformerField = ReflectionHelper.findField(ASMTransformerWrapper.TransformerWrapper.class, "parent");
-                        parentTransformer = (IClassTransformer) parentTransformerField.get(transformer);
-                    }
+            for (int i = 0; i < transformerList.size(); i++) {
+                IClassTransformer transformer = transformerList.get(i);
+                IClassTransformer parentTransformer = transformer;
+                if (transformer instanceof ASMTransformerWrapper.TransformerWrapper) {
+                    Field parentTransformerField = ReflectionHelper.findField(ASMTransformerWrapper.TransformerWrapper.class, "parent");
+                    parentTransformer = (IClassTransformer) parentTransformerField.get(transformer);
+                }
 
-                    if (parentTransformer instanceof SideTransformer) {
+                if (parentTransformer instanceof SideTransformer) {
+                    if (FoamFixShared.config.geFasterSideTransformer) {
                         transformerList.set(i, new FoamySideTransformer());
                     }
-                    /* if (parentTransformer instanceof EventSubscriptionTransformer) {
-                        transformerList.set(i, new FoamyEventSubscriptionTransformer());
-                    } */
                 }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+
+                if (parentTransformer instanceof DeobfuscationTransformer) {
+                    if (FoamFixShared.config.shDisableDeobfuscation) {
+                        transformerList.set(i, new IClassTransformer() {
+                            @Override
+                            public byte[] transform(String s, String s1, byte[] bytes) {
+                                return bytes;
+                            }
+                        });
+                    }
+                }
+                /* if (parentTransformer instanceof EventSubscriptionTransformer) {
+                    transformerList.set(i, new FoamyEventSubscriptionTransformer());
+                } */
             }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
 
         FoamFixTransformer.init();
