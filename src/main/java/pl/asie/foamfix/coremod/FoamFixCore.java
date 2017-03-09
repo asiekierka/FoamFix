@@ -92,6 +92,9 @@ public class FoamFixCore implements IFMLLoadingPlugin {
                     if (parentTransformer instanceof SideTransformer) {
                         transformerList.set(i, new FoamySideTransformer());
                     }
+                    /* if (parentTransformer instanceof EventSubscriptionTransformer) {
+                        transformerList.set(i, new FoamyEventSubscriptionTransformer());
+                    } */
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();

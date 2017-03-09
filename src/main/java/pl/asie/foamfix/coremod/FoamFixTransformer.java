@@ -214,6 +214,16 @@ public class FoamFixTransformer implements IClassTransformer
                 }
             });
         }
+
+        if (FoamFixShared.config.shModelLoaderFirstPass) {
+            transformFunctions.put("net.minecraftforge.client.model.ModelLoader", new TransformerFunction() {
+                @Override
+                public byte[] transform(byte[] data, String transformedName) {
+                    return spliceClasses(data, "pl.asie.foamfix.coremod.hacks.ModelLoaderSpeedhack", transformedName,
+                            "loadBlock", "loadBlock");
+                }
+            });
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
