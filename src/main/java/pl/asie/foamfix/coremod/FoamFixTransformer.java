@@ -56,8 +56,8 @@ public class FoamFixTransformer implements IClassTransformer
     // TODO: NEW, INVOKESPECIAL.<init> PATCHER
     public static byte[] replaceConstructor(final byte[] data, final String className, final String from, final String to, final String... methods) {
         final ClassReader reader = new ClassReader(data);
-        final ClassWriter writer = new ClassWriter(8);
-        reader.accept(new FoamFixConstructorReplacer(from, to, methods).getClassVisitor(Opcodes.ASM5, writer), 8);
+        final ClassWriter writer = new ClassWriter(0);
+        reader.accept(new FoamFixConstructorReplacer(from, to, methods).getClassVisitor(Opcodes.ASM5, writer), 0);
         return writer.toByteArray();
     }
 
@@ -78,7 +78,7 @@ public class FoamFixTransformer implements IClassTransformer
 
         final ClassReader readerData = new ClassReader(data);
         final ClassReader readerSplice = new ClassReader(dataSplice);
-        final ClassWriter writer = new ClassWriter(8);
+        final ClassWriter writer = new ClassWriter(0);
         final String className2 = className.replace('.', '/');
         final String targetClassName2 = targetClassName.replace('.', '/');
         final Remapper remapper = new Remapper() {
@@ -89,8 +89,8 @@ public class FoamFixTransformer implements IClassTransformer
 
         ClassNode nodeData = new ClassNode();
         ClassNode nodeSplice = new ClassNode();
-        readerData.accept(nodeData, 8);
-        readerSplice.accept(new RemappingClassAdapter(nodeSplice, remapper), 8);
+        readerData.accept(nodeData, 0);
+        readerSplice.accept(new RemappingClassAdapter(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
         for (int i = 0; i < nodeSplice.methods.size(); i++) {
             if (methodSet.contains(nodeSplice.methods.get(i).name)) {
                 MethodNode mn = nodeSplice.methods.get(i);
