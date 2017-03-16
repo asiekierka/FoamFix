@@ -34,16 +34,16 @@ import net.minecraftforge.fml.common.versioning.VersionRange;
 import java.io.File;
 
 public class FoamFixConfig {
-	public boolean lwWeakenResourceCache, lwDummyPackageManifestMap;
+	public boolean lwWeakenResourceCache;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public int clFasterResourceLoading;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geFasterSideTransformer;
-	public boolean geBlockPosPatch, clBlockInfoPatch, clTextureDoubleBuffering;
+	public boolean geBlockPosPatch, clBlockInfoPatch;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
 	public boolean geImmediateLightingUpdates;
-	public boolean shModelLoaderFirstPass, shDisableDeobfuscation;
+	public boolean shModelLoaderFirstPass;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -69,16 +69,15 @@ public class FoamFixConfig {
 		if (config == null) {
 			config = new Configuration(file);
 
-			lwDummyPackageManifestMap = getBoolean("dummyPackageManifestMap", "launchwrapper", true, "Dummy out LaunchWrapper's unused package manifest map. This will only break things if some other mod reflects into the LaunchClassLoader to get the private map, which as far as I know is not the case.");
 			lwWeakenResourceCache = getBoolean("weakenResourceCache", "launchwrapper", true, "Weaken LaunchWrapper's byte[] resource cache to make it cleanuppable by the GC. Safe.");
 			clDeduplicate = getBoolean("deduplicateModels", "client", true, "Enable deduplication of redundant objects in memory.");
 			clDeduplicateRecursionLevel = config.getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.");
 			clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.");
 			geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", "(,13.19.1.2190)");
-			geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "expert", false, "Do not delay lighting updates over other types of updates.");
 
 			if (isCoremod) {
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
+				geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "expert", false, "Do not delay lighting updates over other types of updates.");
 				geBlacklistLibraryTransformers = getBoolean("blacklistLibraryTransformers", "coremod", true, "Stops certain non-Minecraft-related libraries from being ASM transformed. You shouldn't be transforming those anyway.");
 				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "coremod", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
@@ -87,7 +86,6 @@ public class FoamFixConfig {
 				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 				geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
 				shModelLoaderFirstPass = getBoolean("fasterModelLoaderFirstPass", "expert", false, "Speedhack to make the ModelLoader skip additional things on the first loading pass. Will break mods, probably.");
-				shDisableDeobfuscation = getBoolean("disableDeobfuscation", "expert", false, "DO NOT TOUCH THIS.");
 			}
 
 			// clFasterResourceLoading = config.getInt("fasterResourceLoading", "client", 2, 0, 2, "Slight optimizations to resource loading. Set to 0 to disable, set to 1 to enable a more compatibility-friendly version in case you're having resource issues (missing textures, etc).");

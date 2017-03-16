@@ -16,11 +16,11 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import pl.asie.foamfix.FoamFix;
-import pl.asie.foamfix.shared.FoamFixConfig;
-import pl.asie.foamfix.shared.FoamFixShared;
 
 /**
- * Created by asie on 3/9/17.
+ * This is a speedhack and intended for personal use in development
+ * environments as a last-ditch effort to speed up the game's
+ * loading times.
  */
 public class ModelLoaderSpeedhack extends ModelBakery {
 	public ModelLoaderSpeedhack(IResourceManager resourceManagerIn, TextureMap textureMapIn, BlockModelShapes blockModelShapesIn) {

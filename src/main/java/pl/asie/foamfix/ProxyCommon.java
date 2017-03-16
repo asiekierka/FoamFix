@@ -31,7 +31,6 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.shared.FoamFixShared;
-import pl.asie.foamfix.common.PretendPackageMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -51,18 +50,6 @@ public class ProxyCommon {
 				Map newResourceCache = CacheBuilder.newBuilder().weakValues().build().asMap();
 				newResourceCache.putAll(oldResourceCache);
 				resourceCacheField.set(loader, newResourceCache);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		if (FoamFixShared.config.lwDummyPackageManifestMap) {
-			FoamFix.logger.info("Dummying out LaunchWrapper's unused package manifests...");
-			try {
-				LaunchClassLoader loader = (LaunchClassLoader) this.getClass().getClassLoader();
-
-				Field packageManifestsField = ReflectionHelper.findField(LaunchClassLoader.class, "packageManifests");
-				packageManifestsField.set(loader, new PretendPackageMap());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

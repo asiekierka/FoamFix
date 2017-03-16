@@ -94,20 +94,6 @@ public class FoamFixCore implements IFMLLoadingPlugin {
                         transformerList.set(i, new FoamySideTransformer());
                     }
                 }
-
-                if (parentTransformer instanceof DeobfuscationTransformer) {
-                    if (FoamFixShared.config.shDisableDeobfuscation) {
-                        transformerList.set(i, new IClassTransformer() {
-                            @Override
-                            public byte[] transform(String s, String s1, byte[] bytes) {
-                                return bytes;
-                            }
-                        });
-                    }
-                }
-                /* if (parentTransformer instanceof EventSubscriptionTransformer) {
-                    transformerList.set(i, new FoamyEventSubscriptionTransformer());
-                } */
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
