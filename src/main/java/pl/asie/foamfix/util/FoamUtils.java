@@ -26,18 +26,55 @@
 package pl.asie.foamfix.util;
 
 import com.google.common.collect.Sets;
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.block.statemap.BlockStateMapper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import pl.asie.foamfix.FoamFix;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 public final class FoamUtils {
-	private FoamUtils() {
+	public static final MethodHandle MLR_GET_TEXTURES;
+	public static final MethodHandle ML_LOAD_BLOCK;
 
+	static {
+		MethodHandle MLR_GET_TEXTURES_TMP = null;
+
+		try {
+			Class k = Class.forName("net.minecraftforge.client.model.ModelLoaderRegistry");
+			Method m = k.getDeclaredMethod("getTextures");
+			m.setAccessible(true);
+			MLR_GET_TEXTURES_TMP = MethodHandles.lookup().unreflect(m);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		MLR_GET_TEXTURES = MLR_GET_TEXTURES_TMP;
+
+		MethodHandle ML_LOAD_BLOCK_TMP = null;
+
+		try {
+			Class k = Class.forName("net.minecraft.client.renderer.block.model.ModelBakery");
+			Method m = k.getDeclaredMethod("loadBlock", BlockStateMapper.class, Block.class, ResourceLocation.class);
+			m.setAccessible(true);
+			ML_LOAD_BLOCK_TMP = MethodHandles.lookup().unreflect(m);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		ML_LOAD_BLOCK = ML_LOAD_BLOCK_TMP;
+	}
+
+	private FoamUtils() {
 	}
 
 	public static void wipeModelLoaderRegistryCache() {

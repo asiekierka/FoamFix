@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod;
+package pl.asie.foamfix.coremod.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;

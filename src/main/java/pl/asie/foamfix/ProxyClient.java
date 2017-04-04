@@ -43,7 +43,6 @@ import pl.asie.foamfix.client.Deduplicator;
 import pl.asie.foamfix.client.FoamFixDynamicItemModels;
 import pl.asie.foamfix.client.FoamFixModelDeduplicate;
 import pl.asie.foamfix.client.FoamFixModelRegistryDuplicateWipe;
-import pl.asie.foamfix.client.FoamyDefaultResourcePack;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import javax.annotation.Nullable;
@@ -102,22 +101,6 @@ public class ProxyClient extends ProxyCommon {
 
 		if (FoamFixShared.config.clDynamicItemModels) {
 			FoamFixDynamicItemModels.register();
-		}
-
-		if (FoamFixShared.config.clFasterResourceLoading > 0 && !FoamFixShared.coremodEnabled) {
-			try {
-				Field f1 = ReflectionHelper.findField(Minecraft.class, "mcDefaultResourcePack", "field_110450_ap");
-				Field f2 = ReflectionHelper.findField(Minecraft.class, "defaultResourcePacks", "field_110449_ao");
-				Field f3 = ReflectionHelper.findField(DefaultResourcePack.class, "resourceIndex", "field_188549_b");
-				Object o = f1.get(Minecraft.getMinecraft());
-				List l = (List) f2.get(Minecraft.getMinecraft());
-				int i = l.indexOf(o);
-				o = FoamyDefaultResourcePack.create((ResourceIndex) f3.get(o));
-				l.set(i, o);
-				f1.set(Minecraft.getMinecraft(), o);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

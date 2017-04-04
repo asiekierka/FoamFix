@@ -36,14 +36,13 @@ import java.io.File;
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
-	public int clFasterResourceLoading;
+	public boolean clFasterVertexLighter;
+	public boolean clParallelModelBaking;
 	public boolean geBlacklistLibraryTransformers;
-	public boolean geFasterSideTransformer;
-	public boolean geBlockPosPatch, clBlockInfoPatch;
+	public boolean geBlockPosPatch;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
 	public boolean geImmediateLightingUpdates;
-	public boolean shModelLoaderFirstPass;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -76,19 +75,17 @@ public class FoamFixConfig {
 			geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", "(,13.19.1.2190)");
 
 			if (isCoremod) {
+				clFasterVertexLighter = getBoolean("fasterVertexLighter", "experimental", true, "Implements optimizations to VertexLighter(Flat) inspired by thecodewarrior and bs2609's work.");
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
 				geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "expert", false, "Do not delay lighting updates over other types of updates.");
 				geBlacklistLibraryTransformers = getBoolean("blacklistLibraryTransformers", "coremod", true, "Stops certain non-Minecraft-related libraries from being ASM transformed. You shouldn't be transforming those anyway.");
 				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "coremod", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
-				clBlockInfoPatch = getBoolean("chunkedBlockInfo", "experimental", false, "Prevents redundant BlockInfo calculations by keeping ChunkInfo objects around. Buggy!");
 				clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.");
-				geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
-				geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
-				shModelLoaderFirstPass = getBoolean("fasterModelLoaderFirstPass", "expert", false, "Speedhack to make the ModelLoader skip additional things on the first loading pass. Will break mods, probably.");
+				// geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
+				// geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
+				clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", true, "Threaded, parallel model baking.");
 			}
-
-			// clFasterResourceLoading = config.getInt("fasterResourceLoading", "client", 2, 0, 2, "Slight optimizations to resource loading. Set to 0 to disable, set to 1 to enable a more compatibility-friendly version in case you're having resource issues (missing textures, etc).");
 
 			config.save();
 		}

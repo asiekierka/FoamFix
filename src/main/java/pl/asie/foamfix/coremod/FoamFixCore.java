@@ -42,7 +42,7 @@ import pl.asie.foamfix.shared.FoamFixShared;
 
 @IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFixAPI (or replace with FoamFixAPI-Lawful) and try again.")
 @IFMLLoadingPlugin.SortingIndex(1001)
-@IFMLLoadingPlugin.TransformerExclusions({"pl.asie.foamfix", "gnu.trove"})
+@IFMLLoadingPlugin.TransformerExclusions({"pl.asie.foamfix"})
 public class FoamFixCore implements IFMLLoadingPlugin {
 
     public String[] getASMTransformerClass() {
@@ -88,12 +88,13 @@ public class FoamFixCore implements IFMLLoadingPlugin {
                     Field parentTransformerField = ReflectionHelper.findField(ASMTransformerWrapper.TransformerWrapper.class, "parent");
                     parentTransformer = (IClassTransformer) parentTransformerField.get(transformer);
                 }
-
+/*
                 if (parentTransformer instanceof SideTransformer) {
                     if (FoamFixShared.config.geFasterSideTransformer) {
                         transformerList.set(i, new FoamySideTransformer());
                     }
                 }
+                */
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();

@@ -26,9 +26,7 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
@@ -41,15 +39,11 @@ import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.ClassReader;
-import com.google.common.io.ByteStreams;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-import pl.asie.foamfix.client.FoamyDefaultResourcePack;
 import pl.asie.foamfix.shared.FoamFixShared;
-
-import javax.annotation.Nullable;
 
 public class FoamFixTransformer implements IClassTransformer
 {
@@ -71,7 +65,10 @@ public class FoamFixTransformer implements IClassTransformer
     }
 
     public static byte[] spliceClasses(final byte[] data, final byte[] dataSplice, final String className, final String targetClassName, final String... methods) {
-        // System.out.println("Splicing from " + className + " to " + targetClassName);
+        // System.out.println("Splicing from " + className + " to " + targetClassName)
+        if (dataSplice == null) {
+            throw new RuntimeException("Class " + className + " not found! This is a FoamFix bug!");
+        }
 
         final Set<String> methodSet = Sets.newHashSet(methods);
         final List<String> methodList = Lists.newArrayList(methods);
@@ -91,6 +88,13 @@ public class FoamFixTransformer implements IClassTransformer
         ClassNode nodeSplice = new ClassNode();
         readerData.accept(nodeData, 0);
         readerSplice.accept(new RemappingClassAdapter(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
+        for (String s : nodeSplice.interfaces) {
+            if (s.contains("IFoamFix")) {
+                nodeData.interfaces.add(s);
+                System.out.println("Added INTERFACE: " + s);
+            }
+        }
+
         for (int i = 0; i < nodeSplice.methods.size(); i++) {
             if (methodSet.contains(nodeSplice.methods.get(i).name)) {
                 MethodNode mn = nodeSplice.methods.get(i);
@@ -139,6 +143,7 @@ public class FoamFixTransformer implements IClassTransformer
                 }
             }
         }
+
         nodeData.accept(writer);
         return writer.toByteArray();
     }
@@ -146,16 +151,6 @@ public class FoamFixTransformer implements IClassTransformer
     private static final Multimap<String, TransformerFunction> transformFunctions = HashMultimap.create();
 
     public static void init() {
-        if (FoamFixShared.config.clBlockInfoPatch) {
-            transformFunctions.put("net.minecraftforge.client.model.pipeline.BlockInfo", new TransformerFunction() {
-                @Override
-                public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.blockinfo.BlockInfoPatch", transformedName,
-                            "updateLightMatrix", "updateLightMatrix");
-                }
-            });
-        }
-
         if (FoamFixShared.config.geSmallPropertyStorage) {
             transformFunctions.put("net.minecraft.block.state.BlockStateContainer", new TransformerFunction() {
                 @Override
@@ -174,7 +169,7 @@ public class FoamFixTransformer implements IClassTransformer
             });
         }
 
-        if (FoamFixShared.config.geSmallLightingOptimize) {
+        /* if (FoamFixShared.config.geSmallLightingOptimize) {
             transformFunctions.put("net.minecraft.world.World", new TransformerFunction() {
                 @Override
                 public byte[] transform(byte[] data, String transformedName) {
@@ -182,13 +177,13 @@ public class FoamFixTransformer implements IClassTransformer
                             "checkLightFor","func_180500_c");
                 }
             });
-        }
+        } */
 
         if (FoamFixShared.config.geImmediateLightingUpdates) {
             transformFunctions.put("net.minecraft.client.renderer.RenderGlobal", new TransformerFunction() {
                 @Override
                 public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.RenderGlobalImmediatePatch", transformedName,
+                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.RenderGlobalImmediatePatch", transformedName,
                             "notifyLightSet","func_174959_b");
                 }
             });
@@ -204,23 +199,30 @@ public class FoamFixTransformer implements IClassTransformer
             });
         }
 
-        if (FoamFixShared.config.clFasterResourceLoading > 0) {
-            final String className = FoamyDefaultResourcePack.getClassName();
-            transformFunctions.put("net.minecraft.client.Minecraft", new TransformerFunction() {
+        if (FoamFixShared.config.clParallelModelBaking) {
+            transformFunctions.put("net.minecraftforge.client.model.ModelLoader", new TransformerFunction() {
                 @Override
                 public byte[] transform(byte[] data, String transformedName) {
-                    return replaceConstructor(data, transformedName, "net.minecraft.client.resources.DefaultResourcePack",
-                            className, "<init>");
+                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.ModelLoaderParallel", transformedName,
+                            "setupModelRegistry", "func_177570_a");
                 }
             });
         }
 
-        if (FoamFixShared.config.shModelLoaderFirstPass) {
-            transformFunctions.put("net.minecraftforge.client.model.ModelLoader", new TransformerFunction() {
+        if (FoamFixShared.config.clFasterVertexLighter) {
+            transformFunctions.put("net.minecraftforge.client.model.pipeline.BlockInfo", new TransformerFunction() {
                 @Override
                 public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.hacks.ModelLoaderSpeedhack", transformedName,
-                            "loadBlock", "loadBlock");
+                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.BlockInfoPatch", transformedName,
+                            "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS");
+                }
+            });
+
+            transformFunctions.put("net.minecraftforge.client.model.pipeline.VertexLighterFlat", new TransformerFunction() {
+                @Override
+                public byte[] transform(byte[] data, String transformedName) {
+                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.VertexLighterFlatPatch", transformedName,
+                            "setParent", "setParent", "updateLightmap", "updateLightmap", "getVertexFormatWithNormal", "getVertexFormatWithNormal", "updateBlockInfo", "updateBlockInfo");
                 }
             });
         }
