@@ -40,22 +40,32 @@ public class ModelLoaderParallelHelper extends ModelBakery {
         super(manager, map, shapes);
     }
 
-    public static void parallelBake(Map<IModel, IBakedModel> bakedModels, Multimap<IModel, ModelResourceLocation> models, IModel missingModel, IBakedModel missingBaked) {
+    public static void bake(Map<IModel, IBakedModel> bakedModels, Multimap<IModel, ModelResourceLocation> models, IModel missingModel, IBakedModel missingBaked, boolean parallel) {
         ProgressManager.ProgressBar bakeBar = ProgressManager.push("ModelLoader: baking", models.keySet().size());
 
-        models.keySet().parallelStream().forEach((model -> {
-            synchronized (bakeBar) {
-                bakeBar.step("[" + Joiner.on(", ").join(models.get(model)) + "]");
+        if (parallel) {
+            models.keySet().parallelStream().forEach((model -> {
+                synchronized (bakeBar) {
+                    bakeBar.step("[" + Joiner.on(", ").join(models.get(model)) + "]");
+                }
+                if (model == missingModel) {
+                    bakedModels.put(model, missingBaked);
+                } else {
+                    bakedModels.put(model, model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter()));
+                }
+            }));
+        } else {
+            for (IModel model : models.keys()) {
+                synchronized (bakeBar) {
+                    bakeBar.step("[" + Joiner.on(", ").join(models.get(model)) + "]");
+                }
+                if (model == missingModel) {
+                    bakedModels.put(model, missingBaked);
+                } else {
+                    bakedModels.put(model, model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter()));
+                }
             }
-            if(model == missingModel)
-            {
-                bakedModels.put(model, missingBaked);
-            }
-            else
-            {
-                bakedModels.put(model, model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter()));
-            }
-        }));
+        }
 
         ProgressManager.pop(bakeBar);
     }

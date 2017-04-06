@@ -226,6 +226,18 @@ public class FoamFixTransformer implements IClassTransformer
                 }
             });
         }
+
+        if (FoamFixShared.config.geReplaceSimpleName) {
+            transformFunctions.put("net.minecraft.world.World", new TransformerFunction() {
+                @Override
+                public byte[] transform(byte[] data, String transformedName) {
+                    final ClassReader reader = new ClassReader(data);
+                    final ClassWriter writer = new ClassWriter(0);
+                    reader.accept(new FoamFixReplaceClassSimpleName("updateEntities", "func_72939_s").getClassVisitor(Opcodes.ASM5, writer), 0);
+                    return writer.toByteArray();
+                }
+            });
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {

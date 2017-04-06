@@ -43,6 +43,7 @@ public class FoamFixConfig {
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
 	public boolean geImmediateLightingUpdates;
+	public boolean geReplaceSimpleName;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -85,6 +86,7 @@ public class FoamFixConfig {
 				// geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 				// geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
 				clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", true, "Threaded, parallel model baking.");
+				geReplaceSimpleName = getBoolean("replaceWorldSimpleName", "coremod", true, "Replaces Class.getSimpleName in World.updateEntities with getName. As Class.getName's output is cached, unlike getSimpleName, this should provide a small performance boost.");
 			}
 
 			config.save();

@@ -69,10 +69,21 @@ public class ModelLoaderParallel extends ModelBakery {
         }
 
         Map<IModel, IBakedModel> bakedModels = new ConcurrentHashMap<>();
+        HashMultimap<IModel, ModelResourceLocation> modelsParallel = HashMultimap.create();
         HashMultimap<IModel, ModelResourceLocation> models = HashMultimap.create();
-        Multimaps.invertFrom(Multimaps.forMap(stateModels), models);
 
-        ModelLoaderParallelHelper.parallelBake(bakedModels, models, getMissingModel(), missingBaked);
+        boolean foundFancyMissingModel = false;
+        for (Map.Entry<ModelResourceLocation, IModel> modelEntry : stateModels.entrySet()) {
+            if (!foundFancyMissingModel && modelEntry.getValue().getClass().getName().equals("net.minecraftforge.client.model.FancyMissingModel")) {
+                models.put(modelEntry.getValue(), modelEntry.getKey());
+                foundFancyMissingModel = true;
+            } else {
+                modelsParallel.put(modelEntry.getValue(), modelEntry.getKey());
+            }
+        }
+
+        ModelLoaderParallelHelper.bake(bakedModels, models, getMissingModel(), missingBaked, false);
+        ModelLoaderParallelHelper.bake(bakedModels, modelsParallel, getMissingModel(), missingBaked, true);
 
         for (Map.Entry<ModelResourceLocation, IModel> e : stateModels.entrySet())
         {
