@@ -36,7 +36,7 @@ import java.io.File;
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache;
 	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
-	public boolean clFasterVertexLighter;
+	public boolean clFasterVertexLighter, clInitOptions;
 	public boolean clParallelModelBaking;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch;
@@ -76,6 +76,7 @@ public class FoamFixConfig {
 			geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", "(,13.19.1.2190)");
 
 			if (isCoremod) {
+				clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.");
 				clFasterVertexLighter = getBoolean("fasterVertexLighter", "experimental", true, "Implements optimizations to VertexLighter(Flat) inspired by thecodewarrior and bs2609's work.");
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
 				geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "expert", false, "Do not delay lighting updates over other types of updates.");

@@ -26,10 +26,13 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.asm.ASMTransformerWrapper;
@@ -37,6 +40,7 @@ import net.minecraftforge.fml.common.asm.transformers.DeobfuscationTransformer;
 import net.minecraftforge.fml.common.asm.transformers.SideTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.coremod.transformer.FoamySideTransformer;
 import pl.asie.foamfix.shared.FoamFixShared;
 
@@ -60,6 +64,21 @@ public class FoamFixCore implements IFMLLoadingPlugin {
     public void injectData(final Map<String, Object> data) {
         FoamFixShared.coremodEnabled = true;
         FoamFixShared.config.init(new File(new File("config"), "foamfix.cfg"), true);
+
+        if (FoamFixShared.config.clInitOptions) {
+            try {
+                File optionsFile = new File("options.txt");
+                if (!optionsFile.exists()) {
+                    Files.write("mipmapLevels:0\n", optionsFile, Charsets.UTF_8);
+                }
+                File forgeCfgFile = new File(new File("config"), "forge.cfg");
+                if (!forgeCfgFile.exists()) {
+                    Files.write("client {\nB:alwaysSetupTerrainOffThread=true\n}\n", forgeCfgFile, Charsets.UTF_8);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         if (FoamFixShared.config.geBlacklistLibraryTransformers) {
             LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
