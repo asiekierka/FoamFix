@@ -30,11 +30,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraft.util.registry.IRegistry;
+import net.minecraft.util.IRegistry;
+import net.minecraft.util.RegistrySimple;
 import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -58,7 +59,7 @@ public class FoamFixModelRegistryDuplicateWipe {
 
         Field f = ReflectionHelper.findField(ModelManager.class, "modelRegistry", "field_174958_a");
         try {
-            IRegistry<ModelResourceLocation, IBakedModel> registry = (IRegistry<ModelResourceLocation, IBakedModel>) f.get(mgr);
+            RegistrySimple<ModelResourceLocation, IBakedModel> registry = (RegistrySimple<ModelResourceLocation, IBakedModel>) f.get(mgr);
             FoamFix.logger.info("Clearing unnecessary model registry of size " + registry.getKeys().size() + ".");
             for (ModelResourceLocation l : registry.getKeys()) {
                 registry.putObject(l, ProxyClient.DUMMY_MODEL);

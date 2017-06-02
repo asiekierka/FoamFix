@@ -169,60 +169,12 @@ public class FoamFixTransformer implements IClassTransformer
             });
         }
 
-        /* if (FoamFixShared.config.geSmallLightingOptimize) {
-            transformFunctions.put("net.minecraft.world.World", new TransformerFunction() {
-                @Override
-                public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.WorldLightingPatch", transformedName,
-                            "checkLightFor","func_180500_c");
-                }
-            });
-        } */
-
-        if (FoamFixShared.config.geImmediateLightingUpdates) {
-            transformFunctions.put("net.minecraft.client.renderer.RenderGlobal", new TransformerFunction() {
-                @Override
-                public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.RenderGlobalImmediatePatch", transformedName,
-                            "notifyLightSet","func_174959_b");
-                }
-            });
-        }
-
         if (FoamFixShared.config.clDynamicItemModels) {
             transformFunctions.put("net.minecraftforge.client.model.ItemLayerModel", new TransformerFunction() {
                 @Override
                 public byte[] transform(byte[] data, String transformedName) {
                     return spliceClasses(data, "pl.asie.foamfix.client.FoamFixDynamicItemModels", transformedName,
                             "bake", "bake");
-                }
-            });
-        }
-
-        if (FoamFixShared.config.clParallelModelBaking) {
-            transformFunctions.put("net.minecraftforge.client.model.ModelLoader", new TransformerFunction() {
-                @Override
-                public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.ModelLoaderParallel", transformedName,
-                            "setupModelRegistry", "func_177570_a");
-                }
-            });
-        }
-
-        if (FoamFixShared.config.clFasterVertexLighter) {
-            transformFunctions.put("net.minecraftforge.client.model.pipeline.BlockInfo", new TransformerFunction() {
-                @Override
-                public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.BlockInfoPatch", transformedName,
-                            "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS");
-                }
-            });
-
-            transformFunctions.put("net.minecraftforge.client.model.pipeline.VertexLighterFlat", new TransformerFunction() {
-                @Override
-                public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.client.VertexLighterFlatPatch", transformedName,
-                            "setParent", "setParent", "updateLightmap", "updateLightmap", "getVertexFormatWithNormal", "getVertexFormatWithNormal", "updateBlockInfo", "updateBlockInfo");
                 }
             });
         }

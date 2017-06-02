@@ -26,12 +26,13 @@
 package pl.asie.foamfix.client;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.util.RegistrySimple;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import pl.asie.foamfix.FoamFix;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import pl.asie.foamfix.ProxyClient;
@@ -45,7 +46,7 @@ public class FoamFixModelDeduplicate {
         // FoamUtils.wipeModelLoaderRegistryCache();
 
         if (FoamFixShared.config.clDeduplicate) {
-            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
+            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", ((RegistrySimple<ModelResourceLocation, IBakedModel>) event.modelRegistry).getKeys().size());
 
             if (ProxyClient.deduplicator == null) {
                 ProxyClient.deduplicator = new Deduplicator();
@@ -54,11 +55,11 @@ public class FoamFixModelDeduplicate {
             FoamFix.logger.info("Deduplicating models...");
             ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
 
-            ProxyClient.deduplicator.addObjects(Block.REGISTRY.getKeys());
-            ProxyClient.deduplicator.addObjects(Item.REGISTRY.getKeys());
+            ProxyClient.deduplicator.addObjects(Block.blockRegistry.getKeys());
+            ProxyClient.deduplicator.addObjects(Item.itemRegistry.getKeys());
 
-            for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
-                IBakedModel model = event.getModelRegistry().getObject(loc);
+            for (ModelResourceLocation loc : ((RegistrySimple<ModelResourceLocation, IBakedModel>) event.modelRegistry).getKeys()) {
+                IBakedModel model = event.modelRegistry.getObject(loc);
                 String modelName = loc.toString();
                 bakeBar.step(String.format("[%s]", modelName));
                 try {

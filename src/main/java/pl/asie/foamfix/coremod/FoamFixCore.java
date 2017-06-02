@@ -65,21 +65,6 @@ public class FoamFixCore implements IFMLLoadingPlugin {
         FoamFixShared.coremodEnabled = true;
         FoamFixShared.config.init(new File(new File("config"), "foamfix.cfg"), true);
 
-        if (FoamFixShared.config.clInitOptions) {
-            try {
-                File optionsFile = new File("options.txt");
-                if (!optionsFile.exists()) {
-                    Files.write("mipmapLevels:0\n", optionsFile, Charsets.UTF_8);
-                }
-                File forgeCfgFile = new File(new File("config"), "forge.cfg");
-                if (!forgeCfgFile.exists()) {
-                    Files.write("client {\nB:alwaysSetupTerrainOffThread=true\n}\n", forgeCfgFile, Charsets.UTF_8);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
         if (FoamFixShared.config.geBlacklistLibraryTransformers) {
             LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
             classLoader.addTransformerExclusion("com.ibm.icu.");
@@ -91,32 +76,6 @@ public class FoamFixCore implements IFMLLoadingPlugin {
             classLoader.addTransformerExclusion("org.apache.");
             classLoader.addTransformerExclusion("oshi.");
             classLoader.addTransformerExclusion("scala.");
-        }
-
-        LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
-
-        // Not so simple!
-        try {
-            Field transformersField = ReflectionHelper.findField(LaunchClassLoader.class, "transformers");
-            List<IClassTransformer> transformerList = (List<IClassTransformer>) transformersField.get(classLoader);
-
-            for (int i = 0; i < transformerList.size(); i++) {
-                IClassTransformer transformer = transformerList.get(i);
-                IClassTransformer parentTransformer = transformer;
-                if (transformer instanceof ASMTransformerWrapper.TransformerWrapper) {
-                    Field parentTransformerField = ReflectionHelper.findField(ASMTransformerWrapper.TransformerWrapper.class, "parent");
-                    parentTransformer = (IClassTransformer) parentTransformerField.get(transformer);
-                }
-/*
-                if (parentTransformer instanceof SideTransformer) {
-                    if (FoamFixShared.config.geFasterSideTransformer) {
-                        transformerList.set(i, new FoamySideTransformer());
-                    }
-                }
-                */
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
         }
 
         FoamFixTransformer.init();

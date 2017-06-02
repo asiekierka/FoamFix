@@ -4,16 +4,16 @@ import gnu.trove.impl.Constants;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 
 import java.util.*;
 
 public class PropertyValueMapper {
-	private static final Comparator<? super IProperty<?>> COMPARATOR_BIT_FITNESS = new Comparator<IProperty<?>>() {
+	private static final Comparator<IProperty> COMPARATOR_BIT_FITNESS = new Comparator<IProperty>() {
 		@Override
-		public int compare(IProperty<?> first, IProperty<?> second) {
+		public int compare(IProperty first, IProperty second) {
 			int diff1 = getPropertyEntry(first).bitSize - first.getAllowedValues().size();
 			int diff2 = getPropertyEntry(second).bitSize - second.getAllowedValues().size();
 			// We want to put properties with higher diff-values last,
@@ -65,18 +65,18 @@ public class PropertyValueMapper {
 	}
 
 	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
-	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
+	private static final Map<BlockState, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
 	private final Entry[] entryList;
 	private final TObjectIntMap<IProperty> entryPositionMap;
 	private final IBlockState[] stateMap;
 
-	public PropertyValueMapper(BlockStateContainer container) {
-		Collection<IProperty<?>> properties = container.getProperties();
+	public PropertyValueMapper(BlockState container) {
+		Collection<IProperty> properties = container.getProperties();
 
 		entryList = new Entry[properties.size()];
-		List<IProperty<?>> propertiesSortedFitness = new ArrayList<>(properties);
-		Collections.sort(propertiesSortedFitness, COMPARATOR_BIT_FITNESS);
+		List<IProperty> propertiesSortedFitness = new ArrayList<>(properties);
+		propertiesSortedFitness.sort(COMPARATOR_BIT_FITNESS);
 		int i = 0;
 		for (IProperty p : propertiesSortedFitness) {
 			entryList[i++] = getPropertyEntry(p);
@@ -98,7 +98,7 @@ public class PropertyValueMapper {
 		}
 	}
 
-	public static PropertyValueMapper getOrCreate(BlockStateContainer owner) {
+	public static PropertyValueMapper getOrCreate(BlockState owner) {
 		PropertyValueMapper e = mapperMap.get(owner);
 		if (e == null) {
 			e = new PropertyValueMapper(owner);

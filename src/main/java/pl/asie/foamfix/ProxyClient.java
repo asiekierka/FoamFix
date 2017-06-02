@@ -29,36 +29,36 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.DefaultResourcePack;
 import net.minecraft.client.resources.ResourceIndex;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.client.Deduplicator;
-import pl.asie.foamfix.client.FoamFixDynamicItemModels;
 import pl.asie.foamfix.client.FoamFixModelDeduplicate;
 import pl.asie.foamfix.client.FoamFixModelRegistryDuplicateWipe;
 import pl.asie.foamfix.shared.FoamFixShared;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
 	public static Deduplicator deduplicator = new Deduplicator();
 
 	public static final IBakedModel DUMMY_MODEL = new IBakedModel() {
-		private final ItemOverrideList itemOverrideList = ItemOverrideList.NONE;
+		@Override
+		public List<BakedQuad> getFaceQuads(EnumFacing facing) {
+			return Collections.emptyList();
+		}
 
 		@Override
-		public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
-			return ImmutableList.of();
+		public List<BakedQuad> getGeneralQuads() {
+			return Collections.emptyList();
 		}
 
 		@Override
@@ -85,11 +85,6 @@ public class ProxyClient extends ProxyCommon {
 		public ItemCameraTransforms getItemCameraTransforms() {
 			return ItemCameraTransforms.DEFAULT;
 		}
-
-		@Override
-		public ItemOverrideList getOverrides() {
-			return itemOverrideList;
-		}
 	};
 
 	@Override
@@ -98,10 +93,6 @@ public class ProxyClient extends ProxyCommon {
 
 		if (!FoamFixShared.config.clDeduplicate) {
 			deduplicator = null;
-		}
-
-		if (FoamFixShared.config.clDynamicItemModels) {
-			FoamFixDynamicItemModels.register();
 		}
 	}
 

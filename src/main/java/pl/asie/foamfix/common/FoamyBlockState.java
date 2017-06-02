@@ -3,17 +3,17 @@ package pl.asie.foamfix.common;
 import com.google.common.collect.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 
 import java.util.Map;
 
-public class FoamyBlockState extends BlockStateContainer.StateImplementation {
+public class FoamyBlockState extends BlockState.StateImplementation {
 	protected final PropertyValueMapper owner;
-	protected final ImmutableMap<IProperty<?>, Comparable<?>> properties;
+	protected final ImmutableMap<IProperty, Comparable> properties;
 	protected int value;
 
-	public FoamyBlockState(PropertyValueMapper owner, Block blockIn, ImmutableMap < IProperty<?>, Comparable<? >> propertiesIn) {
+	public FoamyBlockState(PropertyValueMapper owner, Block blockIn, ImmutableMap < IProperty, Comparable> propertiesIn) {
 		super(blockIn, propertiesIn);
 		this.owner = owner;
 		this.properties = propertiesIn;
@@ -31,7 +31,7 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation {
 			IBlockState state = owner.withProperty(this.value, property, value);
 
 			if (state == null) {
-				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(this.getBlock()) + ", it is not an allowed value");
+				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.blockRegistry.getNameForObject(this.getBlock()) + ", it is not an allowed value");
 			} else {
 				return state;
 			}
@@ -39,7 +39,7 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation {
 	}
 
 	@Override
-	public void buildPropertyValueTable(Map <Map< IProperty<?>, Comparable<? >>, BlockStateContainer.StateImplementation > map) {
+	public void buildPropertyValueTable(Map <Map< IProperty, Comparable>, BlockState.StateImplementation > map) {
 		this.value = owner.generateValue(this);
 	}
 }

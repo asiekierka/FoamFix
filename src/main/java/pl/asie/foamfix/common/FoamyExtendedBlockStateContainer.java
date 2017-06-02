@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.BlockState;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import pl.asie.foamfix.common.FoamyExtendedBlockState;
@@ -15,7 +15,7 @@ public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
 	}
 
 	@Override
-	protected BlockStateContainer.StateImplementation createState(Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties)
+	protected BlockState.StateImplementation createState(Block block, ImmutableMap<IProperty, Comparable> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties)
 	{
 		if (unlistedProperties == null || unlistedProperties.isEmpty()) {
 			return new FoamyBlockState(PropertyValueMapper.getOrCreate(this), block, properties);

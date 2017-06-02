@@ -21,12 +21,12 @@ import java.util.Map;
 public class FoamyExtendedBlockState extends FoamyBlockState implements IExtendedBlockState {
 	private final ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties;
 
-	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
+	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty, Comparable> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
 	}
 
-	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, int value) {
+	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty, Comparable> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, int value) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
 		this.value = value;
@@ -43,7 +43,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		{
 			if (!property.getAllowedValues().contains(propertyValue))
 			{
-				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(getBlock()) + ", it is not an allowed value");
+				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.blockRegistry.getNameForObject(getBlock()) + ", it is not an allowed value");
 			} else
 			{
 				if (this.getProperties().get(property) == propertyValue)
@@ -72,7 +72,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		}
 		if(!property.isValid(value))
 		{
-			throw new IllegalArgumentException("Cannot set unlisted property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(getBlock()) + ", it is not an allowed value");
+			throw new IllegalArgumentException("Cannot set unlisted property " + property + " to " + value + " on block " + Block.blockRegistry.getNameForObject(getBlock()) + ", it is not an allowed value");
 		}
 		Map<IUnlistedProperty<?>, Optional<?>> newMap = new HashMap<>(unlistedProperties);
 		newMap.put(property, Optional.fromNullable(value));

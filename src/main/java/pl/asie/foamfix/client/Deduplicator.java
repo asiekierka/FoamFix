@@ -36,21 +36,25 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IRegistry;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.TRSRTransformation;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.shared.FoamFixShared;
@@ -96,13 +100,10 @@ public class Deduplicator {
     }
 
     static {
-        TRIM_ARRAYS_CLASSES.add(ItemOverrideList.class);
         TRIM_ARRAYS_CLASSES.add(FoamyItemLayerModel.DynamicItemModel.class);
         TRIM_ARRAYS_CLASSES.add(SimpleBakedModel.class);
-        TRIM_ARRAYS_CLASSES.add(WeightedBakedModel.class);
 
         BLACKLIST_CLASS.add(FoamyItemLayerModel.Dynamic3DItemModel.class);
-
         BLACKLIST_CLASS.add(Object.class);
         BLACKLIST_CLASS.add(Class.class);
         BLACKLIST_CLASS.add(String.class);
@@ -126,7 +127,7 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(Logger.class);
         BLACKLIST_CLASS.add(Joiner.class);
         BLACKLIST_CLASS.add(Tessellator.class);
-        BLACKLIST_CLASS.add(VertexBuffer.class);
+        BLACKLIST_CLASS.add(WorldRenderer.class);
         BLACKLIST_CLASS.add(Cache.class);
         BLACKLIST_CLASS.add(LoadingCache.class);
         BLACKLIST_CLASS.add(VertexFormatElement.class);
@@ -262,9 +263,6 @@ public class Deduplicator {
         } else if (o instanceof Item || o instanceof Block || o instanceof World
                 || o instanceof Entity || o instanceof Logger || o instanceof IRegistry) {
             BLACKLIST_CLASS.add(c);
-        } else if (o != ItemOverrideList.NONE && c == ItemOverrideList.class && ((ItemOverrideList) o).getOverrides().isEmpty()) {
-            successfuls++;
-            return ItemOverrideList.NONE;
         } else if (o instanceof com.google.common.base.Optional) {
             Optional opt = (Optional) o;
             if (opt.isPresent()) {

@@ -35,22 +35,20 @@ import java.io.File;
 
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache;
-	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
-	public boolean clFasterVertexLighter, clInitOptions;
-	public boolean clParallelModelBaking;
+	public boolean clDeduplicate, clCleanRedundantModelRegistry;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
-	public boolean geImmediateLightingUpdates;
 	public boolean geReplaceSimpleName;
 
 	public int clDeduplicateRecursionLevel;
 
 	private Configuration config;
 	public boolean geSmallLightingOptimize = false;
+    public boolean clDynamicItemModels;
 
-	private boolean getBoolean(String name, String category, boolean defaultValue, String description) {
+    private boolean getBoolean(String name, String category, boolean defaultValue, String description) {
 		return config.getBoolean(name, category, defaultValue, description);
 	}
 
@@ -76,18 +74,14 @@ public class FoamFixConfig {
 			geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", "(,13.19.1.2190)");
 
 			if (isCoremod) {
-				clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.");
-				clFasterVertexLighter = getBoolean("fasterVertexLighter", "experimental", true, "Implements optimizations to VertexLighter(Flat) inspired by thecodewarrior and bs2609's work.");
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
-				geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "expert", false, "Do not delay lighting updates over other types of updates.");
 				geBlacklistLibraryTransformers = getBoolean("blacklistLibraryTransformers", "coremod", true, "Stops certain non-Minecraft-related libraries from being ASM transformed. You shouldn't be transforming those anyway.");
 				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "coremod", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
-				clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.");
 				// geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 				// geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
-				clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", true, "Threaded, parallel model baking.");
 				geReplaceSimpleName = getBoolean("replaceWorldSimpleName", "coremod", true, "Replaces Class.getSimpleName in World.updateEntities with getName. As Class.getName's output is cached, unlike getSimpleName, this should provide a small performance boost.");
+				clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.");
 			}
 
 			config.save();

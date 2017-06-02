@@ -48,9 +48,9 @@ public final class HashingStrategies {
         @Override
         public int computeHashCode(ItemCameraTransforms object) {
             int hash = 1;
-            for (ItemTransformVec3f transform : ImmutableSet.of(object.firstperson_left, object.firstperson_right,
+            for (ItemTransformVec3f transform : ImmutableSet.of(object.firstPerson,
                     object.fixed, object.ground, object.gui, object.head,
-                    object.thirdperson_left, object.thirdperson_right)) {
+                    object.thirdPerson)) {
                 for (org.lwjgl.util.vector.Vector3f vector : ImmutableSet.of(transform.rotation, transform.scale, transform.translation)) {
                     hash = ((hash * 31 + Float.floatToIntBits(vector.getX())) * 31 + Float.floatToIntBits(vector.getY())) * 31 + Float.floatToIntBits(vector.getZ());
                 }
@@ -63,14 +63,12 @@ public final class HashingStrategies {
             if (o1 == null) {
                 return o2 == null;
             } else {
-                return Objects.equals(o1.firstperson_left, o2.firstperson_left)
-                        && Objects.equals(o1.firstperson_right, o2.firstperson_right)
+                return Objects.equals(o1.firstPerson, o2.firstPerson)
                         && Objects.equals(o1.fixed, o2.fixed)
                         && Objects.equals(o1.ground, o2.ground)
                         && Objects.equals(o1.gui, o2.gui)
                         && Objects.equals(o1.head, o2.head)
-                        && Objects.equals(o1.thirdperson_left, o2.thirdperson_left)
-                        && Objects.equals(o1.thirdperson_right, o2.thirdperson_right);
+                        && Objects.equals(o1.thirdPerson, o2.thirdPerson);
             }
         }
     }
