@@ -1,8 +1,15 @@
-package pl.asie.patchy;
+package pl.asie.patchy.handlers;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import pl.asie.patchy.Patchy;
+import pl.asie.patchy.TransformerFunction;
+import pl.asie.patchy.TransformerHandler;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 public class TransformerHandlerClassNode extends TransformerHandler<ClassNode> {
     public TransformerHandlerClassNode(Patchy owner) {
@@ -15,17 +22,14 @@ public class TransformerHandlerClassNode extends TransformerHandler<ClassNode> {
     }
 
     @Override
-    public ClassNode begin(byte[] data) {
+    protected byte[] process(byte[] data, String name, List<TransformerFunction<ClassNode>> transformerFunctions) {
         ClassReader reader = new ClassReader(data);
         ClassNode node = new ClassNode();
         reader.accept(node, 0);
-        return node;
-    }
-
-    @Override
-    public byte[] end(ClassNode data) {
+        for (TransformerFunction<ClassNode> func : transformerFunctions)
+            func.apply(node, name);
         ClassWriter writer = new ClassWriter(0);
-        data.accept(writer);
+        node.accept(writer);
         return writer.toByteArray();
     }
 }

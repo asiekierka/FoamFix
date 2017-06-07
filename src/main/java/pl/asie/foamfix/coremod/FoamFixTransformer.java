@@ -28,17 +28,17 @@ package pl.asie.foamfix.coremod;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.ClassReader;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
@@ -46,6 +46,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
+import pl.asie.patchy.handlers.*;
 
 public class FoamFixTransformer implements IClassTransformer {
     public static ClassNode spliceClasses(final ClassNode data, final String className, final String targetClassName, final String... methods) {
@@ -141,11 +142,11 @@ public class FoamFixTransformer implements IClassTransformer {
     public static void init() {
         patchy.registerHandler(byte[].class, new TransformerHandlerByteArray(patchy));
         patchy.registerHandler(ClassNode.class, new TransformerHandlerClassNode(patchy));
-        patchy.registerHandler(ClassVisitorChain.class, new TransformerHandlerClassVisitorChain(patchy));
+        patchy.registerHandler(ClassVisitor.class, new TransformerHandlerClassVisitor(patchy));
 
         TransformerHandler<byte[]> handler = patchy.getHandler(byte[].class);
         TransformerHandler<ClassNode> handlerCN = patchy.getHandler(ClassNode.class);
-        TransformerHandler<ClassVisitorChain> handlerCV = patchy.getHandler(ClassVisitorChain.class);
+        TransformerHandler<ClassVisitor> handlerCV = patchy.getHandler(ClassVisitor.class);
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
             patchy.addTransformerId("smallPropertyStorage_v1");
@@ -192,13 +193,13 @@ public class FoamFixTransformer implements IClassTransformer {
         if (FoamFixShared.config.geReplaceSimpleName) {
             patchy.addTransformerId("replaceSimpleName_v1");
             FoamFixReplaceClassSimpleName replace = new FoamFixReplaceClassSimpleName("updateEntities", "func_72939_s");
-            handlerCV.add((chain, name) -> chain.add(replace.getClassVisitor(Opcodes.ASM5)), "net.minecraft.world.World");
+            handlerCV.add((next, name) -> replace.getClassVisitor(Opcodes.ASM5, next), "net.minecraft.world.World");
         }
 
         if (FoamFixShared.config.geBlockPosPatch) {
             patchy.addTransformerId("blockPosPatch_v1");
             handlerCN.add((data, name) -> BlockPosPatch.patchVec3i(data), "net.minecraft.util.math.Vec3i");
-            handlerCV.add((chain, name) -> chain.add(BlockPosPatch.patchOtherClass("net.minecraft.util.math.BlockPos$MutableBlockPos".equals(name))));
+            handlerCV.add((next, name) -> BlockPosPatch.patchOtherClass(next, "net.minecraft.util.math.BlockPos$MutableBlockPos".equals(name)));
         }
     }
 

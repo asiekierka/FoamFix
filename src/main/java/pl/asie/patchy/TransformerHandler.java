@@ -1,5 +1,7 @@
 package pl.asie.patchy;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -10,7 +12,7 @@ public abstract class TransformerHandler<T> {
         this.owner = owner;
     }
 
-    public void add(BiFunction<T, String, T> function, String... names) {
+    public void add(TransformerFunction<T> function, String... names) {
         if (names.length == 0) {
             owner.registerGlobalTransformer(getType(), function);
         } else {
@@ -21,6 +23,5 @@ public abstract class TransformerHandler<T> {
     }
 
     protected abstract Class<T> getType();
-    protected abstract T begin(byte[] data);
-    protected abstract byte[] end(T data);
+    protected abstract byte[] process(byte[] data, String name, List<TransformerFunction<T>> functions);
 }
