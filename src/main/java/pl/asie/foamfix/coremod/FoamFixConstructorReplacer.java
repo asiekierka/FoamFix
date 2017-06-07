@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import pl.asie.patchy.handlers.ChainableClassVisitor;
 
 import java.util.Set;
 
@@ -18,8 +17,8 @@ public class FoamFixConstructorReplacer {
         this.methods = ImmutableSet.copyOf(methods);
     }
 
-    public ClassVisitor getClassVisitor(int api, ClassVisitor next) {
-        return new FFClassVisitor(api, next);
+    public ClassVisitor getClassVisitor(ClassVisitor next) {
+        return new FFClassVisitor(Opcodes.ASM5, next);
     }
 
     private class FFClassVisitor extends ClassVisitor {
