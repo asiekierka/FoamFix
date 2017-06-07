@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import pl.asie.patchy.ChainableClassVisitor;
 
 import java.util.Set;
 
@@ -14,13 +15,13 @@ public class FoamFixReplaceClassSimpleName {
         this.methods = ImmutableSet.copyOf(methods);
     }
 
-    public ClassVisitor getClassVisitor(int api, ClassVisitor next) {
-        return new FFClassVisitor(api, next);
+    public ChainableClassVisitor getClassVisitor(int api) {
+        return new FFClassVisitor(api);
     }
 
-    private class FFClassVisitor extends ClassVisitor {
-        public FFClassVisitor(int api, ClassVisitor next) {
-            super(api, next);
+    private class FFClassVisitor extends ChainableClassVisitor {
+        public FFClassVisitor(int api) {
+            super(api);
         }
 
         @Override

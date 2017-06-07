@@ -34,20 +34,12 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.DefaultResourcePack;
-import net.minecraft.client.resources.ResourceIndex;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import pl.asie.foamfix.client.Deduplicator;
-import pl.asie.foamfix.client.FoamFixDynamicItemModels;
-import pl.asie.foamfix.client.FoamFixModelDeduplicate;
-import pl.asie.foamfix.client.FoamFixModelRegistryDuplicateWipe;
+import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
