@@ -28,6 +28,7 @@ package pl.asie.foamfix.coremod;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
+import pl.asie.patchy.ChainableClassVisitor;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,12 +58,12 @@ public class BlockPosPatch {
 		mutableOwners.add("net/minecraft/util/math/BlockPos$MutableBlockPos");
 	}
 
-	private static class BlockPosClassVisitor extends ClassVisitor {
+	private static class BlockPosClassVisitor extends ChainableClassVisitor {
 		private final boolean isMutable;
 		private boolean hasChanged = false;
 
-		public BlockPosClassVisitor(int api, ClassVisitor next, boolean isMutable) {
-			super(api, next);
+		public BlockPosClassVisitor(int api, boolean isMutable) {
+			super(api);
 			this.isMutable = isMutable;
 		}
 
@@ -136,31 +137,16 @@ public class BlockPosPatch {
 		}
 	}
 
-	public static byte[] patchVec3i(byte[] data) {
-		final ClassReader reader = new ClassReader(data);
-		final ClassNode node = new ClassNode();
-		reader.accept(node, 0);
+	public static ClassNode patchVec3i(ClassNode node) {
 		for (FieldNode fn : node.fields) {
 			if ("I".equals(fn.desc) && fn.access == (Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL)) {
 				fn.access = Opcodes.ACC_PROTECTED;
 			}
 		}
-		final ClassWriter writer = new ClassWriter(0);
-		node.accept(writer);
-		return writer.toByteArray();
+		return node;
 	}
 
-	public static byte[] patchOtherClass(byte[] data, boolean isMutable) {
-		final ClassReader reader = new ClassReader(data);
-		final BlockPosClassVisitor cv = new BlockPosClassVisitor(Opcodes.ASM5, null, isMutable);
-		reader.accept(cv, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
-		if (cv.hasChanged) {
-			final ClassWriter writer = new ClassWriter(0);
-			cv.setCV(writer);
-			reader.accept(cv, 0);
-			return writer.toByteArray();
-		} else {
-			return data;
-		}
+	public static ChainableClassVisitor patchOtherClass(boolean isMutable) {
+		return new BlockPosClassVisitor(Opcodes.ASM5, isMutable);
 	}
 }
