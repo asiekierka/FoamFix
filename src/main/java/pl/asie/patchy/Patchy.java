@@ -1,22 +1,21 @@
 package pl.asie.patchy;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 import java.util.*;
 import java.util.function.BiFunction;
 
 public class Patchy implements IClassTransformer {
-    private final Map<Class<?>, TransformerHandler<?>> handlerMap;
-    private final Map<String, Multimap<Class, BiFunction>> localTransformers;
-    private final Multimap<Class, BiFunction> globalTransformers;
+    private final Map<Class, TransformerHandler> handlerMap;
+    private final Table<String, Class, List<Object>> localTransformers;
+    private final Map<Class, List<Object>> globalTransformers;
     private final List<String> activeTransformers;
 
     public Patchy() {
         this.handlerMap = new HashMap<>();
-        this.localTransformers = new HashMap<>();
-        this.globalTransformers = HashMultimap.create();
+        this.localTransformers = HashBasedTable.create();
+        this.globalTransformers = new HashMap<>();
         this.activeTransformers = new ArrayList<>();
     }
 
@@ -33,15 +32,11 @@ public class Patchy implements IClassTransformer {
         return (TransformerHandler<T>) handlerMap.get(cls);
     }
 
-    private byte[] transformWithMap(byte[] data, String name, Multimap<Class, BiFunction> map) {
+    private byte[] transformWithMap(byte[] data, String name, Map<Class, List<Object>> map) {
         if (map != null) {
-            for (Class c : map.keys()) {
+            for (Class c : map.keySet()) {
                 TransformerHandler handler = handlerMap.get(c);
-                Object o = handler.begin(data);
-                for (BiFunction func : map.get(c)) {
-                    o = func.apply(o, name);
-                }
-                data = handler.end(o);
+                data = handler.process(data, name, map.get(c));
             }
         }
         return data;
@@ -54,18 +49,23 @@ public class Patchy implements IClassTransformer {
             return null;
 
         basicClass = transformWithMap(basicClass, transformedName, globalTransformers);
-        basicClass = transformWithMap(basicClass, transformedName, localTransformers.get(transformedName));
+        basicClass = transformWithMap(basicClass, transformedName, localTransformers.row(transformedName));
         return basicClass;
     }
 
-    protected <T> void registerGlobalTransformer(Class<T> type, BiFunction<T, String, T> function) {
-        globalTransformers.put(type, function);
+    protected <T> void registerGlobalTransformer(Class<T> type, TransformerFunction<T> function) {
+        if (!globalTransformers.containsKey(type)) {
+            globalTransformers.put(type, Lists.newArrayList(function));
+        } else {
+            globalTransformers.get(type).add(function);
+        }
     }
 
-    protected <T> void registerLocalTransformer(String s, Class<T> type, BiFunction<T, String, T> function) {
-        if (!localTransformers.containsKey(s)) {
-            localTransformers.put(s, HashMultimap.create());
+    protected <T> void registerLocalTransformer(String s, Class<T> type, TransformerFunction<T> function) {
+        if (!localTransformers.contains(s, type)) {
+            localTransformers.put(s, type, Lists.newArrayList(function));
+        } else {
+            localTransformers.get(s, type).add(function);
         }
-        localTransformers.get(s).put(type, function);
     }
 }

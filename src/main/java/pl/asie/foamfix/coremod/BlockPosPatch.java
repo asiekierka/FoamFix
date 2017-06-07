@@ -28,7 +28,7 @@ package pl.asie.foamfix.coremod;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
-import pl.asie.patchy.ChainableClassVisitor;
+import pl.asie.patchy.handlers.ChainableClassVisitor;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,12 +58,12 @@ public class BlockPosPatch {
 		mutableOwners.add("net/minecraft/util/math/BlockPos$MutableBlockPos");
 	}
 
-	private static class BlockPosClassVisitor extends ChainableClassVisitor {
+	private static class BlockPosClassVisitor extends ClassVisitor {
 		private final boolean isMutable;
 		private boolean hasChanged = false;
 
-		public BlockPosClassVisitor(int api, boolean isMutable) {
-			super(api);
+		public BlockPosClassVisitor(int api, ClassVisitor next, boolean isMutable) {
+			super(api, next);
 			this.isMutable = isMutable;
 		}
 
@@ -146,7 +146,7 @@ public class BlockPosPatch {
 		return node;
 	}
 
-	public static ChainableClassVisitor patchOtherClass(boolean isMutable) {
-		return new BlockPosClassVisitor(Opcodes.ASM5, isMutable);
+	public static ClassVisitor patchOtherClass(ClassVisitor next, boolean isMutable) {
+		return new BlockPosClassVisitor(Opcodes.ASM5, next, isMutable);
 	}
 }
