@@ -20,9 +20,9 @@ public class TransformerHandlerByteArray extends TransformerHandler<byte[]> {
     }
 
     @Override
-    protected byte[] process(byte[] data, String name, List<TransformerFunction<byte[]>> transformerFunctions) {
+    protected byte[] process(byte[] data, List<TransformerFunction<byte[]>> transformerFunctions) {
         for (TransformerFunction<byte[]> function : transformerFunctions) {
-            data = function.apply(data, name);
+            data = function.apply(data);
         }
         return data;
     }

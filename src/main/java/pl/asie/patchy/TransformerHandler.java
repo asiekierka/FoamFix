@@ -23,5 +23,5 @@ public abstract class TransformerHandler<T> {
     }
 
     protected abstract Class<T> getType();
-    protected abstract byte[] process(byte[] data, String name, List<TransformerFunction<T>> functions);
+    protected abstract byte[] process(byte[] data, List<TransformerFunction<T>> functions);
 }

@@ -32,11 +32,11 @@ public class Patchy implements IClassTransformer {
         return (TransformerHandler<T>) handlerMap.get(cls);
     }
 
-    private byte[] transformWithMap(byte[] data, String name, Map<Class, List<Object>> map) {
+    private byte[] transformWithMap(byte[] data, Map<Class, List<Object>> map) {
         if (map != null) {
             for (Class c : map.keySet()) {
                 TransformerHandler handler = handlerMap.get(c);
-                data = handler.process(data, name, map.get(c));
+                data = handler.process(data, map.get(c));
             }
         }
         return data;
@@ -48,12 +48,12 @@ public class Patchy implements IClassTransformer {
         if (basicClass == null)
             return null;
 
-        basicClass = transformWithMap(basicClass, transformedName, globalTransformers);
-        basicClass = transformWithMap(basicClass, transformedName, localTransformers.row(transformedName));
+        basicClass = transformWithMap(basicClass, globalTransformers);
+        basicClass = transformWithMap(basicClass, localTransformers.row(transformedName));
         return basicClass;
     }
 
-    protected <T> void registerGlobalTransformer(Class<T> type, TransformerFunction<T> function) {
+    <T> void registerGlobalTransformer(Class<T> type, TransformerFunction<T> function) {
         if (!globalTransformers.containsKey(type)) {
             globalTransformers.put(type, Lists.newArrayList(function));
         } else {
@@ -61,7 +61,7 @@ public class Patchy implements IClassTransformer {
         }
     }
 
-    protected <T> void registerLocalTransformer(String s, Class<T> type, TransformerFunction<T> function) {
+    <T> void registerLocalTransformer(String s, Class<T> type, TransformerFunction<T> function) {
         if (!localTransformers.contains(s, type)) {
             localTransformers.put(s, type, Lists.newArrayList(function));
         } else {
