@@ -194,13 +194,13 @@ public class FoamFixTransformer implements IClassTransformer {
         if (FoamFixShared.config.geReplaceSimpleName) {
             patchy.addTransformerId("replaceSimpleName_v1");
             FoamFixReplaceClassSimpleName replace = new FoamFixReplaceClassSimpleName("updateEntities", "func_72939_s");
-            handlerCV.add((next) -> replace.getClassVisitor(Opcodes.ASM5, next), "net.minecraft.world.World");
+            handlerCV.add(replace::getClassVisitor, "net.minecraft.world.World");
         }
 
         if (FoamFixShared.config.geBlockPosPatch) {
             patchy.addTransformerId("blockPosPatch_v1");
-            handlerCN.add((data) -> BlockPosPatch.patchVec3i(data), "net.minecraft.util.math.Vec3i");
-            handlerCV.add((next) -> BlockPosPatch.patchOtherClass(next));
+            handlerCN.add(BlockPosPatch::patchVec3i, "net.minecraft.util.math.Vec3i");
+            handlerCV.add(BlockPosPatch::patchOtherClass);
         }
     }
 
