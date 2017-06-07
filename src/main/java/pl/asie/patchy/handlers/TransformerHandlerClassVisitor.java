@@ -22,11 +22,11 @@ public class TransformerHandlerClassVisitor extends TransformerHandler<ClassVisi
     }
 
     @Override
-    protected byte[] process(byte[] data, String name, List<TransformerFunction<ClassVisitor>> transformerFunctions) {
+    protected byte[] process(byte[] data, List<TransformerFunction<ClassVisitor>> transformerFunctions) {
         ClassWriter writer = new ClassWriter(0);
         ClassVisitor visitor = writer;
         for (int i = transformerFunctions.size() - 1; i >= 0; i--) {
-            visitor = transformerFunctions.get(i).apply(visitor, name);
+            visitor = transformerFunctions.get(i).apply(visitor);
         }
         ClassReader reader = new ClassReader(data);
         reader.accept(visitor, 0);
