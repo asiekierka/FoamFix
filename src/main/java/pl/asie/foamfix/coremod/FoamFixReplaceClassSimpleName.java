@@ -4,18 +4,20 @@ import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import pl.asie.patchy.TransformerFunction;
 
 import java.util.Set;
 
-public class FoamFixReplaceClassSimpleName {
+public class FoamFixReplaceClassSimpleName implements TransformerFunction<ClassVisitor> {
     public final Set<String> methods;
 
     public FoamFixReplaceClassSimpleName(String... methods) {
         this.methods = ImmutableSet.copyOf(methods);
     }
 
-    public ClassVisitor getClassVisitor(ClassVisitor next) {
-        return new FFClassVisitor(Opcodes.ASM5, next);
+    @Override
+    public ClassVisitor apply(ClassVisitor visitor) {
+        return new FFClassVisitor(Opcodes.ASM5, visitor);
     }
 
     private class FFClassVisitor extends ClassVisitor {
