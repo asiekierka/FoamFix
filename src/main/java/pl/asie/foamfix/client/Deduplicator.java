@@ -36,7 +36,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -95,6 +94,14 @@ public class Deduplicator {
     public Deduplicator() {
     }
 
+    private static void addClassFromName(Set<Class> set, String className) {
+        try {
+            set.add(Class.forName(className));
+        } catch (ClassNotFoundException e) {
+
+        }
+    }
+
     static {
         TRIM_ARRAYS_CLASSES.add(ItemOverrideList.class);
         TRIM_ARRAYS_CLASSES.add(FoamyItemLayerModel.DynamicItemModel.class);
@@ -126,14 +133,17 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(Logger.class);
         BLACKLIST_CLASS.add(Joiner.class);
         BLACKLIST_CLASS.add(Tessellator.class);
-        BLACKLIST_CLASS.add(VertexBuffer.class);
         BLACKLIST_CLASS.add(Cache.class);
         BLACKLIST_CLASS.add(LoadingCache.class);
         BLACKLIST_CLASS.add(VertexFormatElement.class);
 
         BLACKLIST_CLASS.add(BakedQuad.class);
 
-        // Intentionally smaller field sets in order to optimize
+        // 1.10/1.11
+        addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.VertexBuffer");
+
+        // 1.12
+        addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.vertex.VertexBuffer");
     }
 
     private boolean shouldCheckClass(Class c) {

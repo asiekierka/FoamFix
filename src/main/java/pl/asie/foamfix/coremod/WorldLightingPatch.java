@@ -27,7 +27,7 @@ public class WorldLightingPatch extends World {
 		} else {
 			int checkedPosition = 0;
 			int toCheckCount = 0;
-			this.theProfiler.startSection("getBrightness");
+			this.profiler.startSection("getBrightness");
 			int currLight = this.getLightFor(lightType, pos);
 			int newLight = this.getRawLight(pos, lightType);
 			int posX = pos.getX();
@@ -55,9 +55,9 @@ public class WorldLightingPatch extends World {
 						this.setLightFor(lightType, checkedPos, 0);
 
 						if (checkedNewLight > 0) {
-							int distX = MathHelper.abs_int(checkedX - posX);
-							int distY = MathHelper.abs_int(checkedY - posY);
-							int distZ = MathHelper.abs_int(checkedZ - posZ);
+							int distX = MathHelper.abs(checkedX - posX);
+							int distY = MathHelper.abs(checkedY - posY);
+							int distZ = MathHelper.abs(checkedZ - posZ);
 							boolean hasSpace = toCheckCount < this.lightUpdateBlockList.length - 6;
 
 							if (distX + distY + distZ < 17 && hasSpace) {
@@ -87,8 +87,8 @@ public class WorldLightingPatch extends World {
 				checkedPosition = 0;
 			}
 
-			this.theProfiler.endSection();
-			this.theProfiler.startSection("checkedPosition < toCheckCount");
+			this.profiler.endSection();
+			this.profiler.startSection("checkedPosition < toCheckCount");
 
 			while (checkedPosition < toCheckCount) {
 				int checkedEntry = this.lightUpdateBlockList[checkedPosition++];
@@ -140,7 +140,7 @@ public class WorldLightingPatch extends World {
 
 			checkedPos.release();
 
-			this.theProfiler.endSection();
+			this.profiler.endSection();
 			return true;
 		}
 	}

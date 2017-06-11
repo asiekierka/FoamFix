@@ -40,7 +40,7 @@ import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.text.DecimalFormat;
 
-@Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.11.2]")
+@Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.12]")
 public class FoamFix {
     @SidedProxy(clientSide = "pl.asie.foamfix.ProxyClient", serverSide = "pl.asie.foamfix.ProxyCommon", modId = "foamfix")
     public static ProxyCommon proxy;

@@ -1,24 +1,23 @@
-package pl.asie.foamfix.coremod;
+package pl.asie.patchy.helpers;
 
 import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import pl.asie.patchy.TransformerFunction;
 
 import java.util.Set;
+import java.util.function.Function;
 
-public class FoamFixConstructorReplacer {
+public class ConstructorReplacingTransformer implements TransformerFunction<ClassVisitor> {
     public final String from, to;
     public final Set<String> methods;
 
-    public FoamFixConstructorReplacer(String from, String to, String... methods) {
+    public ConstructorReplacingTransformer(String from, String to, String... methods) {
         this.from = from.replace('.', '/');
         this.to = to.replace('.', '/');
         this.methods = ImmutableSet.copyOf(methods);
-    }
-
-    public ClassVisitor getClassVisitor(ClassVisitor next) {
-        return new FFClassVisitor(Opcodes.ASM5, next);
     }
 
     private class FFClassVisitor extends ClassVisitor {
@@ -30,7 +29,7 @@ public class FoamFixConstructorReplacer {
         public MethodVisitor visitMethod(int access, String name, String desc,
                                          String signature, String[] exceptions) {
             if (methods.contains(name)) {
-                return new FFMethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions));
+                return new ConstructorReplacingTransformer.FFMethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions));
             } else {
                 return cv.visitMethod(access, name, desc, signature, exceptions);
             }
@@ -52,6 +51,7 @@ public class FoamFixConstructorReplacer {
             }
         }
 
+
         @Override
         public void visitMethodInsn(int opcode, String owner, String name,
                                     String desc, boolean itf) {
@@ -62,5 +62,9 @@ public class FoamFixConstructorReplacer {
                 super.visitMethodInsn(opcode, owner, name, desc, itf);
             }
         }
+    }
+    @Override
+    public ClassVisitor apply(ClassVisitor visitor) {
+        return new FFClassVisitor(Opcodes.ASM5, visitor);
     }
 }

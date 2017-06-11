@@ -31,7 +31,7 @@ public class PropertyValueMapper {
 		private Entry(IProperty property) {
 			this.property = property;
 			this.values = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
-			this.bitSize = MathHelper.roundUpToPowerOfTwo(property.getAllowedValues().size());
+			this.bitSize = MathHelper.smallestEncompassingPowerOfTwo(property.getAllowedValues().size());
 			int bits = 0;
 			int b = bitSize;
 			while (b != 0) {
