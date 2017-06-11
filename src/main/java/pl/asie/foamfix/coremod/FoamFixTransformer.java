@@ -37,6 +37,7 @@ import com.google.common.collect.Sets;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassReader;
@@ -47,6 +48,7 @@ import org.objectweb.asm.tree.MethodNode;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
 import pl.asie.patchy.handlers.*;
+import pl.asie.patchy.helpers.ConstructorReplacingTransformer;
 
 public class FoamFixTransformer implements IClassTransformer {
     public static ClassNode spliceClasses(final ClassNode data, final String className, final String... methods) {
@@ -78,7 +80,7 @@ public class FoamFixTransformer implements IClassTransformer {
         };
 
         ClassNode nodeSplice = new ClassNode();
-        readerSplice.accept(new RemappingClassAdapter(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
+        readerSplice.accept(new ClassRemapper(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
         for (String s : nodeSplice.interfaces) {
             if (s.contains("IFoamFix")) {
                 nodeData.interfaces.add(s);
@@ -136,6 +138,36 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         return nodeData;
+    }
+
+    public static ClassNode replaceClasses(final ClassNode data, final String className) {
+        try {
+            final byte[] dataSplice = ((LaunchClassLoader) FoamFixTransformer.class.getClassLoader()).getClassBytes(className);
+            return replaceClasses(data, dataSplice, className);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static ClassNode replaceClasses(final ClassNode nodeData, final byte[] dataSplice, final String className) {
+        System.out.println("replacing " + nodeData.name + " with " + className);
+        if (dataSplice == null) {
+            throw new RuntimeException("Class " + className + " not found! This is a FoamFix bug!");
+        }
+
+        final ClassReader readerSplice = new ClassReader(dataSplice);
+        final String className2 = className.replace('.', '/');
+        final String targetClassName2 = nodeData.name;
+        final String targetClassName = targetClassName2.replace('/', '.');
+        final Remapper remapper = new Remapper() {
+            public String map(final String name) {
+                return className2.equals(name) ? targetClassName2 : name;
+            }
+        };
+
+        ClassNode nodeSplice = new ClassNode();
+        readerSplice.accept(new ClassRemapper(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
+        return nodeSplice;
     }
 
     private static final Patchy patchy = new Patchy();
@@ -201,6 +233,12 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("blockPosPatch_v1");
             handlerCN.add(BlockPosPatch::patchVec3i, "net.minecraft.util.math.Vec3i");
             handlerCV.add(BlockPosPatch::patchOtherClass);
+        }
+
+        if (FoamFixShared.config.geFasterEntityLookup) {
+            patchy.addTransformerId("fasterClassInheritanceMultiMap_v1");
+            handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.util.ClassInheritanceMultiMap", "pl.asie.foamfix.common.FoamyClassInheritanceMultiMap", "<init>"),
+                    "net.minecraft.world.chunk.Chunk");
         }
     }
 

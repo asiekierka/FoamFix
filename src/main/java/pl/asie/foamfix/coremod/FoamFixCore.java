@@ -123,6 +123,6 @@ public class FoamFixCore implements IFMLLoadingPlugin {
     }
     
     public String getAccessTransformerClass() {
-        return null;
+        return "pl.asie.foamfix.coremod.FoamFixAT";
     }
 }
