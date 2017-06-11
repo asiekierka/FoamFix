@@ -32,6 +32,11 @@ public class TotallyADolphinEntry extends GuiListWorldSelectionEntry {
         this.client = Minecraft.getMinecraft();
     }
 
+    /* 1.10.2 - 1.11.2 */
+    public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected) {
+        func_192634_a(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isSelected,0);
+    }
+
     @Override
     public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_192634_9_) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
