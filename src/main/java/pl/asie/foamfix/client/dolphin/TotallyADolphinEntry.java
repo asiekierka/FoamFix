@@ -33,9 +33,9 @@ public class TotallyADolphinEntry extends GuiListWorldSelectionEntry {
     }
 
     @Override
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected) {
+    public void func_192634_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_192634_9_) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        this.client.fontRendererObj.drawString("Tired of boring decorative mods?", x + 32 + 3, y + 1, 0xFFFFFF);
+        this.client.fontRenderer.drawString("Tired of boring decorative mods?", x + 32 + 3, y + 1, 0xFFFFFF);
 
         int phase = (int) ((System.currentTimeMillis() / 500) % (COLORS.length * 2));
         int color = 0x555555;
@@ -43,8 +43,8 @@ public class TotallyADolphinEntry extends GuiListWorldSelectionEntry {
             color = COLORS[phase / 2];
         }
 
-        this.client.fontRendererObj.drawString("Try Flamingo!", x + 32 + 3, y + this.client.fontRendererObj.FONT_HEIGHT + 3, color);
-        this.client.fontRendererObj.drawString("Available now!", x + 32 + 3, y + this.client.fontRendererObj.FONT_HEIGHT + this.client.fontRendererObj.FONT_HEIGHT + 3, 0xAAAAAA);
+        this.client.fontRenderer.drawString("Try Flamingo!", x + 32 + 3, y + this.client.fontRenderer.FONT_HEIGHT + 3, color);
+        this.client.fontRenderer.drawString("Available now!", x + 32 + 3, y + this.client.fontRenderer.FONT_HEIGHT + this.client.fontRenderer.FONT_HEIGHT + 3, 0xAAAAAA);
         this.client.getTextureManager().bindTexture(new ResourceLocation("foamfix", "flamingo.png"));
         GlStateManager.enableBlend();
         Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0F, 0.0F, 32, 32, 32.0F, 32.0F);
