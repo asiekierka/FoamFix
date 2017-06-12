@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod.client;
+package pl.asie.foamfix.coremod.injections.client;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
@@ -7,7 +7,7 @@ import net.minecraft.world.IBlockAccess;
 /**
  * Created by asie on 4/4/17.
  */
-public class BlockInfoPatch implements IFoamFixBlockInfoDataProxy {
+public class BlockInfoInject implements IFoamFixBlockInfoDataProxy {
     private BlockPos blockPos;
     private IBlockAccess world;
     private IBlockState state;

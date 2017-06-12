@@ -23,7 +23,7 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix.coremod;
+package pl.asie.foamfix.coremod.patches;
 
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;

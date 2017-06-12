@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod.client;
+package pl.asie.foamfix.coremod.injections.client;
 
 import com.google.common.collect.*;
 import net.minecraft.client.renderer.BlockModelShapes;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ModelLoaderParallel extends ModelBakery {
+public class ModelBakeryParallelInject extends ModelBakery {
     private static boolean firstLoad;
     private final Map<ModelResourceLocation, IModel> stateModels = Maps.newHashMap();
     private final Set<ModelResourceLocation> missingVariants = Sets.newHashSet();
@@ -28,7 +28,7 @@ public class ModelLoaderParallel extends ModelBakery {
 
     private boolean isLoading = false;
 
-    public ModelLoaderParallel(IResourceManager resourceManagerIn, TextureMap textureMapIn, BlockModelShapes blockModelShapesIn) {
+    public ModelBakeryParallelInject(IResourceManager resourceManagerIn, TextureMap textureMapIn, BlockModelShapes blockModelShapesIn) {
         super(resourceManagerIn, textureMapIn, blockModelShapesIn);
     }
 

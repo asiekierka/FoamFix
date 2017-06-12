@@ -28,7 +28,7 @@ public class TransformerHandlerClassNode extends TransformerHandler<ClassNode> {
         reader.accept(node, 0);
         for (TransformerFunction<ClassNode> func : transformerFunctions)
             node = func.apply(node);
-        ClassWriter writer = new ClassWriter(0);
+        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         node.accept(writer);
         return writer.toByteArray();
     }

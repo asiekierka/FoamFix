@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod.client;
+package pl.asie.foamfix.coremod.injections.client;
 
 public interface IFoamFixBlockInfoDataProxy {
     int[][][] getRawS();

@@ -28,15 +28,12 @@ package pl.asie.foamfix.coremod;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
@@ -45,6 +42,9 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+import pl.asie.foamfix.coremod.patches.BlockPosPatch;
+import pl.asie.foamfix.coremod.patches.ClassGetSimpleNamePatch;
+import pl.asie.foamfix.coremod.patches.FastAirLookupPatch;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
 import pl.asie.patchy.handlers.*;
@@ -204,7 +204,7 @@ public class FoamFixTransformer implements IClassTransformer {
             transformFunctions.put("net.minecraft.world.World", new TransformerFunction() {
                 @Override
                 public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.WorldLightingPatch", transformedName,
+                    return spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.WorldLightingPatch", transformedName,
                             "checkLightFor","func_180500_c");
                 }
             });
@@ -212,7 +212,7 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.geImmediateLightingUpdates) {
             patchy.addTransformerId("immediateLightingUpdates_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.client.RenderGlobalImmediatePatch",
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.RenderGlobalImmediateInject",
                     "notifyLightSet","func_174959_b"), "net.minecraft.client.renderer.RenderGlobal");
         }
 
@@ -224,19 +224,19 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.clParallelModelBaking) {
             patchy.addTransformerId("parallelModelBaking_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.client.ModelLoaderParallel",
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.ModelBakeryParallelInject",
                     "setupModelRegistry", "func_177570_a"), "net.minecraftforge.client.model.ModelLoader");
         }
 
         if (FoamFixShared.config.clFasterVertexLighter) {
             patchy.addTransformerId("fasterVertexLighter_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.client.BlockInfoPatch",
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoInject",
                             "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS"), "net.minecraftforge.client.model.pipeline.BlockInfo");
         }
 
         if (FoamFixShared.config.geReplaceSimpleName) {
             patchy.addTransformerId("replaceSimpleName_v1");
-            handlerCV.add(new FoamFixReplaceClassSimpleName("updateEntities", "func_72939_s"), "net.minecraft.world.World");
+            handlerCV.add(new ClassGetSimpleNamePatch("updateEntities", "func_72939_s"), "net.minecraft.world.World");
         }
 
         if (FoamFixShared.config.geBlockPosPatch) {
@@ -249,6 +249,22 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("fasterClassInheritanceMultiMap_v1");
             handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.util.ClassInheritanceMultiMap", "pl.asie.foamfix.common.FoamyClassInheritanceMultiMap", "<init>"),
                     "net.minecraft.world.chunk.Chunk");
+        }
+
+        if (FoamFixShared.config.geFasterAirLookup) {
+            patchy.addTransformerId("fasterAirLookup_v1");
+            handlerCN.add(new FastAirLookupPatch(), "net.minecraft.item.ItemStack");
+        }
+
+        if (FoamFixShared.config.geFasterPropertyComparisons) {
+            patchy.addTransformerId("fasterPropertyComparisons_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.PropertyFasterComparisonsInject$Bool",
+                    "equals", "equals", "hashCode", "hashCode"), "net.minecraft.block.properties.PropertyBool");
+            for (String s : new String[] { "net.minecraft.block.properties.PropertyInteger", "net.minecraft.block.properties.PropertyEnum" }) {
+                handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingHashCodeInject",
+                        "hashCode", "hashCode", "foamfix_hashCode", "foamfix_hashCode", "foamfix_hashCode_calced", "foamfix_hashCode_calced"),
+                        s);
+            }
         }
     }
 

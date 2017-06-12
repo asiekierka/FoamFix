@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod.client;
+package pl.asie.foamfix.coremod.injections.client;
 
 import com.google.common.base.Objects;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -10,7 +10,7 @@ import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.QuadGatheringTransformer;
 import pl.asie.foamfix.client.FoamyConstants;
 
-public class VertexLighterFlatPatch extends QuadGatheringTransformer {
+public class VertexLighterFlatInject extends QuadGatheringTransformer {
     protected BlockInfo blockInfo;
     protected int posIndex, normalIndex, colorIndex, lightmapIndex;
 

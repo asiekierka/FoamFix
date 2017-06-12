@@ -1,11 +1,11 @@
-package pl.asie.foamfix.coremod.client;
+package pl.asie.foamfix.coremod.injections.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.util.math.BlockPos;
 
-public class RenderGlobalImmediatePatch extends RenderGlobal {
-	public RenderGlobalImmediatePatch(Minecraft mcIn) {
+public class RenderGlobalImmediateInject extends RenderGlobal {
+	public RenderGlobalImmediateInject(Minecraft mcIn) {
 		super(mcIn);
 	}
 

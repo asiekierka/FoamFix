@@ -39,7 +39,7 @@ public class FoamFixConfig {
 	public boolean clFasterVertexLighter, clInitOptions;
 	public boolean clParallelModelBaking;
 	public boolean geBlacklistLibraryTransformers;
-	public boolean geBlockPosPatch, geFasterEntityLookup;
+	public boolean geBlockPosPatch, geFasterEntityLookup, geFasterPropertyComparisons, geFasterAirLookup;
 	public boolean geDynamicRegistrySizeScaling;
 	public boolean geSmallPropertyStorage;
 	public boolean geImmediateLightingUpdates;
@@ -89,6 +89,8 @@ public class FoamFixConfig {
 				clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", true, "Threaded, parallel model baking.");
 				geReplaceSimpleName = getBoolean("replaceWorldSimpleName", "coremod", true, "Replaces Class.getSimpleName in World.updateEntities with getName. As Class.getName's output is cached, unlike getSimpleName, this should provide a small performance boost.");
 				geFasterEntityLookup = getBoolean("fasterEntityLookup", "coremod", true, "Speeds up entity lookup by optimizing ClassInheritanceMultiMap.getByClass.");
+				geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.");
+				geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.");
 			}
 
 			config.save();

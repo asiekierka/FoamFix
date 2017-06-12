@@ -25,13 +25,13 @@
  */
 package pl.asie.foamfix;
 
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
+import net.minecraftforge.fml.common.event.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.api.FoamFixAPI;
@@ -42,11 +42,22 @@ import java.text.DecimalFormat;
 
 @Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.12]")
 public class FoamFix {
+    private static Item AIR;
+
     @SidedProxy(clientSide = "pl.asie.foamfix.ProxyClient", serverSide = "pl.asie.foamfix.ProxyCommon", modId = "foamfix")
     public static ProxyCommon proxy;
 
     public static Logger logger;
     public static int stage;
+
+    public static Item getItemAir() {
+        return AIR == null ? (AIR = Item.getItemFromBlock(Blocks.AIR)) : AIR;
+    }
+
+    @Mod.EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        AIR = Item.getItemFromBlock(Blocks.AIR);
+    }
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {

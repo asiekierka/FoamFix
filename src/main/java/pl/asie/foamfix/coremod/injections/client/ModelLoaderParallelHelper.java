@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod.client;
+package pl.asie.foamfix.coremod.injections.client;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

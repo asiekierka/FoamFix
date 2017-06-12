@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod;
+package pl.asie.foamfix.coremod.patches;
 
 import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.ClassVisitor;
@@ -8,10 +8,10 @@ import pl.asie.patchy.TransformerFunction;
 
 import java.util.Set;
 
-public class FoamFixReplaceClassSimpleName implements TransformerFunction<ClassVisitor> {
+public class ClassGetSimpleNamePatch implements TransformerFunction<ClassVisitor> {
     public final Set<String> methods;
 
-    public FoamFixReplaceClassSimpleName(String... methods) {
+    public ClassGetSimpleNamePatch(String... methods) {
         this.methods = ImmutableSet.copyOf(methods);
     }
 
