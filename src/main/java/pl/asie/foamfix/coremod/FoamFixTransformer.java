@@ -232,6 +232,9 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("fasterVertexLighter_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoInject",
                             "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS"), "net.minecraftforge.client.model.pipeline.BlockInfo");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.VertexLighterFlatInject",
+                    "setParent", "setParent", "updateLightmap", "updateLightmap", "getVertexFormatWithNormal", "getVertexFormatWithNormal", "updateBlockInfo", "updateBlockInfo"),
+                    "net.minecraftforge.client.model.pipeline.VertexLighterFlat");
         }
 
         if (FoamFixShared.config.geReplaceSimpleName) {
