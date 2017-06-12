@@ -41,7 +41,6 @@ import net.minecraftforge.fml.common.asm.transformers.SideTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.FoamFix;
-import pl.asie.foamfix.coremod.transformer.FoamySideTransformer;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 @IFMLLoadingPlugin.Name("Do not report to Forge! Remove FoamFixAPI (or replace with FoamFixAPI-Lawful) and try again.")

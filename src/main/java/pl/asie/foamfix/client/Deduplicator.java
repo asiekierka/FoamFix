@@ -143,7 +143,7 @@ public class Deduplicator {
         addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.VertexBuffer");
 
         // 1.12
-        addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.vertex.VertexBuffer");
+        addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.BufferBuilder");
     }
 
     private boolean shouldCheckClass(Class c) {
