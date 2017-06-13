@@ -44,6 +44,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 import pl.asie.foamfix.coremod.patches.BlockPosPatch;
 import pl.asie.foamfix.coremod.patches.ClassGetSimpleNamePatch;
+import pl.asie.foamfix.coremod.patches.EntityDataManagerPatch;
 import pl.asie.foamfix.coremod.patches.FastAirLookupPatch;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
@@ -269,6 +270,9 @@ public class FoamFixTransformer implements IClassTransformer {
                         s);
             }
         }
+
+        patchy.addTransformerId("fasterEntityDataManager_v1");
+        handlerCN.add(new EntityDataManagerPatch(), "net.minecraft.network.datasync.EntityDataManager");
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {

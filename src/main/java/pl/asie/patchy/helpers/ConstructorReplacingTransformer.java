@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class ConstructorReplacingTransformer implements TransformerFunction<ClassVisitor> {
-    public final String from, to;
-    public final Set<String> methods;
+    private final String from, to;
+    private final Set<String> methods;
 
     public ConstructorReplacingTransformer(String from, String to, String... methods) {
         this.from = from.replace('.', '/');
