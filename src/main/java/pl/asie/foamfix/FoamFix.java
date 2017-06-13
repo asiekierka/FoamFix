@@ -28,7 +28,6 @@ package pl.asie.foamfix;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -83,7 +82,7 @@ public class FoamFix {
         stage = 2;
         proxy.postInit();
 
-        if (FoamFixShared.config.geDisableRedstoneLight) {
+        if (FoamFixShared.config.twDisableRedstoneLight) {
             Blocks.REDSTONE_TORCH.setLightLevel(0.0f);
             Blocks.POWERED_REPEATER.setLightLevel(0.0f);
             Blocks.POWERED_COMPARATOR.setLightLevel(0.0f);

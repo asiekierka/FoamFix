@@ -40,9 +40,9 @@ public class FoamFixConfig {
 	public boolean clParallelModelBaking;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, geFasterEntityLookup, geFasterPropertyComparisons, geFasterAirLookup, geFasterEntityDataManager;
-	public boolean geDynamicRegistrySizeScaling, geDisableRedstoneLight;
+	public boolean geDynamicRegistrySizeScaling, twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage;
-	public boolean geImmediateLightingUpdates;
+	public boolean twImmediateLightingUpdates;
 	public boolean geReplaceSimpleName;
 
 	public int clDeduplicateRecursionLevel;
@@ -79,7 +79,7 @@ public class FoamFixConfig {
 				clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.");
 				clFasterVertexLighter = getBoolean("fasterVertexLighter", "experimental", true, "Implements optimizations to VertexLighter(Flat) inspired by thecodewarrior and bs2609's work.");
 				// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
-				geImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "tweaks", false, "Do not delay lighting updates over other types of updates.");
+				twImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "tweaks", false, "Do not delay lighting updates over other types of updates.");
 				geBlacklistLibraryTransformers = getBoolean("blacklistLibraryTransformers", "coremod", true, "Stops certain non-Minecraft-related libraries from being ASM transformed. You shouldn't be transforming those anyway.");
 				geSmallPropertyStorage = getBoolean("smallPropertyStorage", "coremod", true, "Replaces the default BlockState/ExtendedBlockState implementations with a far more memory-efficient variant.");
 				geBlockPosPatch = getBoolean("optimizedBlockPos", "coremod", true, "Optimizes BlockPos mutable/immutable getters to run on the same variables, letting them be inlined and thus theoretically increasing performance.");
@@ -94,7 +94,7 @@ public class FoamFixConfig {
 				geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "coremod", true, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time!");
 			}
 
-			geDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.");
+			twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.");
 
 			config.save();
 		}

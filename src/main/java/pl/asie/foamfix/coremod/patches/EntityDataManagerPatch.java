@@ -4,6 +4,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
+import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.TraceClassVisitor;
 import pl.asie.foamfix.common.FoamyArrayBackedDataManagerMap;
 import pl.asie.patchy.TransformerFunction;
@@ -31,8 +32,7 @@ public class EntityDataManagerPatch implements TransformerFunction<ClassNode> {
                             && "net/minecraft/network/datasync/EntityDataManager".equals(((FieldInsnNode) node2).owner)
                             && ("entries".equals(((FieldInsnNode) node2).name)
                             || "field_187234_c".equals(((FieldInsnNode) node2).name))) {
-                        it.previous();
-                        it.previous();
+                        while (!(it.previous() instanceof MethodInsnNode));
                         it.set(new MethodInsnNode(
                                 Opcodes.INVOKESTATIC,
                                 "pl/asie/foamfix/coremod/patches/EntityDataManagerPatch",

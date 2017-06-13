@@ -46,7 +46,7 @@ public class BenchmarkEntityDataManagerMaps {
 			mapReverseJDK.put(EntityList.getClass(r), (int) (Math.random() * 256));
 		}
 	}
-/*
+
 	@Benchmark
 	public void containsKeyReverseJDK() {
 		mapReverseJDK.containsKey(EntityDonkey.class);
@@ -66,8 +66,7 @@ public class BenchmarkEntityDataManagerMaps {
 	public void getReverseFastutil() {
 	    int i = mapReverseFastutil.get(EntityDonkey.class) + 1;
 	}
-*/
-/*
+
 	@Benchmark
 	public void containsKeyJDK() {
 		Object z;
@@ -137,7 +136,7 @@ public class BenchmarkEntityDataManagerMaps {
 		for (int j = 128; j < 256; j++)
 			z = mapFastutilUnboxed.get(j);
 	}
-*/
+
 	@Benchmark
 	public void valueIterateJDK() {
 		for (Object j : mapJDK.values()) {

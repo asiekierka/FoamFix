@@ -211,7 +211,7 @@ public class FoamFixTransformer implements IClassTransformer {
             });
         } */
 
-        if (FoamFixShared.config.geImmediateLightingUpdates) {
+        if (FoamFixShared.config.twImmediateLightingUpdates) {
             patchy.addTransformerId("immediateLightingUpdates_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.RenderGlobalImmediateInject",
                     "notifyLightSet","func_174959_b"), "net.minecraft.client.renderer.RenderGlobal");
