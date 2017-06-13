@@ -82,6 +82,12 @@ public class FoamFix {
     public void postInit(FMLPostInitializationEvent event) {
         stage = 2;
         proxy.postInit();
+
+        if (FoamFixShared.config.geDisableRedstoneLight) {
+            Blocks.REDSTONE_TORCH.setLightLevel(0.0f);
+            Blocks.POWERED_REPEATER.setLightLevel(0.0f);
+            Blocks.POWERED_COMPARATOR.setLightLevel(0.0f);
+        }
     }
 
     @Mod.EventHandler

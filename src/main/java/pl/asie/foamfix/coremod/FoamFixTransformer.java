@@ -271,8 +271,10 @@ public class FoamFixTransformer implements IClassTransformer {
             }
         }
 
-        patchy.addTransformerId("fasterEntityDataManager_v1");
-        handlerCN.add(new EntityDataManagerPatch(), "net.minecraft.network.datasync.EntityDataManager");
+        if (FoamFixShared.config.geFasterEntityDataManager) {
+            patchy.addTransformerId("fasterEntityDataManager_v1");
+            handlerCN.add(new EntityDataManagerPatch(), "net.minecraft.network.datasync.EntityDataManager");
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
