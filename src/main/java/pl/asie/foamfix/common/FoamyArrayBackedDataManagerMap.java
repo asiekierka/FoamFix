@@ -1,5 +1,6 @@
 package pl.asie.foamfix.common;
 
+import gnu.trove.set.hash.TIntHashSet;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 
@@ -13,8 +14,97 @@ import java.util.*;
  * Assumptions we can make:
  * - all keys are non-null
  */
-public class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
-    private final IntOpenHashSet keySet = new IntOpenHashSet();
+public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
+    public static class OneTwelve<V> extends FoamyArrayBackedDataManagerMap<V> {
+        private final IntOpenHashSet keySet = new IntOpenHashSet();
+
+        @Override
+        public Set<Integer> keySet() {
+            return keySet;
+        }
+
+        @Override
+        public Set<Entry<Integer, V>> entrySet() {
+            HashSet<Entry<Integer, V>> e = new HashSet<>();
+            IntIterator ii = keySet.iterator();
+            while (ii.hasNext()) {
+                int i = ii.nextInt();
+                e.add(new Entry<Integer, V>() {
+                    @Override
+                    public Integer getKey() {
+                        return i;
+                    }
+
+                    @Override
+                    public V getValue() {
+                        return get(i);
+                    }
+
+                    @Override
+                    public V setValue(V v) {
+                        return put(i, v);
+                    }
+                });
+            }
+            return e;
+        }
+
+        @Override
+        protected void addKey(int i) {
+            keySet.add(i);
+        }
+
+        @Override
+        protected void removeKey(int i) {
+            keySet.rem(i);
+        }
+    }
+
+    public static class OneEleven<V> extends FoamyArrayBackedDataManagerMap<V> {
+        private final HashSet<Integer> keySet = new HashSet<>();
+
+        @Override
+        public Set<Integer> keySet() {
+            return keySet;
+        }
+
+        @Override
+        public Set<Entry<Integer, V>> entrySet() {
+            HashSet<Entry<Integer, V>> e = new HashSet<>();
+            Iterator<Integer> ii = keySet.iterator();
+            while (ii.hasNext()) {
+                int i = ii.next();
+                e.add(new Entry<Integer, V>() {
+                    @Override
+                    public Integer getKey() {
+                        return i;
+                    }
+
+                    @Override
+                    public V getValue() {
+                        return get(i);
+                    }
+
+                    @Override
+                    public V setValue(V v) {
+                        return put(i, v);
+                    }
+                });
+            }
+            return e;
+        }
+
+        @Override
+        protected void addKey(int i) {
+            keySet.add(i);
+        }
+
+        @Override
+        protected void removeKey(int i) {
+            keySet.remove(i);
+        }
+    }
+
     private final Collection<Object> objects = new ArrayList<>();
     private Object[] keys = new Object[32];
     private int size = 0;
@@ -55,18 +145,25 @@ public class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
         return i >= 0 && i < 256 ? (V) keys[i] : null;
     }
 
+    protected abstract void addKey(int i);
+    protected abstract void removeKey(int i);
+
     @Override
     @SuppressWarnings("unchecked")
     public V put(Integer integer, V v) {
         int i = integer;
         if (i >= 0 && i < 256) {
             if (i >= keys.length) {
-                Object[] newKeys = new Object[keys.length * 2];
+                int newSize = keys.length;
+                while (newSize <= i) newSize *= 2;
+
+                Object[] newKeys = new Object[newSize];
                 System.arraycopy(keys, 0, newKeys, 0, keys.length);
                 keys = newKeys;
             }
             Object old = keys[i];
             keys[i] = v;
+            addKey(i);
             objects.add(v);
             if (old == null) size++;
             return (V) old;
@@ -82,6 +179,7 @@ public class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
         if (i >= 0 && i < 256) {
             Object old = keys[i];
             keys[i] = null;
+            removeKey(i);
             objects.remove(old);
             if (old != null) size--;
             return (V) old;
@@ -95,45 +193,18 @@ public class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
 
     @Override
     public void clear() {
-        for (int i = 0; i < 256; i++)
-            keys[i] = null;
+        for (int i = 0; i < 256; i++) {
+            if (keys[i] != null) {
+                keys[i] = null;
+                removeKey(i);
+            }
+        }
         size = 0;
-    }
-
-    @Override
-    public Set<Integer> keySet() {
-        return keySet;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Collection<V> values() {
         return (Collection<V>) objects;
-    }
-
-    @Override
-    public Set<Entry<Integer, V>> entrySet() {
-        HashSet<Entry<Integer, V>> e = new HashSet<>();
-        IntIterator ii = keySet.iterator();
-        while (ii.hasNext()) {
-            int i = ii.nextInt();
-            e.add(new Entry<Integer, V>() {
-                @Override
-                public Integer getKey() {
-                    return i;
-                }
-
-                @Override
-                public V getValue() {
-                    return get(i);
-                }
-
-                @Override
-                public V setValue(V v) {
-                    return put(i, v);
-                }
-            });
-        }
-        return e;
     }
 }

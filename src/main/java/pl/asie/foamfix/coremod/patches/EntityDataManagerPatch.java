@@ -15,7 +15,12 @@ import java.util.Map;
 
 public class EntityDataManagerPatch implements TransformerFunction<ClassNode> {
     public static Map<Integer, EntityDataManager.DataEntry<?>> newArrayBackedMap() {
-        return new FoamyArrayBackedDataManagerMap<EntityDataManager.DataEntry<?>>();
+        try {
+            Class.forName("it.unimi.dsi.fastutil.ints.IntOpenHashSet");
+            return new FoamyArrayBackedDataManagerMap.OneTwelve<>();
+        } catch (ClassNotFoundException e) {
+            return new FoamyArrayBackedDataManagerMap.OneEleven<>();
+        }
     }
 
     @Override
@@ -33,6 +38,7 @@ public class EntityDataManagerPatch implements TransformerFunction<ClassNode> {
                             && ("entries".equals(((FieldInsnNode) node2).name)
                             || "field_187234_c".equals(((FieldInsnNode) node2).name))) {
                         while (!(it.previous() instanceof MethodInsnNode));
+                        it.next();
                         it.set(new MethodInsnNode(
                                 Opcodes.INVOKESTATIC,
                                 "pl/asie/foamfix/coremod/patches/EntityDataManagerPatch",

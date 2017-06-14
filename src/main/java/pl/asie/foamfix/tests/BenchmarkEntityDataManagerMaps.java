@@ -24,7 +24,8 @@ public class BenchmarkEntityDataManagerMaps {
 
 	private static final Object[] o = new Object[256];
 	private static final Map<Integer, Object> mapJDK = new HashMap<>();
-	private static final Map<Integer, Object> mapArray = new FoamyArrayBackedDataManagerMap<>();
+	private static final Map<Integer, Object> mapArray = new FoamyArrayBackedDataManagerMap.OneTwelve<>();
+	private static final Map<Integer, Object> mapArrayWorse = new FoamyArrayBackedDataManagerMap.OneEleven<>();
 	private static final Map<Integer, Object> mapFastutil = new Int2ObjectOpenHashMap<>();
 	private static final FoamyArrayBackedDataManagerMap<Object> mapArrayUnboxed =(FoamyArrayBackedDataManagerMap<Object>) mapArray;
 	private static final Int2ObjectOpenHashMap<Object> mapFastutilUnboxed =(Int2ObjectOpenHashMap<Object>) mapFastutil;
@@ -37,6 +38,7 @@ public class BenchmarkEntityDataManagerMaps {
 			o[i] = new Object();
 			mapJDK.put(i, o[i]);
 			mapArray.put(i, o[i]);
+			mapArrayWorse.put(i, o[i]);
 			mapFastutil.put(i, o[i]);
 		}
 
@@ -147,6 +149,13 @@ public class BenchmarkEntityDataManagerMaps {
 	@Benchmark
 	public void valueIterateArray() {
 		for (Object j : mapArray.values()) {
+			Object o = j;
+		}
+	}
+
+	@Benchmark
+	public void valueIterateArrayWorse() {
+		for (Object j : mapArrayWorse.values()) {
 			Object o = j;
 		}
 	}
