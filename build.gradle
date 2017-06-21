@@ -76,6 +76,11 @@ reobfJar.dependsOn shadowJar
 
 task anarchyJar(type: Jar, dependsOn: classes) {
     from(sourceSets.main.output)
+    exclude("META-INF/BenchmarkList")
+    exclude("META-INF/CompilerHints")
+    exclude("assets/foamfix/flamingo.png")
+    exclude("pl/asie/foamfix/client/dolphin")
+    exclude("pl/asie/foamfix/tests")
     manifest.attributes "Manifest-Version": "1.0"
     manifest.attributes "FMLCorePluginContainsFMLMod": "true"
     manifest.attributes "FMLCorePlugin": "pl.asie.foamfix.coremod.FoamFixCore"
@@ -84,7 +89,15 @@ task anarchyJar(type: Jar, dependsOn: classes) {
 
 task lawfulJar(type: Jar, dependsOn: classes) {
     from(sourceSets.main.output)
+    exclude("META-INF/BenchmarkList")
+    exclude("META-INF/CompilerHints")
+    exclude("assets/foamfix/flamingo.png")
+    exclude("pl/asie/foamfix/client/dolphin")
+    exclude("pl/asie/foamfix/tests")
+
     exclude("pl/asie/foamfix/coremod")
+    exclude("pl/asie/patchy")
+
     archiveName = (archiveName - ".jar") + "-law.jar"
 }
 

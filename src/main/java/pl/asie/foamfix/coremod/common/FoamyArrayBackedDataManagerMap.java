@@ -1,6 +1,5 @@
-package pl.asie.foamfix.common;
+package pl.asie.foamfix.coremod.common;
 
-import gnu.trove.set.hash.TIntHashSet;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 

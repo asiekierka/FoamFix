@@ -12,7 +12,7 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import pl.asie.foamfix.common.FoamyClassInheritanceMultiMap;
+import pl.asie.foamfix.coremod.common.FoamyClassInheritanceMultiMap;
 
 @State(Scope.Thread)
 public class BenchmarkCIMM {

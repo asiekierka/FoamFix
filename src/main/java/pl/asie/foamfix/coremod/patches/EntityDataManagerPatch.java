@@ -1,15 +1,11 @@
 package pl.asie.foamfix.coremod.patches;
 
 import net.minecraft.network.datasync.EntityDataManager;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-import org.objectweb.asm.util.Printer;
-import org.objectweb.asm.util.TraceClassVisitor;
-import pl.asie.foamfix.common.FoamyArrayBackedDataManagerMap;
+import pl.asie.foamfix.coremod.common.FoamyArrayBackedDataManagerMap;
 import pl.asie.patchy.TransformerFunction;
 
-import java.io.PrintWriter;
 import java.util.ListIterator;
 import java.util.Map;
 

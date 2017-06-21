@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.passive.EntityDonkey;
 import net.minecraft.init.Bootstrap;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
@@ -15,7 +14,7 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import pl.asie.foamfix.common.FoamyArrayBackedDataManagerMap;
+import pl.asie.foamfix.coremod.common.FoamyArrayBackedDataManagerMap;
 
 import java.util.*;
 

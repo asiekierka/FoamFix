@@ -101,7 +101,7 @@ public class ProxyClient extends ProxyCommon {
 	@Override
 	public void init() {
 		super.init();
-		MinecraftForge.EVENT_BUS.register(PleaseTrustMeLookImADolphin.INSTANCE);
+		// MinecraftForge.EVENT_BUS.register(PleaseTrustMeLookImADolphin.INSTANCE);
 		MinecraftForge.EVENT_BUS.register(new FoamFixModelDeduplicate());
 
 		if (FoamFixShared.config.clCleanRedundantModelRegistry) {

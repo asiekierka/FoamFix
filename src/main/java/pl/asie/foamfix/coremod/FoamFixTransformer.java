@@ -248,7 +248,7 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.geFasterEntityLookup) {
             patchy.addTransformerId("fasterClassInheritanceMultiMap_v1");
-            handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.util.ClassInheritanceMultiMap", "pl.asie.foamfix.common.FoamyClassInheritanceMultiMap", "<init>"),
+            handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.util.ClassInheritanceMultiMap", "pl.asie.foamfix.coremod.common.FoamyClassInheritanceMultiMap", "<init>"),
                     "net.minecraft.world.chunk.Chunk");
         }
 

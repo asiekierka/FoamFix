@@ -3,7 +3,7 @@
 // (powered by Fernflower decompiler)
 //
 
-package pl.asie.foamfix.common;
+package pl.asie.foamfix.coremod.common;
 
 import com.google.common.collect.Iterators;
 import net.minecraft.util.ClassInheritanceMultiMap;
