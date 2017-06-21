@@ -46,7 +46,7 @@ public class ClassGetSimpleNamePatch implements TransformerFunction<ClassVisitor
                                     String desc, boolean itf) {
             // INVOKEVIRTUAL java/lang/Class.getSimpleName ()Ljava/lang/String;
             if (opcode == Opcodes.INVOKEVIRTUAL && "getSimpleName".equals(name) && "java/lang/Class".equals(owner)) {
-                System.out.println("Replaced INVOKEVIRTUAL getSimpleName");
+                System.out.println("Replaced getSimpleName with getName");
                 super.visitMethodInsn(opcode, owner, "getName", desc, itf);
             } else {
                 super.visitMethodInsn(opcode, owner, name, desc, itf);

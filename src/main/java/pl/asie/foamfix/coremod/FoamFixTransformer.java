@@ -42,10 +42,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-import pl.asie.foamfix.coremod.patches.BlockPosPatch;
-import pl.asie.foamfix.coremod.patches.ClassGetSimpleNamePatch;
-import pl.asie.foamfix.coremod.patches.EntityDataManagerPatch;
-import pl.asie.foamfix.coremod.patches.FastAirLookupPatch;
+import pl.asie.foamfix.coremod.patches.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
 import pl.asie.patchy.handlers.*;
@@ -275,6 +272,10 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("fasterEntityDataManager_v1");
             handlerCN.add(new EntityDataManagerPatch(), "net.minecraft.network.datasync.EntityDataManager");
         }
+
+        patchy.addTransformerId("disableTextureAnimations_v1");
+        handlerCN.add(new ReturnIfBooleanTruePatch("clDisableTextureAnimations", "updateAnimations", "func_94248_c"),
+                "net.minecraft.client.renderer.texture.TextureMap");
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
