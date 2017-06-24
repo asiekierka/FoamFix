@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class ModelLoaderParallelHelper extends ModelBakery {
-    public static final Object lock = new Object();
     public static Set<ResourceLocation> textures;
 
     public static final ITextureMapPopulator POPULATOR = new ITextureMapPopulator() {

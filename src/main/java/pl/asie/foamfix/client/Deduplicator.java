@@ -31,6 +31,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
 import com.google.gson.Gson;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.hash.TCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -90,6 +92,7 @@ public class Deduplicator {
     private final IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
     // private final IDeduplicatingStorage<ItemTransformVec3f> IT3_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_TRANSFORM_VEC3F);
     private final Set<Object> deduplicatedObjects = new TCustomHashSet<>(HashingStrategies.IDENTITY);
+    // public final TObjectIntMap<Class> dedupObjDataMap = new TObjectIntHashMap<>();
 
     public Deduplicator() {
     }
@@ -107,8 +110,6 @@ public class Deduplicator {
         TRIM_ARRAYS_CLASSES.add(FoamyItemLayerModel.DynamicItemModel.class);
         TRIM_ARRAYS_CLASSES.add(SimpleBakedModel.class);
         TRIM_ARRAYS_CLASSES.add(WeightedBakedModel.class);
-
-        BLACKLIST_CLASS.add(FoamyItemLayerModel.Dynamic3DItemModel.class);
 
         BLACKLIST_CLASS.add(Object.class);
         BLACKLIST_CLASS.add(Class.class);
@@ -211,6 +212,7 @@ public class Deduplicator {
 
         if (n != o) {
             successfuls++;
+            //dedupObjDataMap.adjustOrPutValue(o.getClass(), 1, 1);
             FoamFixShared.ramSaved += size;
         }
         return n;

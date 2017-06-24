@@ -25,6 +25,10 @@
  */
 package pl.asie.foamfix.client;
 
+import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.ProgressManager;
@@ -36,6 +40,10 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.shared.FoamFixShared;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class FoamFixModelDeduplicate {
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -71,6 +79,11 @@ public class FoamFixModelDeduplicate {
 
             ProgressManager.pop(bakeBar);
             FoamFix.logger.info("Deduplicated " + ProxyClient.deduplicator.successfuls + " objects.");
+            /* List<Class> map = Lists.newArrayList(ProxyClient.deduplicator.dedupObjDataMap.keySet());
+            map.sort(Comparator.comparingInt(a -> ProxyClient.deduplicator.dedupObjDataMap.get(a)));
+            for (Class c : map) {
+                FoamFix.logger.info(c.getSimpleName() + " = " + ProxyClient.deduplicator.dedupObjDataMap.get(c));
+            } */
         }
 
         ProxyClient.deduplicator = null; // release deduplicator to save memory

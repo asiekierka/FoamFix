@@ -28,7 +28,6 @@ package pl.asie.foamfix;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.BiMap;
 import net.minecraft.launchwrapper.LaunchClassLoader;
-import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.shared.FoamFixShared;
 
@@ -63,8 +62,9 @@ public class ProxyCommon {
 			int optimizedSavings = 0;
 
 			Class persistentRegistryClass = Class.forName("net.minecraftforge.fml.common.registry.PersistentRegistryManager$PersistentRegistry");
+			Class controlledRegistryClass = Class.forName("net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry");
 			Field biMapField = persistentRegistryClass.getDeclaredField("registries");
-			Field availMapField = FMLControlledNamespacedRegistry.class.getDeclaredField("availabilityMap");
+			Field availMapField = controlledRegistryClass.getDeclaredField("availabilityMap");
 			Field sizeStickyField = BitSet.class.getDeclaredField("sizeIsSticky");
 			Method trimToSizeMethod = BitSet.class.getDeclaredMethod("trimToSize");
 
@@ -75,7 +75,7 @@ public class ProxyCommon {
 
 			for (Object registryHolder : persistentRegistryClass.getEnumConstants()) {
 				BiMap biMap = (BiMap) biMapField.get(registryHolder);
-				for (FMLControlledNamespacedRegistry registry : (Set<FMLControlledNamespacedRegistry>) biMap.values()) {
+				for (Object registry : biMap.values()) {
 					BitSet availMap = (BitSet) availMapField.get(registry);
 					int size = availMap.size();
 					if (size > 65536) {
