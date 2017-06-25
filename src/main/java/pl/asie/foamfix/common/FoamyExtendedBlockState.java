@@ -1,6 +1,5 @@
 package pl.asie.foamfix.common;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -10,10 +9,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by asie on 12/31/16.
@@ -55,7 +51,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 					throw new IllegalArgumentException("Cannot set property " + property + " because FoamFix could not find a mapping for it! Please reproduce without FoamFix first!");
 				}
 				IBlockState state = owner.getPropertyByValue(newValue);
-				if (Iterables.all(unlistedProperties.values(), Predicates.<Optional<?>>equalTo(Optional.absent()))) {
+				if (Iterables.all(unlistedProperties.values(), Predicates.equalTo(Optional.empty()))) {
 					return state;
 				}
 				return new FoamyExtendedBlockState(owner, getBlock(), state.getProperties(), unlistedProperties, newValue);
@@ -75,8 +71,8 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 			throw new IllegalArgumentException("Cannot set unlisted property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(getBlock()) + ", it is not an allowed value");
 		}
 		Map<IUnlistedProperty<?>, Optional<?>> newMap = new HashMap<>(unlistedProperties);
-		newMap.put(property, Optional.fromNullable(value));
-		if(Iterables.all(newMap.values(), Predicates.<Optional<?>>equalTo(Optional.absent())))
+		newMap.put(property, Optional.ofNullable(value));
+		if(Iterables.all(newMap.values(), Predicates.<Optional<?>>equalTo(Optional.empty())))
 		{ // no dynamic properties, lookup normal state
 			return (IExtendedBlockState) owner.getPropertyByValue(this.value);
 		}
@@ -96,7 +92,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		{
 			throw new IllegalArgumentException("Cannot get unlisted property " + property + " as it does not exist in " + getBlock().getBlockState());
 		}
-		return property.getType().cast(this.unlistedProperties.get(property).orNull());
+		return property.getType().cast(this.unlistedProperties.get(property).orElse(null));
 	}
 
 	@Override

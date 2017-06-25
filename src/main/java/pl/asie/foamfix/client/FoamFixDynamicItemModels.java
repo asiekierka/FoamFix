@@ -1,6 +1,5 @@
 package pl.asie.foamfix.client;
 
-import com.google.common.base.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -17,6 +16,7 @@ import pl.asie.foamfix.util.MethodHandleHelper;
 import java.lang.invoke.MethodHandle;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class FoamFixDynamicItemModels {
     public enum Loader implements ICustomModelLoader {
@@ -49,6 +49,6 @@ public class FoamFixDynamicItemModels {
     }
 
     public IBakedModel bake(final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
-        return FoamyItemLayerModel.bake(((ItemLayerModel) ((Object) this)), state, format, bakedTextureGetter);
+        return FoamyItemLayerModel.bakeStatic(((ItemLayerModel) ((Object) this)), state, format, bakedTextureGetter);
     }
 }

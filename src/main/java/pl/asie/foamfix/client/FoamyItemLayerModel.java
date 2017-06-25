@@ -1,9 +1,5 @@
 package pl.asie.foamfix.client;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
@@ -32,8 +28,10 @@ import java.lang.ref.SoftReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
-public class FoamyItemLayerModel implements IRetexturableModel {
+public class FoamyItemLayerModel implements IModel {
     private static final ResourceLocation MISSINGNO = new ResourceLocation("missingno");
     private static final MethodHandle OVERRIDES_GET;
     private static final MethodHandle BUILD_QUAD;
@@ -43,7 +41,7 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         MethodHandle handle = null;
         try {
             handle = MethodHandles.lookup().unreflect(ReflectionHelper.findMethod(
-                    ItemLayerModel.class, null, new String[]{"buildQuad"},
+                    ItemLayerModel.class, "buildQuad", "buildQuad",
                     VertexFormat.class, Optional.class, EnumFacing.class, TextureAtlasSprite.class, int.class,
                     float.class, float.class,float.class,float.class,float.class,
                     float.class, float.class,float.class,float.class,float.class,
@@ -65,7 +63,7 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         OVERRIDES_GET = handle;
     }
 
-    public static class Dynamic3DItemModel implements IPerspectiveAwareModel {
+    public static class Dynamic3DItemModel implements IBakedModel {
         private final DynamicItemModel parent;
         private SoftReference<List<BakedQuad>> quadsSoft = null;
 
@@ -75,7 +73,7 @@ public class FoamyItemLayerModel implements IRetexturableModel {
 
         @Override
         public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType type) {
-            Pair<? extends IBakedModel, Matrix4f> pair = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, parent.transforms, type);
+            Pair<? extends IBakedModel, Matrix4f> pair = PerspectiveMapWrapper.handlePerspective(this, parent.transforms, type);
 
             if (type == ItemCameraTransforms.TransformType.GUI && pair.getRight() == null) {
                 return Pair.of(parent, null);
@@ -122,17 +120,12 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         }
 
         @Override
-        public ItemCameraTransforms getItemCameraTransforms() {
-            return ItemCameraTransforms.DEFAULT;
-        }
-
-        @Override
         public ItemOverrideList getOverrides() {
             return parent.overrides;
         }
     }
 
-    public static class DynamicItemModel implements IPerspectiveAwareModel {
+    public static class DynamicItemModel implements IBakedModel {
         private final List<TextureAtlasSprite> textures;
         private final TextureAtlasSprite particle;
         private final ImmutableList<BakedQuad> fastQuads;
@@ -183,18 +176,13 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         }
 
         @Override
-        public ItemCameraTransforms getItemCameraTransforms() {
-            return ItemCameraTransforms.DEFAULT;
-        }
-
-        @Override
         public ItemOverrideList getOverrides() {
             return overrides;
         }
 
         @Override
         public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType type) {
-            Pair<? extends IBakedModel, Matrix4f> pair = IPerspectiveAwareModel.MapWrapper.handlePerspective(this, transforms, type);
+            Pair<? extends IBakedModel, Matrix4f> pair = PerspectiveMapWrapper.handlePerspective(this, transforms, type);
 
             if (type != ItemCameraTransforms.TransformType.GUI) {
                 return Pair.of(otherModel, pair.getRight());
@@ -224,13 +212,13 @@ public class FoamyItemLayerModel implements IRetexturableModel {
     }
 
     @Override
-    public IBakedModel bake(final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
-        return bake(parent, state, format, bakedTextureGetter);
+    public IBakedModel bake(IModelState state, final VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
+        return bakeStatic(parent, state, format, bakedTextureGetter);
     }
 
-    public static IBakedModel bake(ItemLayerModel parent, final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
+    public static IBakedModel bakeStatic(ItemLayerModel parent, final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
         ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
-        Optional<TRSRTransformation> transform = state.apply(Optional.<IModelPart>absent());
+        Optional<TRSRTransformation> transform = state.apply(Optional.empty());
         List<ResourceLocation> textures = (List<ResourceLocation>) parent.getTextures();
         ImmutableList.Builder<TextureAtlasSprite> textureAtlas = new ImmutableList.Builder<>();
 
@@ -262,7 +250,7 @@ public class FoamyItemLayerModel implements IRetexturableModel {
         }
 
         TextureAtlasSprite particle = bakedTextureGetter.apply(textures.isEmpty() ? MISSINGNO : textures.get(0));
-        ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> map = IPerspectiveAwareModel.MapWrapper.getTransforms(state);
+        ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> map = PerspectiveMapWrapper.getTransforms(state);
         ItemOverrideList list;
         try {
             list = (ItemOverrideList) OVERRIDES_GET.invokeExact(parent);

@@ -75,11 +75,6 @@ public class ProxyClient extends ProxyCommon {
 		}
 
 		@Override
-		public ItemCameraTransforms getItemCameraTransforms() {
-			return ItemCameraTransforms.DEFAULT;
-		}
-
-		@Override
 		public ItemOverrideList getOverrides() {
 			return itemOverrideList;
 		}
