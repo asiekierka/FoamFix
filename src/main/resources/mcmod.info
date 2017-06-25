@@ -1,0 +1,15 @@
+{
+    "modListVersion": 2,
+    "modList": [
+        {
+            "modid": "foamfix",
+            "name": "FoamFix",
+            "version": "@VERSION@",
+            "description": "Questionable \"performance improvements\" that are not in Forge for probably very good reasons.",
+            "authorList": [
+                "asiekierka"
+            ],
+            "url": "http://asie.pl/Projects/Minecraft/Mods/FoamFix"
+        }
+    ]
+}

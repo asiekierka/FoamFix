@@ -25,12 +25,15 @@
  */
 package pl.asie.foamfix;
 
+import com.google.common.eventbus.Subscribe;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.api.FoamFixAPI;
@@ -39,7 +42,8 @@ import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.text.DecimalFormat;
 
-@Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.12]")
+@Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.10.2,1.12]",
+guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
 public class FoamFix {
     private static Item AIR;
 
@@ -87,11 +91,20 @@ public class FoamFix {
             Blocks.POWERED_REPEATER.setLightLevel(0.0f);
             Blocks.POWERED_COMPARATOR.setLightLevel(0.0f);
         }
+
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Mod.EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
 
+    }
+
+    @SubscribeEvent
+    public void configChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if ("foamfix".equals(event.getModID())) {
+            FoamFixShared.config.reload();
+        }
     }
 
     private static final DecimalFormat RAM_SAVED_DF = new DecimalFormat("0.#");
