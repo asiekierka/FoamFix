@@ -1,5 +1,6 @@
 package pl.asie.foamfix.coremod.injections.client;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.*;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -13,6 +14,8 @@ import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.ProgressManager;
 import pl.asie.foamfix.util.FoamUtils;
 
 import java.util.Map;
@@ -20,7 +23,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ModelBakeryParallelInject extends ModelBakery {
-    private static boolean firstLoad;
     private final Map<ModelResourceLocation, IModel> stateModels = Maps.newHashMap();
     private final Set<ModelResourceLocation> missingVariants = Sets.newHashSet();
     private final Map<ResourceLocation, Exception> loadingExceptions = Maps.newHashMap();
@@ -39,6 +41,9 @@ public class ModelBakeryParallelInject extends ModelBakery {
 
     @Override
     public IRegistry<ModelResourceLocation, IBakedModel> setupModelRegistry() {
+        if (FMLClientHandler.instance().hasError()) // skip loading models if we're just going to show a fatal error screen
+            return bakedRegistry;
+
         isLoading = true;
         loadBlocks();
         loadVariantItemModels();
@@ -51,24 +56,13 @@ public class ModelBakeryParallelInject extends ModelBakery {
             textures.addAll(LOCATIONS_BUILTIN_TEXTURES);
 
             ModelLoaderParallelHelper.textures = textures;
-            textureMap.loadSprites(resourceManager, ModelLoaderParallelHelper.POPULATOR);
+            textureMap.loadSprites(resourceManager, map -> textures.forEach(map::registerSprite));
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+            t.printStackTrace();
         }
 
         IBakedModel missingBaked = missingModel.bake(missingModel.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
-
-        if (firstLoad)
-        {
-            firstLoad = false;
-            for (ModelResourceLocation mrl : stateModels.keySet())
-            {
-                bakedRegistry.putObject(mrl, missingBaked);
-            }
-            return bakedRegistry;
-        }
-
-        Map<IModel, IBakedModel> bakedModels = new ConcurrentHashMap<>();
+        Map<IModel, IBakedModel> bakedModels = Maps.newConcurrentMap();
         HashMultimap<IModel, ModelResourceLocation> modelsParallel = HashMultimap.create();
         HashMultimap<IModel, ModelResourceLocation> models = HashMultimap.create();
 

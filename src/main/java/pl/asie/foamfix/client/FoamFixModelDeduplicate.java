@@ -26,6 +26,7 @@
 package pl.asie.foamfix.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
@@ -44,6 +45,7 @@ import pl.asie.foamfix.shared.FoamFixShared;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 public class FoamFixModelDeduplicate {
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -59,8 +61,8 @@ public class FoamFixModelDeduplicate {
                 ProxyClient.deduplicator = new Deduplicator();
             }
 
-            FoamFix.logger.info("Deduplicating models...");
             ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
+            FoamFix.logger.info("Deduplicating models...");
 
             ProxyClient.deduplicator.addObjects(Block.REGISTRY.getKeys());
             ProxyClient.deduplicator.addObjects(Item.REGISTRY.getKeys());

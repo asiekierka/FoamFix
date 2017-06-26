@@ -13,11 +13,15 @@ import net.minecraft.client.renderer.texture.ITextureMapPopulator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.ProgressManager;
 import pl.asie.foamfix.FoamFix;
+import pl.asie.foamfix.ProxyClient;
+import pl.asie.foamfix.client.Deduplicator;
+import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.FoamUtils;
 
 import java.util.List;
@@ -50,7 +54,8 @@ public class ModelLoaderParallelHelper extends ModelBakery {
                 if (model == missingModel) {
                     bakedModels.put(model, missingBaked);
                 } else {
-                    bakedModels.put(model, model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter()));
+                    IBakedModel bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+                    bakedModels.put(model, bakedModel);
                 }
             }));
         } else {
@@ -61,7 +66,8 @@ public class ModelLoaderParallelHelper extends ModelBakery {
                 if (model == missingModel) {
                     bakedModels.put(model, missingBaked);
                 } else {
-                    bakedModels.put(model, model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter()));
+                    IBakedModel bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+                    bakedModels.put(model, bakedModel);
                 }
             }
         }
