@@ -47,7 +47,6 @@ import pl.asie.foamfix.shared.FoamFixShared;
 @IFMLLoadingPlugin.SortingIndex(1001)
 @IFMLLoadingPlugin.TransformerExclusions({"pl.asie.foamfix"})
 public class FoamFixCore implements IFMLLoadingPlugin {
-
     public String[] getASMTransformerClass() {
         return new String[] { "pl.asie.foamfix.coremod.FoamFixTransformer" };
     }

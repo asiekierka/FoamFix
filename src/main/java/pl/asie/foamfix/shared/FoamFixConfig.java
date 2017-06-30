@@ -29,6 +29,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.collect.TreeMultimap;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
@@ -59,6 +60,8 @@ public class FoamFixConfig {
 	private final Set<Property> applicableProperties = Sets.newIdentityHashSet();
 	private Configuration config;
 	private boolean isCoremod;
+
+	public boolean isDeobfEnvironment;
 
 	public boolean geSmallLightingOptimize = false;
 
@@ -117,7 +120,8 @@ public class FoamFixConfig {
 			// geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
 			clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", true, "Threaded, parallel model baking.", true, true);
 			geReplaceSimpleName = getBoolean("replaceWorldSimpleName", "coremod", true, "Replaces Class.getSimpleName in World.updateEntities with getName. As Class.getName's output is cached, unlike getSimpleName, this should provide a small performance boost.", true, true);
-			geFasterEntityLookup = getBoolean("fasterEntityLookup", "coremod", true, "Speeds up entity lookup by optimizing ClassInheritanceMultiMap.getByClass.", true, true);
+			if (!isDeobfEnvironment)
+				geFasterEntityLookup = getBoolean("fasterEntityLookup", "coremod", true, "Speeds up entity lookup by optimizing ClassInheritanceMultiMap.getByClass.", true, true);
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "coremod", true, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time!", true, true);
@@ -133,6 +137,7 @@ public class FoamFixConfig {
 		if (config == null) {
 			config = new Configuration(file);
 			this.isCoremod = isCoremod;
+			this.isDeobfEnvironment = (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 			reload();
 		}
 	}

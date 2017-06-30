@@ -56,7 +56,7 @@ public class ModelBakeryParallelInject extends ModelBakery {
             textures.addAll(LOCATIONS_BUILTIN_TEXTURES);
 
             ModelLoaderParallelHelper.textures = textures;
-            textureMap.loadSprites(resourceManager, map -> textures.forEach(map::registerSprite));
+            textureMap.loadSprites(resourceManager, ModelLoaderParallelHelper.POPULATOR);
         } catch (Throwable t) {
             t.printStackTrace();
         }
