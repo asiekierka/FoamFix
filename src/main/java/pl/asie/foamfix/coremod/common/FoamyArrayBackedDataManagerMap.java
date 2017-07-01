@@ -67,7 +67,7 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
 
     @Override
     public boolean isEmpty() {
-        return size > 0;
+        return size == 0;
     }
 
     @Override
@@ -114,9 +114,13 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
             }
             Object old = keys[i];
             keys[i] = v;
-            addKey(i);
+            if (old == null) {
+                addKey(i);
+                size++;
+            } else {
+                objects.remove(old);
+            }
             objects.add(v);
-            if (old == null) size++;
             return (V) old;
         } else {
             throw new RuntimeException("EntityDataManager entry outside of the [0, 255] range (" + i + ") was attempted to be added. Please disable EntityDataManager-related optimizations and report this to the FoamFix developers.");
@@ -144,12 +148,10 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
 
     @Override
     public void clear() {
-        for (int i = 0; i < 256; i++) {
-            if (keys[i] != null) {
-                keys[i] = null;
-                removeKey(i);
-            }
+        for (int i : keySet()) {
+            keys[i] = null;
         }
+        keySet().clear();
         size = 0;
     }
 
