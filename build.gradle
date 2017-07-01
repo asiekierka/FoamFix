@@ -12,7 +12,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "0.7.0"
+version = "0.7.2-1.12"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -107,3 +107,31 @@ reobf {
 }
 
 assemble.dependsOn(anarchyJar, lawfulJar)
+
+task signLawfulJar(type: SignJar, dependsOn: lawfulJar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    keyStore = project.keyStore
+    alias = project.keyStoreAlias
+    storePass = project.keyStorePass
+    keyPass = project.keyStoreKeyPass
+    inputFile = lawfulJar.archivePath
+    outputFile = lawfulJar.archivePath
+}
+
+task signAnarchyJar(type: SignJar, dependsOn: anarchyJar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    keyStore = project.keyStore
+    alias = project.keyStoreAlias
+    storePass = project.keyStorePass
+    keyPass = project.keyStoreKeyPass
+    inputFile = anarchyJar.archivePath
+    outputFile = anarchyJar.archivePath
+}
+
+build.dependsOn(signLawfulJar, signAnarchyJar)
