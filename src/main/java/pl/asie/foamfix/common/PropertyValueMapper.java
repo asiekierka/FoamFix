@@ -11,6 +11,22 @@ import net.minecraft.util.math.MathHelper;
 import java.util.*;
 
 public class PropertyValueMapper {
+	private static class TObjectIntIdentityHashMap<V> extends TObjectIntHashMap<V> {
+		public TObjectIntIdentityHashMap(int defaultCapacity, float defaultLoadFactor, int i) {
+			super(defaultCapacity, defaultLoadFactor, i);
+		}
+
+		@Override
+		protected boolean equals(Object notnull, Object two) {
+			return notnull == two;
+		}
+
+		@Override
+		protected int hash(Object notnull) {
+			return Objects.hashCode(notnull);
+		}
+	}
+
 	private static final Comparator<? super IProperty<?>> COMPARATOR_BIT_FITNESS = new Comparator<IProperty<?>>() {
 		@Override
 		public int compare(IProperty<?> first, IProperty<?> second) {
@@ -82,7 +98,7 @@ public class PropertyValueMapper {
 			entryList[i++] = getPropertyEntry(p);
 		}
 
-		entryPositionMap = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
+		entryPositionMap = new TObjectIntIdentityHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 		int bitPos = 0;
 		Entry lastEntry = null;
 		for (Entry ee : entryList) {

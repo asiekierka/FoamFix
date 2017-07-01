@@ -25,10 +25,6 @@
  */
 package pl.asie.foamfix.client;
 
-import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.ProgressManager;
@@ -40,10 +36,6 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.shared.FoamFixShared;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 public class FoamFixModelDeduplicate {
     @SubscribeEvent(priority = EventPriority.LOW)

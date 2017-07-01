@@ -23,8 +23,9 @@ public class FastAirLookupPatch implements TransformerFunction<ClassNode> {
                             && "net/minecraft/item/Item".equals(((MethodInsnNode) node2).owner)
                             && ("getItemFromBlock".equals(((MethodInsnNode) node2).name)
                             || "func_150898_a".equals(((MethodInsnNode) node2).name))) {
-                        it.remove();
                         it.previous();
+                        it.add(new InsnNode(Opcodes.POP));
+                        it.next();
                         it.set(new MethodInsnNode(
                                 Opcodes.INVOKESTATIC,
                                 "pl/asie/foamfix/FoamFix",

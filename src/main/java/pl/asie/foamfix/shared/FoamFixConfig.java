@@ -52,7 +52,7 @@ public class FoamFixConfig {
 	public boolean geDynamicRegistrySizeScaling, twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
-	public boolean geReplaceSimpleName;
+	public boolean geReplaceSimpleName, geFasterCollisionBoxes;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -121,6 +121,7 @@ public class FoamFixConfig {
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "coremod", true, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time!", true, true);
+			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true);
 		}
 
 		twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.", true, true);

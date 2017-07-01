@@ -32,13 +32,8 @@ public class TotallyADolphinEntry extends GuiListWorldSelectionEntry {
         this.client = Minecraft.getMinecraft();
     }
 
-    /* 1.10.2 - 1.11.2 */
-    public void func_180790_a(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected) {
-        drawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isSelected,0);
-    }
-
     @Override
-    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float p_192634_9_) {
+    public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.client.fontRenderer.drawString("Tired of boring decorative mods?", x + 32 + 3, y + 1, 0xFFFFFF);
 

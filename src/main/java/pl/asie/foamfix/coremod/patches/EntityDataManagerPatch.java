@@ -11,12 +11,7 @@ import java.util.Map;
 
 public class EntityDataManagerPatch implements TransformerFunction<ClassNode> {
     public static Map<Integer, EntityDataManager.DataEntry<?>> newArrayBackedMap() {
-        try {
-            Class.forName("it.unimi.dsi.fastutil.ints.IntOpenHashSet");
-            return new FoamyArrayBackedDataManagerMap.OneTwelve<>();
-        } catch (ClassNotFoundException e) {
-            return new FoamyArrayBackedDataManagerMap.OneEleven<>();
-        }
+        return new FoamyArrayBackedDataManagerMap.OneEleven<>();
     }
 
     @Override

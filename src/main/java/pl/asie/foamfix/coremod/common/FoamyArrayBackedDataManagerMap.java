@@ -1,8 +1,5 @@
 package pl.asie.foamfix.coremod.common;
 
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-
 import java.util.*;
 
 /**
@@ -14,51 +11,6 @@ import java.util.*;
  * - all keys are non-null
  */
 public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
-    public static class OneTwelve<V> extends FoamyArrayBackedDataManagerMap<V> {
-        private final IntOpenHashSet keySet = new IntOpenHashSet();
-
-        @Override
-        public Set<Integer> keySet() {
-            return keySet;
-        }
-
-        @Override
-        public Set<Entry<Integer, V>> entrySet() {
-            HashSet<Entry<Integer, V>> e = new HashSet<>();
-            IntIterator ii = keySet.iterator();
-            while (ii.hasNext()) {
-                int i = ii.nextInt();
-                e.add(new Entry<Integer, V>() {
-                    @Override
-                    public Integer getKey() {
-                        return i;
-                    }
-
-                    @Override
-                    public V getValue() {
-                        return get(i);
-                    }
-
-                    @Override
-                    public V setValue(V v) {
-                        return put(i, v);
-                    }
-                });
-            }
-            return e;
-        }
-
-        @Override
-        protected void addKey(int i) {
-            keySet.add(i);
-        }
-
-        @Override
-        protected void removeKey(int i) {
-            keySet.rem(i);
-        }
-    }
-
     public static class OneEleven<V> extends FoamyArrayBackedDataManagerMap<V> {
         private final HashSet<Integer> keySet = new HashSet<>();
 

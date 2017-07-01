@@ -34,7 +34,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassReader;
@@ -52,12 +51,7 @@ public class FoamFixTransformer implements IClassTransformer {
     private static BiFunction<ClassVisitor, Remapper, ClassVisitor> REMAPPER_CREATOR;
 
     static {
-        try {
-            Class.forName("org.objectweb.asm.commons.ClassRemapper");
-            REMAPPER_CREATOR = ClassRemapper::new;
-        } catch (ClassNotFoundException e) {
-            REMAPPER_CREATOR = RemappingClassAdapter::new;
-        }
+        REMAPPER_CREATOR = RemappingClassAdapter::new;
     }
 
     public static ClassNode spliceClasses(final ClassNode data, final String className, final String... methods) {
@@ -276,6 +270,10 @@ public class FoamFixTransformer implements IClassTransformer {
         patchy.addTransformerId("disableTextureAnimations_v1");
         handlerCN.add(new ReturnIfBooleanTruePatch("clDisableTextureAnimations", "updateAnimations", "func_94248_c"),
                 "net.minecraft.client.renderer.texture.TextureMap");
+
+        patchy.addTransformerId("fasterCollisionBoxes_v1");
+        handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldGetCollisionBoxesInject",
+                "func_191504_a", "getCollisionBoxes"), "net.minecraft.world.World");
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
