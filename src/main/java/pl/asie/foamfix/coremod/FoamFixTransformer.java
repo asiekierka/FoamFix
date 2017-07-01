@@ -271,9 +271,11 @@ public class FoamFixTransformer implements IClassTransformer {
         handlerCN.add(new ReturnIfBooleanTruePatch("clDisableTextureAnimations", "updateAnimations", "func_94248_c"),
                 "net.minecraft.client.renderer.texture.TextureMap");
 
-        patchy.addTransformerId("fasterCollisionBoxes_v1");
-        handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldGetCollisionBoxesInject",
-                "func_191504_a", "getCollisionBoxes"), "net.minecraft.world.World");
+        if (FoamFixShared.config.geFasterCollisionBoxes) {
+            patchy.addTransformerId("fasterCollisionBoxes_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldGetCollisionBoxesInject",
+                    "func_191504_a", "getCollisionBoxes"), "net.minecraft.world.World");
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
