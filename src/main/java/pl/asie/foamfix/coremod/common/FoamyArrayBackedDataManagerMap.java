@@ -59,51 +59,6 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
         }
     }
 
-    public static class OneEleven<V> extends FoamyArrayBackedDataManagerMap<V> {
-        private final HashSet<Integer> keySet = new HashSet<>();
-
-        @Override
-        public Set<Integer> keySet() {
-            return keySet;
-        }
-
-        @Override
-        public Set<Entry<Integer, V>> entrySet() {
-            HashSet<Entry<Integer, V>> e = new HashSet<>();
-            Iterator<Integer> ii = keySet.iterator();
-            while (ii.hasNext()) {
-                int i = ii.next();
-                e.add(new Entry<Integer, V>() {
-                    @Override
-                    public Integer getKey() {
-                        return i;
-                    }
-
-                    @Override
-                    public V getValue() {
-                        return get(i);
-                    }
-
-                    @Override
-                    public V setValue(V v) {
-                        return put(i, v);
-                    }
-                });
-            }
-            return e;
-        }
-
-        @Override
-        protected void addKey(int i) {
-            keySet.add(i);
-        }
-
-        @Override
-        protected void removeKey(int i) {
-            keySet.remove(i);
-        }
-    }
-
     private final Collection<Object> objects = new ArrayList<>();
     private Object[] keys = new Object[32];
     private int size = 0;

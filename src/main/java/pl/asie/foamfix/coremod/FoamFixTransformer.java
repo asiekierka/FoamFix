@@ -49,17 +49,6 @@ import pl.asie.patchy.handlers.*;
 import pl.asie.patchy.helpers.ConstructorReplacingTransformer;
 
 public class FoamFixTransformer implements IClassTransformer {
-    private static BiFunction<ClassVisitor, Remapper, ClassVisitor> REMAPPER_CREATOR;
-
-    static {
-        try {
-            Class.forName("org.objectweb.asm.commons.ClassRemapper");
-            REMAPPER_CREATOR = ClassRemapper::new;
-        } catch (ClassNotFoundException e) {
-            REMAPPER_CREATOR = RemappingClassAdapter::new;
-        }
-    }
-
     public static ClassNode spliceClasses(final ClassNode data, final String className, final String... methods) {
         try {
             final byte[] dataSplice = ((LaunchClassLoader) FoamFixTransformer.class.getClassLoader()).getClassBytes(className);
@@ -89,7 +78,7 @@ public class FoamFixTransformer implements IClassTransformer {
         };
 
         ClassNode nodeSplice = new ClassNode();
-        readerSplice.accept(REMAPPER_CREATOR.apply(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
+        readerSplice.accept(new ClassRemapper(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
         for (String s : nodeSplice.interfaces) {
             if (s.contains("IFoamFix")) {
                 nodeData.interfaces.add(s);
@@ -175,7 +164,7 @@ public class FoamFixTransformer implements IClassTransformer {
         };
 
         ClassNode nodeSplice = new ClassNode();
-        readerSplice.accept(REMAPPER_CREATOR.apply(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
+        readerSplice.accept(new ClassRemapper(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
         return nodeSplice;
     }
 
