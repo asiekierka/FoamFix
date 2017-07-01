@@ -54,6 +54,7 @@ public class FoamFixConfig {
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
 	public boolean geReplaceSimpleName, geFasterCollisionBoxes;
+	public boolean geForceDisableCoremod;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -106,6 +107,10 @@ public class FoamFixConfig {
 		clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.", true, true);
 		geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", true, true, "(,13.19.1.2190)");
 
+		if (isCoremod && getBoolean("forceDisable", "coremod", false, "Disables all coremod functionality.", true, true)) {
+			isCoremod = false;
+		}
+
 		if (isCoremod) {
 			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
 			clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.", true, false);
@@ -129,6 +134,8 @@ public class FoamFixConfig {
 		}
 
 		twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.", true, true);
+
+		FoamFixShared.isCoremod = isCoremod;
 
 		config.save();
 	}

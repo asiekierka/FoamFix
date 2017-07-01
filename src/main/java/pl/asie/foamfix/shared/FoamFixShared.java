@@ -27,7 +27,7 @@ package pl.asie.foamfix.shared;
 
 public class FoamFixShared {
 	public static final FoamFixConfig config = new FoamFixConfig();
-	public static boolean coremodEnabled = false;
+	public static boolean isCoremod = false;
 	public static int ramSaved = 0;
 
 	public static boolean hasOptifine() {

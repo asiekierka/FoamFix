@@ -42,6 +42,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.coremod.patches.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
@@ -274,6 +275,6 @@ public class FoamFixTransformer implements IClassTransformer {
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
-        return patchy.transform(name, transformedName, dataOrig);
+        return FoamFixShared.isCoremod ? patchy.transform(name, transformedName, dataOrig) : dataOrig;
     }
 }
