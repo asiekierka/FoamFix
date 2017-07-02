@@ -98,7 +98,7 @@ public class PropertyValueMapper {
 			entryList[i++] = getPropertyEntry(p);
 		}
 
-		entryPositionMap = new TObjectIntIdentityHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
+		entryPositionMap = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 		int bitPos = 0;
 		Entry lastEntry = null;
 		for (Entry ee : entryList) {
