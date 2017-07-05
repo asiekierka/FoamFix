@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public class TransformerHandlerClassNode extends TransformerHandler<ClassNode> {
+    public static final int RECOMPUTE_FRAMES = 0x400000;
+
     public TransformerHandlerClassNode(Patchy owner) {
         super(owner);
     }
@@ -28,7 +30,8 @@ public class TransformerHandlerClassNode extends TransformerHandler<ClassNode> {
         reader.accept(node, 0);
         for (TransformerFunction<ClassNode> func : transformerFunctions)
             node = func.apply(node);
-        ClassWriter writer = new ClassWriter(0);
+        ClassWriter writer = new ClassWriter((node.access & RECOMPUTE_FRAMES) != 0 ? ClassWriter.COMPUTE_FRAMES : 0);
+        node.access &= ~RECOMPUTE_FRAMES;
         node.accept(writer);
         return writer.toByteArray();
     }

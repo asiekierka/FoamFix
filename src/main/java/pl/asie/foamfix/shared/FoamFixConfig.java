@@ -131,7 +131,7 @@ public class FoamFixConfig {
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "coremod", true, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time!", true, true);
 			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true);
-			geFixRecipeToastCrash = getBoolean("fixRecipeToastCrash", "experimental", false, "Fixes an annoying crash in RecipeToast with large modpacks. Off by default because it's a slight hack and a better patch should end up in Forge very soon, but if you need it, feel free to use it.", true, true);
+			geFixRecipeToastCrash = getBoolean("fixRecipeToastCrash", "client", true, "Fixes an annoying crash in RecipeToast with large modpacks.", true, true);
 		}
 
 		twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.", true, true);

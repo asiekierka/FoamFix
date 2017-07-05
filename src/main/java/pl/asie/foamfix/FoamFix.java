@@ -26,10 +26,14 @@
 package pl.asie.foamfix;
 
 import com.google.common.eventbus.Subscribe;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.toasts.RecipeToast;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
