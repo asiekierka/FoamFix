@@ -26,6 +26,7 @@
 package pl.asie.foamfix;
 
 import com.google.common.eventbus.Subscribe;
+import net.minecraft.client.gui.toasts.RecipeToast;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;

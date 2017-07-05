@@ -272,6 +272,11 @@ public class FoamFixTransformer implements IClassTransformer {
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldGetCollisionBoxesInject",
                     "func_191504_a", "getCollisionBoxes"), "net.minecraft.world.World");
         }
+
+        if (FoamFixShared.config.geFixRecipeToastCrash) {
+            patchy.addTransformerId("fixRecipeToastCrash_v1");
+            handlerCN.add(new RecipeToastCrashPatch(), "net.minecraft.client.gui.toasts.RecipeToast");
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
