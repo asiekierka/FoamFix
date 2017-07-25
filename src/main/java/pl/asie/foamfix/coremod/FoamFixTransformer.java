@@ -262,11 +262,6 @@ public class FoamFixTransformer implements IClassTransformer {
             }
         }
 
-        if (FoamFixShared.config.geFasterEntityDataManager) {
-            patchy.addTransformerId("fasterEntityDataManager_v1");
-            handlerCN.add(new EntityDataManagerPatch(), "net.minecraft.network.datasync.EntityDataManager");
-        }
-
         patchy.addTransformerId("disableTextureAnimations_v1");
         handlerCN.add(new ReturnIfBooleanTruePatch("clDisableTextureAnimations", "updateAnimations", "func_94248_c"),
                 "net.minecraft.client.renderer.texture.TextureMap");
