@@ -89,14 +89,14 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
 
     @SuppressWarnings("unchecked")
     public V get(int i) {
-        return i >= 0 && i < 256 ? (V) keys[i] : null;
+        return i >= 0 && i < keys.length ? (V) keys[i] : null;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public V get(Object o) {
         int i = (Integer) o;
-        return i >= 0 && i < 256 ? (V) keys[i] : null;
+        return i >= 0 && i < keys.length ? (V) keys[i] : null;
     }
 
     protected abstract void addKey(int i);
@@ -134,7 +134,7 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
     @SuppressWarnings("unchecked")
     public V remove(Object o) {
         int i = (Integer) o;
-        if (i >= 0 && i < 256) {
+        if (i >= 0 && i < keys.length) {
             Object old = keys[i];
             keys[i] = null;
             removeKey(i);

@@ -53,7 +53,7 @@ public class FoamFixConfig {
 	public boolean geDynamicRegistrySizeScaling, twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
-	public boolean geReplaceSimpleName, geFasterCollisionBoxes, geFixRecipeToastCrash;
+	public boolean geReplaceSimpleName, geFasterCollisionBoxes;
 	public boolean geForceDisableCoremod;
 
 	public int clDeduplicateRecursionLevel;
@@ -123,15 +123,14 @@ public class FoamFixConfig {
 			clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.", true, true);
 			// geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 			// geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
-			clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", true, "Threaded, parallel model baking.", true, true);
+			clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", false, "Threaded, parallel model baking.", true, true);
 			geReplaceSimpleName = getBoolean("replaceWorldSimpleName", "coremod", true, "Replaces Class.getSimpleName in World.updateEntities with getName. As Class.getName's output is cached, unlike getSimpleName, this should provide a small performance boost.", true, true);
 			if (!isDeobfEnvironment)
 				geFasterEntityLookup = getBoolean("fasterEntityLookup", "coremod", true, "Speeds up entity lookup by optimizing ClassInheritanceMultiMap.getByClass.", true, true);
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
-			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "coremod", true, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time!", true, true);
+			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "experimental", false, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time! May cause issues, however - please test and report back!", true, true);
 			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true);
-			geFixRecipeToastCrash = getBoolean("fixRecipeToastCrash", "client", true, "Fixes an annoying crash in RecipeToast with large modpacks.", true, true);
 		}
 
 		twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.", true, true);
