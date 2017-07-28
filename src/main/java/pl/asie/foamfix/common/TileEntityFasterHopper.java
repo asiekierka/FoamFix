@@ -5,7 +5,14 @@ import net.minecraft.tileentity.TileEntityHopper;
 
 public class TileEntityFasterHopper extends TileEntityHopper {
     private boolean empty, full;
-    private boolean dirtyEmpty = true, dirtyFull = true;
+    private boolean dirtyEmpty, dirtyFull;
+
+    @Override
+    public void validate() {
+        super.validate();
+        dirtyEmpty = true;
+        dirtyFull = true;
+    }
 
     public void updateFlagEmpty() {
         empty = true;

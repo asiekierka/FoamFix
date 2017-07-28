@@ -9,8 +9,8 @@ import java.util.Collection;
 public class PropertyFasterComparisonsInject {
     // TODO: Staticify allowedValues as it's the same
     public static class Bool extends PropertyHelper<Boolean> {
-        protected Bool(String p_i45652_1_, Class<Boolean> p_i45652_2_) {
-            super(p_i45652_1_, p_i45652_2_);
+        protected Bool(String name) {
+            super(name, Boolean.class);
         }
 
         public boolean equals(Object other) {

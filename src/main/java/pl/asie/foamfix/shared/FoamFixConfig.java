@@ -54,7 +54,7 @@ public class FoamFixConfig {
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
 	public boolean geReplaceSimpleName, geFasterCollisionBoxes;
-	public boolean geFixUnnecessaryGhostload, geFasterHopper;
+	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -133,6 +133,7 @@ public class FoamFixConfig {
 			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true);
 			geFixUnnecessaryGhostload = getBoolean("fixUnnecessaryGhostload", "coremod", true, "Fixes unnecessary ghost chunkloading in vanilla.", true, true);
 			geFasterHopper = getBoolean("fasterHopper", "coremod", true, "Speeds up the hopper's calculations.", true, true);
+			geFixWorldEntityCleanup = getBoolean("fixWorldEntityCleanup", "coremod", true, "Fixes the server not removing unloaded entities/tile entities if no chunkloaders are active. Thanks to CreativeMD for finding this!", true, true);
 		}
 
 		twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.", true, true);

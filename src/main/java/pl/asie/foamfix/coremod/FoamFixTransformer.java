@@ -283,7 +283,13 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("fasterHopper_v1");
             handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.tileentity.TileEntityHopper", "pl.asie.foamfix.common.TileEntityFasterHopper", "createNewTileEntity", "func_149915_a"),
                     "net.minecraft.block.BlockHopper");
+        }
 
+        if (FoamFixShared.config.geFixWorldEntityCleanup) {
+            patchy.addTransformerId("fixWorldEntityCleanup_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.patches.WorldRemovalPatch",
+                    "foamfix_removeUnloadedEntities", "foamfix_removeUnloadedEntities"), "net.minecraft.world.World");
+            handlerCN.add(new WorldServerRemovalPatch(), "net.minecraft.world.WorldServer");
         }
     }
 
