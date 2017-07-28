@@ -28,7 +28,11 @@ package pl.asie.foamfix;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.BiMap;
 import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityFlowerPot;
+import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import pl.asie.foamfix.common.TileEntityFasterHopper;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.lang.reflect.Field;
@@ -95,6 +99,9 @@ public class ProxyCommon {
 	}
 
 	public void preInit() {
+		if (FoamFixShared.config.geFasterHopper) {
+			TileEntity.register("hopper", TileEntityFasterHopper.class);
+		}
 	}
 
 	public void init() {

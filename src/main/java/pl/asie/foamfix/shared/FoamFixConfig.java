@@ -54,7 +54,7 @@ public class FoamFixConfig {
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
 	public boolean geReplaceSimpleName, geFasterCollisionBoxes;
-	public boolean geForceDisableCoremod;
+	public boolean geFixUnnecessaryGhostload, geFasterHopper;
 
 	public int clDeduplicateRecursionLevel;
 
@@ -131,6 +131,8 @@ public class FoamFixConfig {
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "experimental", false, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time! May cause issues, however - please test and report back!", true, true);
 			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true);
+			geFixUnnecessaryGhostload = getBoolean("fixUnnecessaryGhostload", "coremod", true, "Fixes unnecessary ghost chunkloading in vanilla.", true, true);
+			geFasterHopper = getBoolean("fasterHopper", "coremod", true, "Speeds up the hopper's calculations.", true, true);
 		}
 
 		twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.", true, true);

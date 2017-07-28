@@ -272,6 +272,19 @@ public class FoamFixTransformer implements IClassTransformer {
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldGetCollisionBoxesInject",
                     "func_191504_a", "getCollisionBoxes"), "net.minecraft.world.World");
         }
+
+        if (FoamFixShared.config.geFixUnnecessaryGhostload) {
+            patchy.addTransformerId("fixUnnecessaryGhostload_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.patches.BlockBedPatch",
+                    "func_190524_a", "neighborChanged"), "net.minecraft.block.BlockBed");
+        }
+
+        if (FoamFixShared.config.geFasterHopper) {
+            patchy.addTransformerId("fasterHopper_v1");
+            handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.tileentity.TileEntityHopper", "pl.asie.foamfix.common.TileEntityFasterHopper", "createNewTileEntity", "func_149915_a"),
+                    "net.minecraft.block.BlockHopper");
+
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
