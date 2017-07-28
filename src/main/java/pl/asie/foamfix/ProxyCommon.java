@@ -59,45 +59,6 @@ public class ProxyCommon {
 		}
 	}
 
-	private void optimizeForgeRegistries() {
-		// BitSets scale dynamically, you really don't need to preallocate 8MB for 64 million IDs... *yawn*
-		try {
-			int optimizedRegs = 0;
-			int optimizedSavings = 0;
-
-			Class persistentRegistryClass = Class.forName("net.minecraftforge.fml.common.registry.PersistentRegistryManager$PersistentRegistry");
-			Class controlledRegistryClass = Class.forName("net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry");
-			Field biMapField = persistentRegistryClass.getDeclaredField("registries");
-			Field availMapField = controlledRegistryClass.getDeclaredField("availabilityMap");
-			Field sizeStickyField = BitSet.class.getDeclaredField("sizeIsSticky");
-			Method trimToSizeMethod = BitSet.class.getDeclaredMethod("trimToSize");
-
-			biMapField.setAccessible(true);
-			availMapField.setAccessible(true);
-			sizeStickyField.setAccessible(true);
-			trimToSizeMethod.setAccessible(true);
-
-			for (Object registryHolder : persistentRegistryClass.getEnumConstants()) {
-				BiMap biMap = (BiMap) biMapField.get(registryHolder);
-				for (Object registry : biMap.values()) {
-					BitSet availMap = (BitSet) availMapField.get(registry);
-					int size = availMap.size();
-					if (size > 65536) {
-						sizeStickyField.set(availMap, false);
-						trimToSizeMethod.invoke(availMap);
-						optimizedRegs++;
-						optimizedSavings += ((size - availMap.size()) >> 3);
-					}
-				}
-			}
-
-			FoamFixShared.ramSaved += optimizedSavings;
-			FoamFix.logger.info("Optimized " + optimizedRegs + " FML registries, saving " + optimizedSavings + " bytes.");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void preInit() {
 		if (FoamFixShared.config.geFasterHopper) {
 			TileEntity.register("hopper", TileEntityFasterHopper.class);
@@ -109,10 +70,6 @@ public class ProxyCommon {
 
 	public void postInit() {
 		optimizeLaunchWrapper();
-
-		if (FoamFixShared.config.geDynamicRegistrySizeScaling) {
-			optimizeForgeRegistries();
-		}
 
 		FoamFix.updateRamSaved();
 	}

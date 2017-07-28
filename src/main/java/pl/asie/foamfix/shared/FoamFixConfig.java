@@ -50,7 +50,7 @@ public class FoamFixConfig {
 	public boolean clParallelModelBaking, clDisableTextureAnimations;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, geFasterEntityLookup, geFasterPropertyComparisons, geFasterAirLookup, geFasterEntityDataManager;
-	public boolean geDynamicRegistrySizeScaling, twDisableRedstoneLight;
+	public boolean twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
 	public boolean geReplaceSimpleName, geFasterCollisionBoxes;
@@ -105,7 +105,6 @@ public class FoamFixConfig {
 		clDeduplicate = getBoolean("deduplicateModels", "client", true, "Enable deduplication of redundant objects in memory.", true, true);
 		clDeduplicateRecursionLevel = getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.", true, true);
 		clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.", true, true);
-		geDynamicRegistrySizeScaling = getBoolean("dynamicRegistrySizeScaling", "general", true, "Makes large FML registries scale their availability BitSets dynamically, saving ~48MB of RAM.", true, true, "(,13.19.1.2190)");
 
 		if (isCoremod && getBoolean("forceDisable", "coremod", false, "Disables all coremod functionality.", true, true)) {
 			isCoremod = false;
