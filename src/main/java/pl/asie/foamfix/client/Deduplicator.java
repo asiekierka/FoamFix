@@ -47,6 +47,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
+import net.minecraft.util.text.TextComponentScore;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
@@ -86,6 +89,7 @@ public class Deduplicator {
 
     // private static final Field FIELD_VERTEX_DATA = ReflectionHelper.findField(BakedQuad.class, "vertexData", "field_178215_a");
 
+    public int successfulTrims = 0;
     public int successfuls = 0;
     public int maxRecursion = 0;
 
@@ -109,6 +113,9 @@ public class Deduplicator {
     }
 
     static {
+        TRIM_ARRAYS_CLASSES.add(TextComponentString.class);
+        TRIM_ARRAYS_CLASSES.add(TextComponentTranslation.class);
+        TRIM_ARRAYS_CLASSES.add(ModelBlock.class);
         TRIM_ARRAYS_CLASSES.add(ItemOverrideList.class);
         TRIM_ARRAYS_CLASSES.add(FoamyItemLayerModel.DynamicItemModel.class);
         TRIM_ARRAYS_CLASSES.add(SimpleBakedModel.class);
@@ -415,16 +422,17 @@ public class Deduplicator {
                 CLASS_FIELDS.put(c, fsBuilder.build());
             }
 
+            boolean canTrim = TRIM_ARRAYS_CLASSES.contains(c);
+
             for (MethodHandle[] mh : CLASS_FIELDS.get(c)) {
                 try {
                     // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
                     Object value = mh[0].invoke(o);
                     Object valueD = deduplicateObject(value, recursion + 1);
 
-                    if (TRIM_ARRAYS_CLASSES.contains(c)) {
-                        if (valueD instanceof ArrayList) {
-                            ((ArrayList) valueD).trimToSize();
-                        }
+                    if (canTrim && valueD instanceof ArrayList) {
+                        ((ArrayList) valueD).trimToSize();
+                        successfulTrims++;
                     }
 
                     if (valueD != null && value != valueD)

@@ -27,11 +27,15 @@ package pl.asie.foamfix;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.BiMap;
+import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.minecraft.stats.StatBase;
+import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFlowerPot;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import pl.asie.foamfix.client.Deduplicator;
 import pl.asie.foamfix.common.TileEntityFasterHopper;
 import pl.asie.foamfix.shared.FoamFixShared;
 

@@ -33,6 +33,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 import net.minecraft.item.Item;
+import net.minecraft.stats.StatBase;
+import net.minecraft.stats.StatList;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
@@ -48,6 +50,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.shared.FoamFixShared;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -61,7 +64,7 @@ public class FoamFixModelDeduplicate {
         // FoamUtils.wipeModelLoaderRegistryCache();
 
         if (FoamFixShared.config.clDeduplicate) {
-            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
+            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size() + 1);
 
             if (ProxyClient.deduplicator == null) {
                 ProxyClient.deduplicator = new Deduplicator();
@@ -91,8 +94,27 @@ public class FoamFixModelDeduplicate {
                 }
             }
 
+            try {
+                bakeBar.step("Stats");
+
+                for (Field f : StatList.class.getDeclaredFields()) {
+                    if (f.getType() == StatBase[].class) {
+                        f.setAccessible(true);
+                        for (StatBase statBase : (StatBase[]) f.get(null)) {
+                            ProxyClient.deduplicator.deduplicateObject(statBase, 0);
+                        }
+                    }
+                }
+
+                for (StatBase statBase : StatList.ALL_STATS) {
+                    ProxyClient.deduplicator.deduplicateObject(statBase, 0);
+                }
+            } catch (Exception e) {
+
+            }
+
             ProgressManager.pop(bakeBar);
-            FoamFix.logger.info("Deduplicated " + ProxyClient.deduplicator.successfuls + " objects.");
+            FoamFix.logger.info("Deduplicated " + ProxyClient.deduplicator.successfuls + " (+ " + ProxyClient.deduplicator.successfulTrims + ") objects.");
             /* List<Class> map = Lists.newArrayList(ProxyClient.deduplicator.dedupObjDataMap.keySet());
             map.sort(Comparator.comparingInt(a -> ProxyClient.deduplicator.dedupObjDataMap.get(a)));
             for (Class c : map) {

@@ -14,7 +14,7 @@ import java.lang.invoke.MethodHandle;
 import java.util.List;
 import java.util.Map;
 
-// A LinkedHashMap for an iterated structure is quite a bit much to ask, IMO
+// A LinkedHashMap for a structure that will ever only be iterated is quite a bit much to ask, IMO
 public class FoamyMultipartBakedModel implements IBakedModel {
     private static final MethodHandle SELECTORS_GETTER = MethodHandleHelper.findFieldGetter(MultipartBakedModel.class, "selectors", "field_188626_f");
 
