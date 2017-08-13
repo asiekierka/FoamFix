@@ -77,4 +77,7 @@ public class ProxyCommon {
 
 		FoamFix.updateRamSaved();
 	}
+
+    public void refreshResources() {
+    }
 }

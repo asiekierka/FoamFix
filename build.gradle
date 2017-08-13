@@ -12,7 +12,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "0.7.4-1.12"
+version = "0.8.0-beta2-1.12"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -24,6 +24,8 @@ minecraft {
     runDir = "run"
     
     mappings = "snapshot_20170813"
+
+    replace '@VERSION@', project.version
 }
 
 repositories {

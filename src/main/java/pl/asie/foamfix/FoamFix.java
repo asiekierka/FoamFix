@@ -109,6 +109,11 @@ public class FoamFix {
     public void configChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
         if ("foamfix".equals(event.getModID())) {
             FoamFixShared.config.reload();
+
+            if (FoamFixShared.config.resourceDirty) {
+                proxy.refreshResources();
+                FoamFixShared.config.resourceDirty = false;
+            }
         }
     }
 

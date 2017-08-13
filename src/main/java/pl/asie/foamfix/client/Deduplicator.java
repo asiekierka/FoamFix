@@ -47,9 +47,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
-import net.minecraft.util.text.TextComponentScore;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
@@ -58,6 +56,7 @@ import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.FoamFix;
+import pl.asie.foamfix.shared.FoamFixConfig;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.HashingStrategies;
 import pl.asie.foamfix.util.MethodHandleHelper;
@@ -77,6 +76,8 @@ public class Deduplicator {
     private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new IdentityHashMap<>();
     private static final Map<Class, MethodHandle> COLLECTION_CONSTRUCTORS = new IdentityHashMap<>();
 
+    private static final Style STYLE_EMPTY = new Style();
+
     private static final MethodHandle FIELD_UNPACKED_DATA_GETTER = MethodHandleHelper.findFieldGetter(UnpackedBakedQuad.class, "unpackedData");
     private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");
 
@@ -93,6 +94,8 @@ public class Deduplicator {
     public int successfuls = 0;
     public int maxRecursion = 0;
 
+    private final Map<Object, java.util.Optional> JAVA_OPTIONALS = new HashMap<>();
+    private final Map<Object, com.google.common.base.Optional> GUAVA_OPTIONALS = new HashMap<>();
     private final IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY);
     private final IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY_ARRAY);
     private final IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
@@ -113,8 +116,13 @@ public class Deduplicator {
     }
 
     static {
+        TRIM_ARRAYS_CLASSES.add(TextComponentKeybind.class);
+        TRIM_ARRAYS_CLASSES.add(TextComponentScore.class);
+        TRIM_ARRAYS_CLASSES.add(TextComponentSelector.class);
         TRIM_ARRAYS_CLASSES.add(TextComponentString.class);
         TRIM_ARRAYS_CLASSES.add(TextComponentTranslation.class);
+
+        TRIM_ARRAYS_CLASSES.add(VertexFormat.class);
         TRIM_ARRAYS_CLASSES.add(ModelBlock.class);
         TRIM_ARRAYS_CLASSES.add(ItemOverrideList.class);
         TRIM_ARRAYS_CLASSES.add(FoamyItemLayerModel.DynamicItemModel.class);
@@ -147,8 +155,6 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(Cache.class);
         BLACKLIST_CLASS.add(LoadingCache.class);
         BLACKLIST_CLASS.add(VertexFormatElement.class);
-
-        BLACKLIST_CLASS.add(BakedQuad.class);
 
         // 1.10/1.11
         addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.VertexBuffer");
@@ -209,6 +215,8 @@ public class Deduplicator {
             if (ResourceLocation.class == c || ModelResourceLocation.class == c) {
                 size = 16; // can't be bothered to measure string size
                 n = OBJECT_STORAGE.deduplicate(o);
+            } else if (Style.class == c && FoamFixShared.isCoremod) {
+                n = deduplicateStyleIfCoremodPresent((Style) o);
             } else if (TRSRTransformation.class == c) {
                 size = 257; // size after full, x86_64
                 n = OBJECT_STORAGE.deduplicate(o);
@@ -226,6 +234,17 @@ public class Deduplicator {
             FoamFixShared.ramSaved += size;
         }
         return n;
+    }
+
+    private Style deduplicateStyleIfCoremodPresent(Style s) {
+        while (s.bold == null && s.italic == null && s.obfuscated == null && s.strikethrough == null && s.underlined == null
+                && s.clickEvent == null && s.hoverEvent == null && s.color == null && s.insertion == null) {
+            s = s.parentStyle;
+            if (s == null) {
+                return STYLE_EMPTY;
+            }
+        }
+        return s;
     }
 
     public Object deduplicateObject(Object o, int recursion) {
@@ -265,15 +284,27 @@ public class Deduplicator {
             }
         }
 
-        if (c == UnpackedBakedQuad.class) {
-            try {
-                float[][][] array = (float[][][]) FIELD_UNPACKED_DATA_GETTER.invokeExact((UnpackedBakedQuad) o);
-                // float[][][]s are not currently deduplicated
-                deduplicate0(array);
-            } catch (Throwable t) {
-                t.printStackTrace();
+        if (o instanceof BakedQuad) {
+            if (c == BakedQuad.class) {
+                if (FoamFixShared.config.expUnpackBakedQuads) {
+                    BakedQuad quad = (BakedQuad) o;
+                    UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(quad.getFormat());
+                    quad.pipe(builder);
+                    o = builder.build();
+                    c = UnpackedBakedQuad.class;
+                }
             }
-        } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation) {
+
+            if (c == UnpackedBakedQuad.class) {
+                try {
+                    float[][][] array = (float[][][]) FIELD_UNPACKED_DATA_GETTER.invokeExact((UnpackedBakedQuad) o);
+                    // float[][][]s are not currently deduplicated
+                    deduplicate0(array);
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+        } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || c == Style.class) {
             return deduplicate0(o);
         } else if (c == ItemCameraTransforms.class) {
             Object d = deduplicate0(o);
@@ -284,6 +315,7 @@ public class Deduplicator {
         } else if (o instanceof Item || o instanceof Block || o instanceof World
                 || o instanceof Entity || o instanceof Logger || o instanceof IRegistry) {
             BLACKLIST_CLASS.add(c);
+            return o;
         } else if (o instanceof ItemOverrideList && o != ItemOverrideList.NONE) {
             try {
                 List list = (List) IOL_OVERRIDES_GETTER.invokeExact((ItemOverrideList) o);
@@ -299,17 +331,53 @@ public class Deduplicator {
             } catch (Throwable t) {
 
             }
+        } else if (o instanceof java.util.Optional) {
+            java.util.Optional opt = (java.util.Optional) o;
+            if (opt.isPresent()) {
+                if (JAVA_OPTIONALS.containsKey(opt.get())) {
+                    successfuls++;
+                    return JAVA_OPTIONALS.get(opt.get());
+                }
+
+                Object b = deduplicateObject(opt.get(), recursion + 1);
+                if (b != null && b != opt.get()) {
+                    java.util.Optional opt2 = java.util.Optional.of(b);
+                    JAVA_OPTIONALS.put(b, opt2);
+                    JAVA_OPTIONALS.put(opt.get(), opt2);
+                    return opt2;
+                } else {
+                    JAVA_OPTIONALS.put(opt.get(), opt);
+                    return opt;
+                }
+            } else {
+                return opt;
+            }
         } else if (o instanceof com.google.common.base.Optional) {
             Optional opt = (Optional) o;
             if (opt.isPresent()) {
+                if (GUAVA_OPTIONALS.containsKey(opt.get())) {
+                    successfuls++;
+                    return GUAVA_OPTIONALS.get(opt.get());
+                }
+
                 Object b = deduplicateObject(opt.get(), recursion + 1);
                 if (b != null && b != opt.get()) {
-                    return Optional.of(b);
+                    com.google.common.base.Optional opt2 = com.google.common.base.Optional.of(b);
+                    GUAVA_OPTIONALS.put(b, opt2);
+                    GUAVA_OPTIONALS.put(opt.get(), opt2);
+                    return opt2;
+                } else {
+                    GUAVA_OPTIONALS.put(opt.get(), opt);
+                    return opt;
                 }
+            } else {
+                return opt;
             }
         } else if (o instanceof Multimap) {
             if (o instanceof ImmutableMultimap) {
-                // TODO: Handle me?
+                for (Object value : ((ImmutableMultimap) o).values()) {
+                    deduplicateObject(value, recursion + 1);
+                }
             } else {
                 for (Object key : ((Multimap) o).keySet()) {
                     List l = Lists.newArrayList(((Multimap) o).values());
@@ -333,7 +401,12 @@ public class Deduplicator {
                         deduplicated = true;
                 }
                 if (deduplicated) {
-                    return ImmutableMap.copyOf(newMap);
+                    if (o instanceof ImmutableSortedMap)
+                        return ImmutableSortedMap.copyOf(newMap);
+                    else if (o instanceof ImmutableBiMap)
+                        return ImmutableBiMap.copyOf(newMap);
+                    else
+                        return ImmutableMap.copyOf(newMap);
                 }
             } else {
                 for (Object key : ((Map) o).keySet()) {
@@ -403,12 +476,12 @@ public class Deduplicator {
                 Class cc = c;
                 do {
                     for (Field f : cc.getDeclaredFields()) {
-                        f.setAccessible(true);
                         if ((f.getModifiers() & Modifier.STATIC) != 0)
                             continue;
 
                         if (shouldCheckClass(f.getType())) {
                             try {
+                                f.setAccessible(true);
                                 fsBuilder.add(new MethodHandle[]{
                                         MethodHandles.lookup().unreflectGetter(f),
                                         MethodHandles.lookup().unreflectSetter(f)

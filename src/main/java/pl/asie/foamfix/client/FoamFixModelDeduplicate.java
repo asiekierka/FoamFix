@@ -32,6 +32,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.MultipartBakedModel;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.item.Item;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
@@ -64,7 +66,7 @@ public class FoamFixModelDeduplicate {
         // FoamUtils.wipeModelLoaderRegistryCache();
 
         if (FoamFixShared.config.clDeduplicate) {
-            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size() + 1);
+            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size() + 2);
 
             if (ProxyClient.deduplicator == null) {
                 ProxyClient.deduplicator = new Deduplicator();
@@ -73,8 +75,21 @@ public class FoamFixModelDeduplicate {
             ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
             FoamFix.logger.info("Deduplicating models...");
 
-            ProxyClient.deduplicator.addObjects(Block.REGISTRY.getKeys());
-            ProxyClient.deduplicator.addObjects(Item.REGISTRY.getKeys());
+            ProxyClient.deduplicator.addObjects(ForgeRegistries.BLOCKS.getKeys());
+            ProxyClient.deduplicator.addObjects(ForgeRegistries.ITEMS.getKeys());
+
+            try {
+                bakeBar.step("Vertex formats");
+
+                for (Field f : DefaultVertexFormats.class.getDeclaredFields()) {
+                    if (f.getType() == VertexFormat.class) {
+                        f.setAccessible(true);
+                        ProxyClient.deduplicator.deduplicateObject(f.get(null), 0);
+                    }
+                }
+            } catch (Exception e) {
+
+            }
 
             for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
                 IBakedModel model = event.getModelRegistry().getObject(loc);

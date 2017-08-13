@@ -39,10 +39,12 @@ import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.registries.IRegistryDelegate;
 import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.ProxyClient;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -74,7 +76,7 @@ public class FoamFixModelRegistryDuplicateWipe {
         if (imm instanceof ItemModelMesherForge) {
             f = ReflectionHelper.findField(ItemModelMesherForge.class, "models");
             try {
-                IdentityHashMap<Item, TIntObjectHashMap<IBakedModel>> modelStore = (IdentityHashMap<Item, TIntObjectHashMap<IBakedModel>>) f.get(imm);
+                Map<IRegistryDelegate<Item>, TIntObjectHashMap<IBakedModel>> modelStore = (Map<IRegistryDelegate<Item>, TIntObjectHashMap<IBakedModel>>) f.get(imm);
                 FoamFix.logger.info("Clearing unnecessary item shapes cache of size " + modelStore.size() + ".");
                 modelStore.clear();
             } catch (Exception e) {

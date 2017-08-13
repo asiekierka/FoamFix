@@ -39,8 +39,8 @@ public final class HashingStrategies {
     public static final HashingStrategy<float[]> FLOAT_ARRAY = new FloatArray();
     public static final HashingStrategy<float[][]> FLOAT_ARRAY_ARRAY = new FloatArrayArray();
     public static final HashingStrategy<int[]> INT_ARRAY = new IntArray();
-    public static final HashingStrategy GENERIC = new ObjectStrategy();
-    public static final HashingStrategy IDENTITY = new IdentityHashingStrategy();
+    public static final HashingStrategy<Object> GENERIC = new ObjectStrategy();
+    public static final HashingStrategy<Object> IDENTITY = new IdentityHashingStrategy<>();
     public static final HashingStrategy<ItemCameraTransforms> ITEM_CAMERA_TRANSFORMS = new ItemCameraTransformsStrategy();
     public static final HashingStrategy<ItemTransformVec3f> ITEM_TRANSFORM_VEC3F = new ItemTransformVecStrategy();
 
@@ -91,7 +91,7 @@ public final class HashingStrategies {
         }
     }
 
-    private static final class ObjectStrategy implements HashingStrategy {
+    private static final class ObjectStrategy implements HashingStrategy<Object> {
         @Override
         public int computeHashCode(Object object) {
             return Objects.hashCode(object);

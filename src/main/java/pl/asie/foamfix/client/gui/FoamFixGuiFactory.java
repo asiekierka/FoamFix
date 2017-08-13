@@ -41,10 +41,20 @@ public class FoamFixGuiFactory implements IModGuiFactory {
             Configuration c = FoamFixShared.config.getConfig();
 
             for (String s : c.getCategoryNames()) {
+                boolean isExperimental = "experimental".equals(s);
                 ConfigCategory category = c.getCategory(s);
                 for (Property p : category.values()) {
                     if (FoamFixShared.config.isApplicable(p) && p.showInGui() && p.requiresMcRestart() == restartRequired) {
-                        elements.add(new ConfigElement(p));
+                        if (isExperimental) {
+                            elements.add(new ConfigElement(p) {
+                                @Override
+                                public String getName() {
+                                    return "[EXPERIMENTAL] " + super.getName();
+                                }
+                            });
+                        } else {
+                            elements.add(new ConfigElement(p));
+                        }
                     }
                 }
             }

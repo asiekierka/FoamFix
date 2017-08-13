@@ -20,20 +20,9 @@ public class FoamyMultipartBakedModel implements IBakedModel {
 
     private final Predicate[] predicates;
     private final IBakedModel[] models;
-    private final boolean ambientOcclusion;
-    private final boolean gui3d;
-    private final TextureAtlasSprite particleTexture;
-    private final ItemCameraTransforms cameraTransforms;
-    private final ItemOverrideList overrides;
 
     @SuppressWarnings("unchecked")
     public FoamyMultipartBakedModel(MultipartBakedModel parent) {
-        this.ambientOcclusion = parent.isAmbientOcclusion();
-        this.gui3d = parent.isGui3d();
-        this.particleTexture = parent.getParticleTexture();
-        this.cameraTransforms = parent.getItemCameraTransforms();
-        this.overrides = parent.getOverrides();
-
         try {
             Map<Predicate<IBlockState>, IBakedModel> map = (Map<Predicate<IBlockState>, IBakedModel>) SELECTORS_GETTER.invoke(parent);
 
@@ -55,7 +44,7 @@ public class FoamyMultipartBakedModel implements IBakedModel {
         if (state == null) {
             return ImmutableList.of();
         } else {
-            List<BakedQuad> list = Lists.<BakedQuad>newArrayList();
+            List<BakedQuad> list = Lists.newArrayList();
             for (int i = 0; i < predicates.length; i++) {
                 if (predicates[i].apply(state)) {
                     list.addAll(models[i].getQuads(state, side, rand++));
@@ -65,33 +54,27 @@ public class FoamyMultipartBakedModel implements IBakedModel {
         }
     }
 
-    public boolean isAmbientOcclusion()
-    {
-        return this.ambientOcclusion;
+    public boolean isAmbientOcclusion() {
+        return models[0].isAmbientOcclusion();
     }
 
-    public boolean isGui3d()
-    {
-        return this.gui3d;
+    public boolean isGui3d() {
+        return models[0].isGui3d();
     }
 
-    public boolean isBuiltInRenderer()
-    {
+    public boolean isBuiltInRenderer() {
         return false;
     }
 
-    public TextureAtlasSprite getParticleTexture()
-    {
-        return this.particleTexture;
+    public TextureAtlasSprite getParticleTexture() {
+        return models[0].getParticleTexture();
     }
 
-    public ItemCameraTransforms getItemCameraTransforms()
-    {
-        return this.cameraTransforms;
+    public ItemCameraTransforms getItemCameraTransforms() {
+        return models[0].getItemCameraTransforms();
     }
 
-    public ItemOverrideList getOverrides()
-    {
-        return this.overrides;
+    public ItemOverrideList getOverrides() {
+        return models[0].getOverrides();
     }
 }

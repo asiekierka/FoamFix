@@ -36,6 +36,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.MinecraftForge;
+import org.apache.commons.math3.analysis.function.Min;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.client.dolphin.PleaseTrustMeLookImADolphin;
 import pl.asie.foamfix.shared.FoamFixShared;
@@ -107,11 +108,10 @@ public class ProxyClient extends ProxyCommon {
 	@Override
 	public void postInit() {
 		super.postInit();
-		// clear successful deduplication count - the coremod variant
-		// deduplicates in init's modelbake as well, so we don't want
-		// to count that in to make the numbers (more or less) match
-		if (deduplicator != null) {
-			deduplicator.successfuls = 0;
-		}
+	}
+
+	@Override
+	public void refreshResources() {
+		Minecraft.getMinecraft().scheduleResourcesRefresh();
 	}
 }
