@@ -20,10 +20,10 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
-    version = "1.12-14.21.1.2424"
+    version = "1.12.1-14.22.0.2452"
     runDir = "run"
     
-    mappings = "snapshot_20170724"
+    mappings = "snapshot_20170813"
 }
 
 repositories {
@@ -64,7 +64,6 @@ jar.enabled = false
 shadowJar {
     archiveName = tasks.jar.archiveName
     configurations = [project.configurations.shadow]
-    relocate 'fi.iki.elonen', 'pl.asie.foamfix.repack.nanohttpd'
 }
 
 reobfJar {

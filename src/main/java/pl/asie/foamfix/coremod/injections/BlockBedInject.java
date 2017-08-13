@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod.patches;
+package pl.asie.foamfix.coremod.injections;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
@@ -7,7 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class BlockBedPatch extends BlockBed {
+public class BlockBedInject extends BlockBed {
     @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
         EnumFacing enumfacing = state.getValue(FACING);

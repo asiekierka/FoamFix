@@ -53,7 +53,7 @@ public class FoamFixConfig {
 	public boolean twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
-	public boolean geReplaceSimpleName, geFasterCollisionBoxes;
+	public boolean geFasterCollisionBoxes;
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 
 	public int clDeduplicateRecursionLevel;
@@ -123,7 +123,6 @@ public class FoamFixConfig {
 			// geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 			// geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
 			clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", false, "Threaded, parallel model baking.", true, true);
-			geReplaceSimpleName = getBoolean("replaceWorldSimpleName", "coremod", true, "Replaces Class.getSimpleName in World.updateEntities with getName. As Class.getName's output is cached, unlike getSimpleName, this should provide a small performance boost.", true, true);
 			if (!isDeobfEnvironment)
 				geFasterEntityLookup = getBoolean("fasterEntityLookup", "coremod", true, "Speeds up entity lookup by optimizing ClassInheritanceMultiMap.getByClass.", true, true);
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);

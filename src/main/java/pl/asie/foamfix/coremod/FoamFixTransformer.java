@@ -217,17 +217,12 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         if (FoamFixShared.config.clFasterVertexLighter) {
-            patchy.addTransformerId("fasterVertexLighter_v1");
+            patchy.addTransformerId("fasterVertexLighter_v2");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoInject",
                             "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS"), "net.minecraftforge.client.model.pipeline.BlockInfo");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.VertexLighterFlatInject",
-                    "setParent", "setParent", "updateLightmap", "updateLightmap", "getVertexFormatWithNormal", "getVertexFormatWithNormal", "updateBlockInfo", "updateBlockInfo"),
+                    "updateLightmap", "updateLightmap", "updateBlockInfo", "updateBlockInfo"),
                     "net.minecraftforge.client.model.pipeline.VertexLighterFlat");
-        }
-
-        if (FoamFixShared.config.geReplaceSimpleName) {
-            patchy.addTransformerId("replaceSimpleName_v1");
-            handlerCV.add(new ClassGetSimpleNamePatch("updateEntities", "func_72939_s"), "net.minecraft.world.World");
         }
 
         if (FoamFixShared.config.geBlockPosPatch) {
@@ -275,7 +270,7 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.geFixUnnecessaryGhostload) {
             patchy.addTransformerId("fixUnnecessaryGhostload_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.patches.BlockBedPatch",
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockBedInject",
                     "func_190524_a", "neighborChanged"), "net.minecraft.block.BlockBed");
         }
 
@@ -287,7 +282,7 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.geFixWorldEntityCleanup) {
             patchy.addTransformerId("fixWorldEntityCleanup_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.patches.WorldRemovalPatch",
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldRemovalInject",
                     "foamfix_removeUnloadedEntities", "foamfix_removeUnloadedEntities"), "net.minecraft.world.World");
             handlerCN.add(new WorldServerRemovalPatch(), "net.minecraft.world.WorldServer");
         }

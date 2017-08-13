@@ -1,4 +1,4 @@
-package pl.asie.foamfix.coremod.patches;
+package pl.asie.foamfix.coremod.injections;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.profiler.Profiler;
@@ -8,9 +8,10 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
+import pl.asie.foamfix.coremod.patches.IFoamFixWorldRemovable;
 
-public class WorldRemovalPatch extends World implements IFoamFixWorldRemovable {
-    protected WorldRemovalPatch(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client) {
+public class WorldRemovalInject extends World implements IFoamFixWorldRemovable {
+    protected WorldRemovalInject(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn, Profiler profilerIn, boolean client) {
         super(saveHandlerIn, info, providerIn, profilerIn, client);
     }
 
