@@ -46,9 +46,6 @@ import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-/**
- * Created by asie on 11/22/16.
- */
 public class FoamFixModelRegistryDuplicateWipe {
     @SubscribeEvent
     public void onTextureStitchPost(TextureStitchEvent.Post event) {

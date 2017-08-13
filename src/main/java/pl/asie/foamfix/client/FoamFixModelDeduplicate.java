@@ -31,9 +31,15 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 import net.minecraft.item.Item;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
+import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
+import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import pl.asie.foamfix.FoamFix;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -71,9 +77,15 @@ public class FoamFixModelDeduplicate {
                 IBakedModel model = event.getModelRegistry().getObject(loc);
                 String modelName = loc.toString();
                 bakeBar.step(String.format("[%s]", modelName));
+
+                if (model instanceof MultipartBakedModel) {
+                    ProxyClient.deduplicator.successfuls++;
+                    model = new FoamyMultipartBakedModel((MultipartBakedModel) model);
+                }
+
                 try {
                     ProxyClient.deduplicator.addObject(loc);
-                    ProxyClient.deduplicator.deduplicateObject(model, 0);
+                    event.getModelRegistry().putObject(loc, (IBakedModel) ProxyClient.deduplicator.deduplicateObject(model, 0));
                 } catch (Exception e) {
 
                 }

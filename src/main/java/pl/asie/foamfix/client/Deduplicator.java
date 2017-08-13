@@ -50,6 +50,7 @@ import net.minecraft.util.registry.IRegistry;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
+import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.logging.log4j.Logger;
@@ -80,6 +81,8 @@ public class Deduplicator {
     private static final MethodHandle IPAM_MW_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter(PerspectiveMapWrapper.class, "transforms");
     private static final MethodHandle BIM_TRANSFORMS_GETTER = MethodHandleHelper.findFieldGetter("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel", "transforms");
     private static final MethodHandle BIM_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel", "transforms");
+    private static final MethodHandle IOL_OVERRIDES_GETTER = MethodHandleHelper.findFieldGetter(ItemOverrideList.class, "overrides", "field_188023_b");
+    private static final MethodHandle IOL_OVERRIDES_SETTER = MethodHandleHelper.findFieldSetter(ItemOverrideList.class, "overrides", "field_188023_b");
 
     // private static final Field FIELD_VERTEX_DATA = ReflectionHelper.findField(BakedQuad.class, "vertexData", "field_178215_a");
 
@@ -274,9 +277,21 @@ public class Deduplicator {
         } else if (o instanceof Item || o instanceof Block || o instanceof World
                 || o instanceof Entity || o instanceof Logger || o instanceof IRegistry) {
             BLACKLIST_CLASS.add(c);
-        } else if (o != ItemOverrideList.NONE && c == ItemOverrideList.class && ((ItemOverrideList) o).getOverrides().isEmpty()) {
-            successfuls++;
-            return ItemOverrideList.NONE;
+        } else if (o instanceof ItemOverrideList && o != ItemOverrideList.NONE) {
+            try {
+                List list = (List) IOL_OVERRIDES_GETTER.invokeExact((ItemOverrideList) o);
+                if (list.isEmpty()) {
+                    if (c == ItemOverrideList.class) {
+                        successfuls++;
+                        return ItemOverrideList.NONE;
+                    } else if (c == AnimationItemOverrideList.class) {
+                        IOL_OVERRIDES_SETTER.invokeExact((ItemOverrideList) o, (List) ImmutableList.of());
+                        successfuls++;
+                    }
+                }
+            } catch (Throwable t) {
+
+            }
         } else if (o instanceof com.google.common.base.Optional) {
             Optional opt = (Optional) o;
             if (opt.isPresent()) {
