@@ -43,6 +43,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.api.FoamFixAPI;
 import pl.asie.foamfix.common.FoamFixHelper;
+import pl.asie.foamfix.common.PropertyValueDeduplicator;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.text.DecimalFormat;
@@ -82,6 +83,11 @@ public class FoamFix {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         stage = 1;
+
+        PropertyValueDeduplicator deduplicator = new PropertyValueDeduplicator();
+        deduplicator.deduplicate();
+        logger.info("Deduplicated " + deduplicator.successfuls + " property sets.");
+
         MinecraftForge.EVENT_BUS.register(proxy);
         proxy.init();
     }

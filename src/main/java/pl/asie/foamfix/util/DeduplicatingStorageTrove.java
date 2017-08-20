@@ -23,10 +23,11 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix.client;
+package pl.asie.foamfix.util;
 
 import gnu.trove.set.hash.TCustomHashSet;
 import gnu.trove.strategy.HashingStrategy;
+import pl.asie.foamfix.client.IDeduplicatingStorage;
 
 public class DeduplicatingStorageTrove<T> extends TCustomHashSet<T> implements IDeduplicatingStorage<T> {
     public DeduplicatingStorageTrove(HashingStrategy<T> strategy) {

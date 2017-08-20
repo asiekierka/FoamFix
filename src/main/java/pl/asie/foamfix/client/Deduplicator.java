@@ -31,8 +31,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
 import com.google.gson.Gson;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.set.hash.TCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -55,9 +53,8 @@ import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.logging.log4j.Logger;
-import pl.asie.foamfix.FoamFix;
-import pl.asie.foamfix.shared.FoamFixConfig;
 import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.foamfix.util.DeduplicatingStorageTrove;
 import pl.asie.foamfix.util.HashingStrategies;
 import pl.asie.foamfix.util.MethodHandleHelper;
 
@@ -211,7 +208,6 @@ public class Deduplicator {
             n = OBJECT_STORAGE.deduplicate(o);
         } else {
             Class c = o.getClass();
-
             if (ResourceLocation.class == c || ModelResourceLocation.class == c) {
                 size = 16; // can't be bothered to measure string size
                 n = OBJECT_STORAGE.deduplicate(o);
