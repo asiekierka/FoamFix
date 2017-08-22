@@ -25,22 +25,11 @@
  */
 package pl.asie.foamfix.client;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.item.Item;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.PerspectiveMapWrapper;
-import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
-import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -53,10 +42,6 @@ import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
 
 public class FoamFixModelDeduplicate {
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -65,7 +50,7 @@ public class FoamFixModelDeduplicate {
         // TODO: figure out why it breaks Botania (#1, refer to vazkii/botania/client/model/FloatingFlowerModel.java)
         // FoamUtils.wipeModelLoaderRegistryCache();
 
-        if (FoamFixShared.config.clDeduplicate) {
+        if (FoamFixShared.config.geDeduplicate) {
             ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size() + 2);
 
             if (ProxyClient.deduplicator == null) {

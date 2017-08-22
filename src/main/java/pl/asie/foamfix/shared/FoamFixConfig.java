@@ -25,10 +25,7 @@
  */
 package pl.asie.foamfix.shared;
 
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.common.collect.TreeMultimap;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -39,13 +36,11 @@ import net.minecraftforge.fml.common.versioning.VersionParser;
 import net.minecraftforge.fml.common.versioning.VersionRange;
 
 import java.io.File;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Set;
 
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache;
-	public boolean clDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
+	public boolean geDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public boolean clFasterVertexLighter, clInitOptions;
 	public boolean clParallelModelBaking, clDisableTextureAnimations;
 	public boolean geBlacklistLibraryTransformers;
@@ -107,18 +102,18 @@ public class FoamFixConfig {
 	public void reload() {
 		refreshTimes++;
 
-		boolean oldClDeduplicate = clDeduplicate;
+		boolean oldGeDeduplicate = geDeduplicate;
 		int oldClDeduplicateRecursionLevel = clDeduplicateRecursionLevel;
 		boolean oldExpUnpackBakedQuads = expUnpackBakedQuads;
 
 		lwWeakenResourceCache = getBoolean("weakenResourceCache", "launchwrapper", true, "Weaken LaunchWrapper's byte[] resource cache to make it cleanuppable by the GC. Safe.", true, true);
-		clDeduplicate = getBoolean("deduplicateModels", "client", true, "Enable deduplication of redundant objects in memory.", false, true);
+		geDeduplicate = getBoolean("deduplicate", "general", true, "Enable deduplication of redundant objects in memory.", false, true);
 		clDeduplicateRecursionLevel = getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.", false, true);
 		clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.", true, true);
 		expUnpackBakedQuads = getBoolean("unpackBakedQuads", "experimental", false, "Unpacks all baked quads. Increases RAM usage, but might speed some things up.", false, true);
 
 		if (refreshTimes > 1) {
-			if (oldClDeduplicate != clDeduplicate || oldClDeduplicateRecursionLevel != clDeduplicateRecursionLevel || oldExpUnpackBakedQuads != expUnpackBakedQuads) {
+			if (oldGeDeduplicate != geDeduplicate || oldClDeduplicateRecursionLevel != clDeduplicateRecursionLevel || oldExpUnpackBakedQuads != expUnpackBakedQuads) {
 				resourceDirty = true;
 			}
 		}

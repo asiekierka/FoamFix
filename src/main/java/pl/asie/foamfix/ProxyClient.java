@@ -30,15 +30,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.MinecraftForge;
-import org.apache.commons.math3.analysis.function.Min;
 import pl.asie.foamfix.client.*;
-import pl.asie.foamfix.client.dolphin.PleaseTrustMeLookImADolphin;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import javax.annotation.Nullable;
@@ -86,7 +83,7 @@ public class ProxyClient extends ProxyCommon {
 		super.preInit();
 		MinecraftForge.EVENT_BUS.register(new FoamFixModelDeduplicate());
 
-		if (!FoamFixShared.config.clDeduplicate) {
+		if (!FoamFixShared.config.geDeduplicate) {
 			deduplicator = null;
 		}
 

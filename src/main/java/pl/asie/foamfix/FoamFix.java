@@ -84,9 +84,11 @@ public class FoamFix {
     public void init(FMLInitializationEvent event) {
         stage = 1;
 
-        PropertyValueDeduplicator deduplicator = new PropertyValueDeduplicator();
-        deduplicator.deduplicate();
-        logger.info("Deduplicated " + deduplicator.successfuls + " property sets.");
+        if (FoamFixShared.config.geDeduplicate) {
+            PropertyValueDeduplicator deduplicator = new PropertyValueDeduplicator();
+            deduplicator.deduplicate();
+            logger.info("Deduplicated " + deduplicator.successfuls + " property sets.");
+        }
 
         MinecraftForge.EVENT_BUS.register(proxy);
         proxy.init();
