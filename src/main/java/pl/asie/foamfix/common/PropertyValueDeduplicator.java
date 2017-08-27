@@ -24,13 +24,10 @@ public class PropertyValueDeduplicator {
         for (Block b : ForgeRegistries.BLOCKS) {
             for (IProperty property : b.getBlockState().getProperties()) {
                 try {
-                    System.out.println(property);
                     if (checkedProperties.add(property)) {
-                        System.out.println("\\a Unchecked!");
                         Collection allowedValues = property.getAllowedValues();
                         Collection newAllowedValues = (Collection) storage.deduplicate(allowedValues);
                         if (newAllowedValues != allowedValues) {
-                            System.out.println("\\a\\a Deduplicated!");
                             for (Field f : property.getClass().getDeclaredFields()) {
                                 f.setAccessible(true);
                                 Object o = f.get(property);

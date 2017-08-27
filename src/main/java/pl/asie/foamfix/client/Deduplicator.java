@@ -27,6 +27,7 @@ package pl.asie.foamfix.client;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.cache.Cache;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
@@ -43,6 +44,7 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.util.text.*;
@@ -243,6 +245,16 @@ public class Deduplicator {
         return s;
     }
 
+    private boolean trimArray(Object o) {
+        if (o instanceof ArrayList) {
+            ((ArrayList) o).trimToSize();
+            successfulTrims++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public Object deduplicateObject(Object o, int recursion) {
         if (o == null || recursion > maxRecursion)
             return o;
@@ -254,7 +266,18 @@ public class Deduplicator {
         if (!deduplicatedObjects.add(o))
             return o;
 
+        boolean canTrim = o instanceof Predicate || TRIM_ARRAYS_CLASSES.contains(c);
+
         // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
+
+        if (canTrim) {
+            if (c == SimpleBakedModel.class) {
+                for (EnumFacing facing : EnumFacing.VALUES) {
+                    List l = ((SimpleBakedModel) o).getQuads(null, facing, 0);
+                    trimArray(l);
+                }
+            }
+        }
 
         if (o instanceof IBakedModel) {
             if (o instanceof PerspectiveMapWrapper) {
@@ -491,18 +514,13 @@ public class Deduplicator {
                 CLASS_FIELDS.put(c, fsBuilder.build());
             }
 
-            boolean canTrim = TRIM_ARRAYS_CLASSES.contains(c);
-
             for (MethodHandle[] mh : CLASS_FIELDS.get(c)) {
                 try {
                     // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
                     Object value = mh[0].invoke(o);
                     Object valueD = deduplicateObject(value, recursion + 1);
 
-                    if (canTrim && valueD instanceof ArrayList) {
-                        ((ArrayList) valueD).trimToSize();
-                        successfulTrims++;
-                    }
+                    if (canTrim) trimArray(valueD);
 
                     if (valueD != null && value != valueD)
                         mh[1].invoke(o, valueD);
