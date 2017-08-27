@@ -44,6 +44,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.coremod.patches.*;
+import pl.asie.foamfix.coremod.staging.Patch4316;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
 import pl.asie.patchy.handlers.*;
@@ -285,6 +286,23 @@ public class FoamFixTransformer implements IClassTransformer {
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldRemovalInject",
                     "foamfix_removeUnloadedEntities", "foamfix_removeUnloadedEntities"), "net.minecraft.world.World");
             handlerCN.add(new WorldServerRemovalPatch(), "net.minecraft.world.WorldServer");
+        }
+
+        if (FoamFixShared.config.staging4305) {
+            patchy.addTransformerId("staging4305_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.staging.Patch4305",
+                    "diffuseLight", "diffuseLight"), "net.minecraftforge.client.model.pipeline.LightUtil");
+        }
+
+        if (FoamFixShared.config.staging4313) {
+            patchy.addTransformerId("staging4313_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.staging.Patch4313",
+                    "fillNormal", "fillNormal"), "net.minecraftforge.client.ForgeHooksClient");
+        }
+
+        if (FoamFixShared.config.staging4316) {
+            patchy.addTransformerId("staging4316_v1");
+            handlerCN.add(new Patch4316(), "net.minecraftforge.client.model.pipeline.LightUtil");
         }
     }
 

@@ -51,6 +51,8 @@ public class FoamFixConfig {
 	public boolean geFasterCollisionBoxes;
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 	public boolean expUnpackBakedQuads;
+
+	public boolean staging4305, staging4313, staging4316;
 	public int refreshTimes = 0;
 
 	public int clDeduplicateRecursionLevel;
@@ -123,6 +125,10 @@ public class FoamFixConfig {
 		}
 
 		if (isCoremod) {
+			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true);
+			staging4313 = getBoolean("pr4313", "staging", true, "Improve generation of normals for vanilla models", true, true);
+			staging4316 = getBoolean("pr4316", "staging", true, "Adjust float (un)packing functions to be slightly more accurate", true, true);
+
 			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
 			clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.", true, false);
 			clFasterVertexLighter = getBoolean("fasterVertexLighter", "experimental", true, "Implements optimizations to VertexLighter(Flat) inspired by thecodewarrior and bs2609's work.", true, true);

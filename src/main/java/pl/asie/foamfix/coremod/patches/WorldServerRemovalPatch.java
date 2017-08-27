@@ -10,6 +10,11 @@ import java.io.PrintWriter;
 import java.util.ListIterator;
 
 public class WorldServerRemovalPatch implements TransformerFunction<ClassNode> {
+    public static void a() {
+        int a = 3;
+        a = Math.round(a);
+    }
+
     @Override
     public ClassNode apply(ClassNode classNode) {
         for (MethodNode method : classNode.methods) {
