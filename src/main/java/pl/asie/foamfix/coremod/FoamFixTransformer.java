@@ -304,6 +304,12 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("staging4316_v1");
             handlerCN.add(new Patch4316(), "net.minecraftforge.client.model.pipeline.LightUtil");
         }
+
+        if (FoamFixShared.config.staging4365) {
+            patchy.addTransformerId("staging4365_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.staging.Patch4365",
+                    "getLightmapColors", "getLightmapColors"), "net.minecraft.world.WorldProvider");
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {

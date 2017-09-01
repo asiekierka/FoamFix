@@ -41,6 +41,7 @@ public class TileEntityFasterHopper extends TileEntityHopper {
         ItemStack stack = super.removeStackFromSlot(index);
         if (!stack.isEmpty()) {
             dirtyEmpty = true;
+            full = false; // Something was taken out, so it won't be full anymore
         }
         return stack;
     }
@@ -50,6 +51,7 @@ public class TileEntityFasterHopper extends TileEntityHopper {
         ItemStack stack = super.decrStackSize(index, count);
         if (!stack.isEmpty()) {
             dirtyEmpty = true;
+            full = false; // Something was taken out, so it won't be full anymore
         }
         return stack;
     }
