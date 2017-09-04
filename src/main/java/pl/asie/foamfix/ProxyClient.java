@@ -33,12 +33,16 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.foamfix.util.MethodHandleHelper;
 
 import javax.annotation.Nullable;
+import java.lang.invoke.MethodHandle;
 import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
@@ -78,6 +82,8 @@ public class ProxyClient extends ProxyCommon {
 		}
 	};
 
+	private ModelLoaderCleanup cleanup;
+
 	@Override
 	public void preInit() {
 		super.preInit();
@@ -90,6 +96,11 @@ public class ProxyClient extends ProxyCommon {
 		if (FoamFixShared.config.clDynamicItemModels) {
 			FoamFixDynamicItemModels.register();
 		}
+
+		if (FoamFixShared.config.clModelLoaderCleanup) {
+			cleanup = new ModelLoaderCleanup();
+			MinecraftForge.EVENT_BUS.register(cleanup);
+		}
 	}
 
 	@Override
@@ -99,6 +110,10 @@ public class ProxyClient extends ProxyCommon {
 
 		if (FoamFixShared.config.clCleanRedundantModelRegistry) {
 			MinecraftForge.EVENT_BUS.register(new FoamFixModelRegistryDuplicateWipe());
+		}
+
+		if (cleanup != null) {
+			cleanup.tick();
 		}
 	}
 

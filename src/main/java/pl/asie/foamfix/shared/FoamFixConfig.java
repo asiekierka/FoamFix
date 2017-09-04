@@ -39,9 +39,9 @@ import java.io.File;
 import java.util.Set;
 
 public class FoamFixConfig {
-	public boolean lwWeakenResourceCache;
+	public boolean lwWeakenResourceCache, lwRemovePackageManifestMap;
 	public boolean geDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
-	public boolean clFasterVertexLighter, clInitOptions;
+	public boolean clFasterVertexLighter, clInitOptions, clModelLoaderCleanup;
 	public boolean clParallelModelBaking, clDisableTextureAnimations;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, geFasterEntityLookup, geFasterPropertyComparisons, geFasterAirLookup, geFasterEntityDataManager;
@@ -52,7 +52,7 @@ public class FoamFixConfig {
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 	public boolean expUnpackBakedQuads;
 
-	public boolean staging4305, staging4313, staging4316, staging4365;
+	public boolean staging4305, staging4313, staging4316, staging4365, staging4370;
 	public int refreshTimes = 0;
 
 	public int clDeduplicateRecursionLevel;
@@ -109,9 +109,11 @@ public class FoamFixConfig {
 		boolean oldExpUnpackBakedQuads = expUnpackBakedQuads;
 
 		lwWeakenResourceCache = getBoolean("weakenResourceCache", "launchwrapper", true, "Weaken LaunchWrapper's byte[] resource cache to make it cleanuppable by the GC. Safe.", true, true);
+		lwRemovePackageManifestMap = getBoolean("removePackageManifestMap", "launchwrapper", true, "Remove Launchwrapper package manifest map (which is not used anyway).", true, true);
 		geDeduplicate = getBoolean("deduplicate", "general", true, "Enable deduplication of redundant objects in memory.", false, true);
 		clDeduplicateRecursionLevel = getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.", false, true);
 		clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.", true, true);
+		clModelLoaderCleanup = getBoolean("modelLoaderCleanup", "client", true, "Remove unnecessary data from a pointlessly cached ModelLoader instance.", true, true);
 		expUnpackBakedQuads = getBoolean("unpackBakedQuads", "experimental", false, "Unpacks all baked quads. Increases RAM usage, but might speed some things up.", false, true);
 
 		if (refreshTimes > 1) {
@@ -129,6 +131,7 @@ public class FoamFixConfig {
 			staging4313 = getBoolean("pr4313", "staging", true, "Improve generation of normals for vanilla models", true, true);
 			staging4316 = getBoolean("pr4316", "staging", true, "Adjust float (un)packing functions to be slightly more accurate", true, true);
 			staging4365 = getBoolean("pr4365", "staging", true, "Fix light sources rendering wrongly with night vision (MC-58177)", true, true);
+			staging4370 = getBoolean("pr4370", "staging", true, "Improve performance of vertex format mapping (hashCode caching only)", true, true);
 
 			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
 			clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.", true, false);
