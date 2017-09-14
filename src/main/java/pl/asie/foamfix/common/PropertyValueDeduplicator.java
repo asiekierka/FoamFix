@@ -22,24 +22,27 @@ public class PropertyValueDeduplicator {
         Set<IProperty> checkedProperties = new TCustomHashSet<>(HashingStrategies.IDENTITY);
 
         for (Block b : ForgeRegistries.BLOCKS) {
-            for (IProperty property : b.getBlockState().getProperties()) {
-                try {
-                    if (checkedProperties.add(property)) {
-                        Collection allowedValues = property.getAllowedValues();
-                        Collection newAllowedValues = (Collection) storage.deduplicate(allowedValues);
-                        if (newAllowedValues != allowedValues) {
-                            for (Field f : property.getClass().getDeclaredFields()) {
-                                f.setAccessible(true);
-                                Object o = f.get(property);
-                                if (o == allowedValues) {
-                                    f.set(property, newAllowedValues);
-                                    successfuls++;
+            // FIXME: Remove once Immersive Engineering fixes its stuff
+            if (b.getRegistryName() == null || !("immersiveengineering".equals(b.getRegistryName().getResourceDomain()))) {
+                for (IProperty property : b.getBlockState().getProperties()) {
+                    try {
+                        if (checkedProperties.add(property)) {
+                            Collection allowedValues = property.getAllowedValues();
+                            Collection newAllowedValues = (Collection) storage.deduplicate(allowedValues);
+                            if (newAllowedValues != allowedValues) {
+                                for (Field f : property.getClass().getDeclaredFields()) {
+                                    f.setAccessible(true);
+                                    Object o = f.get(property);
+                                    if (o == allowedValues) {
+                                        f.set(property, newAllowedValues);
+                                        successfuls++;
+                                    }
                                 }
                             }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         }

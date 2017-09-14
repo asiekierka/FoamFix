@@ -7,6 +7,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.MathHelper;
+import pl.asie.foamfix.FoamFix;
 
 import java.util.*;
 
@@ -154,10 +155,11 @@ public class PropertyValueMapper {
 		if (bitPos >= 0) {
 			Entry e = getPropertyEntry(property);
 			if (e != null) {
+				int bitMask = (e.bitSize - 1);
 				int nv = e.get(propertyValue);
-				if (nv < 0) return  -1;
+				if (nv < 0) return -1;
 
-				value &= ~((e.bitSize - 1) << bitPos);
+				value &= ~(bitMask << bitPos);
 				value |= nv << bitPos;
 
 				return value;

@@ -128,9 +128,9 @@ public class FoamFixConfig {
 
 		if (isCoremod) {
 			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true);
-			staging4313 = getBoolean("pr4313", "staging", true, "Improve generation of normals for vanilla models", true, true);
-			staging4316 = getBoolean("pr4316", "staging", true, "Adjust float (un)packing functions to be slightly more accurate", true, true);
-			staging4365 = getBoolean("pr4365", "staging", true, "Fix light sources rendering wrongly with night vision (MC-58177)", true, true);
+			staging4313 = getBoolean("pr4313", "staging", true, "Improve generation of normals for vanilla models", true, true, "(,14.22.0.2474)");
+			staging4316 = getBoolean("pr4316", "staging", true, "Adjust float (un)packing functions to be slightly more accurate", true, true, "(,14.22.0.2471)");
+			staging4365 = getBoolean("pr4365", "staging", true, "Fix light sources rendering wrongly with night vision (MC-58177)", true, true, "(,14.22.0.2473)");
 			staging4370 = getBoolean("pr4370", "staging", true, "Improve performance of vertex format mapping (hashCode caching only)", true, true);
 
 			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
