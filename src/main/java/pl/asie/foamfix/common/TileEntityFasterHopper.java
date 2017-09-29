@@ -1,7 +1,10 @@
 package pl.asie.foamfix.common;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityHopper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class TileEntityFasterHopper extends TileEntityHopper {
     private boolean empty, full;
@@ -79,5 +82,10 @@ public class TileEntityFasterHopper extends TileEntityHopper {
             dirtyFull = false;
         }
         return full;
+    }
+
+    @Override
+    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+        return oldState.getBlock() != newState.getBlock();
     }
 }
