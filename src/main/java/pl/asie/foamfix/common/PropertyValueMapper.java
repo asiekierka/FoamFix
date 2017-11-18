@@ -39,7 +39,7 @@ public class PropertyValueMapper {
 				bits++;
 				b >>= 1;
 			}
-			this.bits = bits;
+			this.bits = bits-1;
 			int i = 0;
 
 			for (Object o : property.getAllowedValues()) {
