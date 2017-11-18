@@ -49,7 +49,10 @@ public class PropertyValueMapper {
 			this.values = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 			this.bitSize = MathHelper.smallestEncompassingPowerOfTwo(property.getAllowedValues().size());
 			int bits = 0;
-			int b = bitSize;
+
+			// Think: 8 values = 3 bits required, 9 values = 4 bits required
+			// we want the location of the highest set bit to match this
+			int b = bitSize - 1;
 			while (b != 0) {
 				bits++;
 				b >>= 1;
