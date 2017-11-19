@@ -44,7 +44,6 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.coremod.patches.*;
-import pl.asie.foamfix.coremod.staging.Patch4316;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
 import pl.asie.patchy.handlers.*;
@@ -294,29 +293,12 @@ public class FoamFixTransformer implements IClassTransformer {
                     "diffuseLight", "diffuseLight"), "net.minecraftforge.client.model.pipeline.LightUtil");
         }
 
-        if (FoamFixShared.config.staging4313) {
-            patchy.addTransformerId("staging4313_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.staging.Patch4313",
-                    "fillNormal", "fillNormal"), "net.minecraftforge.client.ForgeHooksClient");
-        }
-
-        if (FoamFixShared.config.staging4316) {
-            patchy.addTransformerId("staging4316_v1");
-            handlerCN.add(new Patch4316(), "net.minecraftforge.client.model.pipeline.LightUtil");
-        }
-
-        if (FoamFixShared.config.staging4365) {
-            patchy.addTransformerId("staging4365_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.staging.Patch4365",
-                    "getLightmapColors", "getLightmapColors"), "net.minecraft.world.WorldProvider");
-        }
-
-        if (FoamFixShared.config.staging4370) {
+        /* if (FoamFixShared.config.staging4370) {
             patchy.addTransformerId("staging4370_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingHashCodeInject",
                     "hashCode", "hashCode", "foamfix_hashCode", "foamfix_hashCode", "foamfix_hashCode_calced", "foamfix_hashCode_calced"),
                     "net.minecraft.client.renderer.vertex.VertexFormat");
-        }
+        } */
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {

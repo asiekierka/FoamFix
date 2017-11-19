@@ -35,8 +35,6 @@ public class PropertyValueMapper {
 			this.bitSize = MathHelper.smallestEncompassingPowerOfTwo(property.getAllowedValues().size());
 			int bits = 0;
 
-			// Think: 8 values = 3 bits required, 9 values = 4 bits required
-			// we want the location of the highest set bit to match this
 			int b = bitSize - 1;
 			while (b != 0) {
 				bits++;

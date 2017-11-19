@@ -52,7 +52,7 @@ public class FoamFixConfig {
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 	public boolean expUnpackBakedQuads;
 
-	public boolean staging4305, staging4313, staging4316, staging4365, staging4370;
+	public boolean staging4305;
 	public int refreshTimes = 0;
 
 	public int clDeduplicateRecursionLevel;
@@ -121,17 +121,13 @@ public class FoamFixConfig {
 				resourceDirty = true;
 			}
 		}
-		
+
 		if (isCoremod && getBoolean("forceDisable", "coremod", false, "Disables all coremod functionality.", true, true)) {
 			isCoremod = false;
 		}
 
 		if (isCoremod) {
 			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true);
-			staging4313 = getBoolean("pr4313", "staging", true, "Improve generation of normals for vanilla models", true, true, "(,14.22.0.2474)");
-			staging4316 = getBoolean("pr4316", "staging", true, "Adjust float (un)packing functions to be slightly more accurate", true, true, "(,14.22.0.2471)");
-			staging4365 = getBoolean("pr4365", "staging", true, "Fix light sources rendering wrongly with night vision (MC-58177)", true, true, "(,14.22.0.2473)");
-			staging4370 = getBoolean("pr4370", "staging", true, "Improve performance of vertex format mapping (hashCode caching only)", true, true);
 
 			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
 			clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.", true, false);
@@ -150,7 +146,7 @@ public class FoamFixConfig {
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "experimental", false, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time! May cause issues, however - please test and report back!", true, true);
-			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true);
+			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true, "(,14.23.0.2524)");
 			geFixUnnecessaryGhostload = getBoolean("fixUnnecessaryGhostload", "coremod", true, "Fixes unnecessary ghost chunkloading in vanilla.", true, true);
 			geFasterHopper = getBoolean("fasterHopper", "coremod", true, "Speeds up the hopper's calculations.", true, true);
 			geFixWorldEntityCleanup = getBoolean("fixWorldEntityCleanup", "coremod", true, "Fixes the server not removing unloaded entities/tile entities if no chunkloaders are active. Thanks to CreativeMD for finding this!", true, true);

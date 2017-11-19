@@ -12,7 +12,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "0.8.0-1.12"
+version = "0.8.2-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -20,10 +20,10 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
-    version = "1.12.1-14.22.1.2479"
+    version = "1.12.2-14.23.0.2546"
     runDir = "run"
     
-    mappings = "snapshot_20170914"
+    mappings = "snapshot_20171118"
 
     replace '@VERSION@', project.version
 }

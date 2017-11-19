@@ -82,8 +82,8 @@ public class Deduplicator {
 
     private static final MethodHandle IPAM_MW_TRANSFORMS_GETTER = MethodHandleHelper.findFieldGetter(PerspectiveMapWrapper.class, "transforms");
     private static final MethodHandle IPAM_MW_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter(PerspectiveMapWrapper.class, "transforms");
-    private static final MethodHandle BIM_TRANSFORMS_GETTER = MethodHandleHelper.findFieldGetter("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel", "transforms");
-    private static final MethodHandle BIM_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel", "transforms");
+    private static final MethodHandle BIM_TRANSFORMS_GETTER = MethodHandleHelper.findFieldGetter("net.minecraftforge.client.model.BakedItemModel", "transforms");
+    private static final MethodHandle BIM_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter("net.minecraftforge.client.model.BakedItemModel", "transforms");
     private static final MethodHandle IOL_OVERRIDES_GETTER = MethodHandleHelper.findFieldGetter(ItemOverrideList.class, "overrides", "field_188023_b");
     private static final MethodHandle IOL_OVERRIDES_SETTER = MethodHandleHelper.findFieldSetter(ItemOverrideList.class, "overrides", "field_188023_b");
 
@@ -290,7 +290,7 @@ public class Deduplicator {
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
-            } else if ("net.minecraftforge.client.model.ItemLayerModel$BakedItemModel".equals(c.getName())) {
+            } else if ("net.minecraftforge.client.model.BakedItemModel".equals(c.getName())) {
                 try {
                     Object to = BIM_TRANSFORMS_GETTER.invoke(o);
                     Object toD = deduplicate0(to);
