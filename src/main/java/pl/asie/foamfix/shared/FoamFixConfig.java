@@ -49,7 +49,6 @@ public class FoamFixConfig {
 	public boolean twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
-	public boolean geFasterCollisionBoxes;
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 	public boolean expUnpackBakedQuads;
 	public boolean txEnable, txFasterAnimation;
@@ -168,7 +167,6 @@ public class FoamFixConfig {
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "experimental", false, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time! May cause issues, however - please test and report back!", true, true);
-			geFasterCollisionBoxes = getBoolean("fasterCollisionBoxes", "coremod", true, "Speeds up World.getCollisionBoxes by being clever with when events are called.", true, true, "(,14.23.0.2524)");
 			geFixUnnecessaryGhostload = getBoolean("fixUnnecessaryGhostload", "coremod", true, "Fixes unnecessary ghost chunkloading in vanilla.", true, true);
 			geFasterHopper = getBoolean("fasterHopper", "coremod", true, "Speeds up the hopper's calculations.", true, true);
 			geFixWorldEntityCleanup = getBoolean("fixWorldEntityCleanup", "coremod", true, "Fixes the server not removing unloaded entities/tile entities if no chunkloaders are active. Thanks to CreativeMD for finding this!", true, true);

@@ -55,7 +55,7 @@ import java.text.DecimalFormat;
 import java.util.Map;
 
 @Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.12.2,1.13)",
-dependencies = "required:forge@[14.23.0.2523,);", guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
+dependencies = "required:forge@[14.23.0.2524,);", guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
 public class FoamFix {
     private static Item AIR;
 
