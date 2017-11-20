@@ -92,6 +92,18 @@ public class FoamFixConfig {
 		return prop.getInt(defaultValue);
 	}
 
+	private double getDouble(String name, String category, double defaultValue, double minValue, double maxValue, String comment, boolean requiresRestart, boolean showInGui) {
+		Property prop = config.get(category, name, defaultValue);
+		prop.setMinValue(minValue);
+		prop.setMaxValue(maxValue);
+		prop.setComment(comment + " [default: " + defaultValue + ", range: " + minValue + "-" + maxValue + "]");
+		prop.setRequiresMcRestart(requiresRestart);
+		prop.setShowInGui(showInGui);
+		prop.setLanguageKey("foamfix.config." + name);
+		applicableProperties.add(prop);
+		return prop.getDouble(defaultValue);
+	}
+
 	private boolean getBoolean(String name, String category, boolean defaultValue, String description, boolean requiresRestart, boolean showInGui, String forgeVersionRange) {
 		VersionRange range = VersionParser.parseRange(forgeVersionRange);
 		DefaultArtifactVersion requiredVersion = new DefaultArtifactVersion("Forge", range);

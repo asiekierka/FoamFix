@@ -25,11 +25,13 @@
  */
 package pl.asie.foamfix.util;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import gnu.trove.strategy.HashingStrategy;
 import gnu.trove.strategy.IdentityHashingStrategy;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
+import org.lwjgl.util.vector.Vector3f;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -44,17 +46,28 @@ public final class HashingStrategies {
     public static final HashingStrategy<ItemCameraTransforms> ITEM_CAMERA_TRANSFORMS = new ItemCameraTransformsStrategy();
     public static final HashingStrategy<ItemTransformVec3f> ITEM_TRANSFORM_VEC3F = new ItemTransformVecStrategy();
 
+    private static int hashCode(Vector3f vector) {
+        return ((Float.floatToIntBits(vector.getX())) * 31 + Float.floatToIntBits(vector.getY())) * 31 + Float.floatToIntBits(vector.getZ());
+    }
+
+    private static int hashCode(ItemTransformVec3f transform) {
+        int hash = HashingStrategies.hashCode(transform.rotation);
+        hash = hash * 31 + HashingStrategies.hashCode(transform.scale);
+        hash = hash * 31 + HashingStrategies.hashCode(transform.translation);
+        return hash;
+    }
+
     private static final class ItemCameraTransformsStrategy implements HashingStrategy<ItemCameraTransforms> {
         @Override
         public int computeHashCode(ItemCameraTransforms object) {
-            int hash = 1;
-            for (ItemTransformVec3f transform : ImmutableSet.of(object.firstperson_left, object.firstperson_right,
-                    object.fixed, object.ground, object.gui, object.head,
-                    object.thirdperson_left, object.thirdperson_right)) {
-                for (org.lwjgl.util.vector.Vector3f vector : ImmutableSet.of(transform.rotation, transform.scale, transform.translation)) {
-                    hash = ((hash * 31 + Float.floatToIntBits(vector.getX())) * 31 + Float.floatToIntBits(vector.getY())) * 31 + Float.floatToIntBits(vector.getZ());
-                }
-            }
+            int hash = HashingStrategies.hashCode(object.firstperson_left);
+            hash = hash * 31 + HashingStrategies.hashCode(object.firstperson_right);
+            hash = hash * 31 + HashingStrategies.hashCode(object.fixed);
+            hash = hash * 31 + HashingStrategies.hashCode(object.ground);
+            hash = hash * 31 + HashingStrategies.hashCode(object.gui);
+            hash = hash * 31 + HashingStrategies.hashCode(object.head);
+            hash = hash * 31 + HashingStrategies.hashCode(object.thirdperson_left);
+            hash = hash * 31 + HashingStrategies.hashCode(object.thirdperson_right);
             return hash;
         }
 
@@ -78,11 +91,7 @@ public final class HashingStrategies {
     private static final class ItemTransformVecStrategy implements HashingStrategy<ItemTransformVec3f> {
         @Override
         public int computeHashCode(ItemTransformVec3f transform) {
-            int hash = 1;
-            for (org.lwjgl.util.vector.Vector3f vector : ImmutableSet.of(transform.rotation, transform.scale, transform.translation)) {
-                hash = ((hash * 31 + Float.floatToIntBits(vector.getX())) * 31 + Float.floatToIntBits(vector.getY())) * 31 + Float.floatToIntBits(vector.getZ());
-            }
-            return hash;
+            return HashingStrategies.hashCode(transform);
         }
 
         @Override
