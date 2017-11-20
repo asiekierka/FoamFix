@@ -293,6 +293,15 @@ public class FoamFixTransformer implements IClassTransformer {
                     "diffuseLight", "diffuseLight"), "net.minecraftforge.client.model.pipeline.LightUtil");
         }
 
+        if (FoamFixShared.config.txEnable) {
+            patchy.addTransformerId("fastTextureAtlasSprite_v1");
+            handlerCV.add(new ConstructorReplacingTransformer(
+                    "net.minecraft.client.renderer.texture.TextureAtlasSprite",
+                    "pl.asie.foamfix.client.FastTextureAtlasSprite",
+                    "makeAtlasSprite", "func_176604_a"
+            ), "net.minecraft.client.renderer.texture.TextureAtlasSprite");
+        }
+
         /* if (FoamFixShared.config.staging4370) {
             patchy.addTransformerId("staging4370_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingHashCodeInject",

@@ -146,4 +146,8 @@ public class ProxyCommon {
 
     public void refreshResources() {
     }
+
+	public void updateFasterAnimationFlag() {
+
+	}
 }

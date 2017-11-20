@@ -34,6 +34,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionParser;
 import net.minecraftforge.fml.common.versioning.VersionRange;
+import pl.asie.foamfix.FoamFix;
 
 import java.io.File;
 import java.util.Set;
@@ -51,6 +52,8 @@ public class FoamFixConfig {
 	public boolean geFasterCollisionBoxes;
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 	public boolean expUnpackBakedQuads;
+	public boolean txEnable, txFasterAnimation;
+	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 
 	public boolean staging4305;
 	public int refreshTimes = 0;
@@ -127,7 +130,26 @@ public class FoamFixConfig {
 		}
 
 		if (isCoremod) {
+			boolean oldTxFasterAnimation = txFasterAnimation;
+			int oldTxCacheAnimationMaxFrames = txCacheAnimationMaxFrames;
+			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
+
 			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true);
+
+			txEnable = getBoolean("enable", "textures", true, "If false, disables any patches from this category.", true, true);
+			txFasterAnimation = getBoolean("fasterAnimation", "textures", true, "Enables the faster animation path. Set to false only if true causes issues.", false, true);
+			txCacheAnimationMaxFrames = getInt("maxAnimationFramesForCache", "textures", 256, 0, Integer.MAX_VALUE, "The maximum amount of frames an animation can have for it to be cached. If you have a lot of VRAM, set higher.", false, true);
+			txMaxAnimationMipLevel = getInt("maxAnimationMipLevel", "textures", -1, -1, 4, "Set to a number to disable animation updates past that mip level. -1 means update all. Higher numbers update more levels.", false, true);
+
+			if (refreshTimes > 1) {
+				if (oldTxFasterAnimation != txFasterAnimation || oldTxCacheAnimationMaxFrames != txCacheAnimationMaxFrames || oldTxMaxAnimationMipLevel != txMaxAnimationMipLevel) {
+					resourceDirty = true;
+				}
+
+				if (oldTxFasterAnimation != txFasterAnimation) {
+					FoamFix.proxy.updateFasterAnimationFlag();
+				}
+			}
 
 			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
 			clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.", true, false);

@@ -37,6 +37,8 @@ import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import org.lwjgl.opengl.ContextCapabilities;
+import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.MethodHandleHelper;
@@ -100,6 +102,22 @@ public class ProxyClient extends ProxyCommon {
 		if (FoamFixShared.config.clModelLoaderCleanup) {
 			cleanup = new ModelLoaderCleanup();
 			MinecraftForge.EVENT_BUS.register(cleanup);
+		}
+
+		updateFasterAnimationFlag();
+	}
+
+	public void updateFasterAnimationFlag() {
+		if (FoamFixShared.config.txFasterAnimation) {
+			ContextCapabilities caps = GLContext.getCapabilities();
+			boolean copyImageSupported = caps.OpenGL43 || caps.GL_ARB_copy_image;
+			if(!copyImageSupported) {
+				FoamFix.logger.warn("Fast animated textures require OpenGL 4.3 or ARB_copy_image extension, which were not detected. Using original slow path.");
+				FoamFix.shouldFasterAnimation = false;
+			} else {
+				FoamFix.logger.info("Using fast animated textures.");
+				FoamFix.shouldFasterAnimation = true;
+			}
 		}
 	}
 

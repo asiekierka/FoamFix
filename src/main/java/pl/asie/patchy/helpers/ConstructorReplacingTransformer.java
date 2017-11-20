@@ -28,7 +28,7 @@ public class ConstructorReplacingTransformer implements TransformerFunction<Clas
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                                          String signature, String[] exceptions) {
-            if (methods.contains(name)) {
+            if (methods.isEmpty() || methods.contains(name)) {
                 return new ConstructorReplacingTransformer.FFMethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions));
             } else {
                 return cv.visitMethod(access, name, desc, signature, exceptions);

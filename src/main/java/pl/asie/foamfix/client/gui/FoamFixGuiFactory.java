@@ -53,7 +53,12 @@ public class FoamFixGuiFactory implements IModGuiFactory {
                                 }
                             });
                         } else {
-                            elements.add(new ConfigElement(p));
+                            elements.add(new ConfigElement(p) {
+                                @Override
+                                public String getName() {
+                                    return category.getName() + "." + super.getName();
+                                }
+                            });
                         }
                     }
                 }

@@ -28,6 +28,8 @@ package pl.asie.foamfix;
 import com.google.common.eventbus.Subscribe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.toasts.RecipeToast;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -39,18 +41,21 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.api.FoamFixAPI;
+import pl.asie.foamfix.client.FastTextureAtlasSprite;
 import pl.asie.foamfix.common.FoamFixHelper;
 import pl.asie.foamfix.common.PropertyValueDeduplicator;
 import pl.asie.foamfix.shared.FoamFixShared;
 
+import java.lang.reflect.Field;
 import java.text.DecimalFormat;
+import java.util.Map;
 
-@Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.12,1.13)",
-dependencies = "forge@[14.23.0.2523,);",
-guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
+@Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.12.2,1.13)",
+dependencies = "required:forge@[14.23.0.2523,);", guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
 public class FoamFix {
     private static Item AIR;
 
@@ -59,6 +64,7 @@ public class FoamFix {
 
     public static Logger logger;
     public static int stage;
+    public static boolean shouldFasterAnimation = false;
 
     public static Item getItemAir() {
         return AIR == null ? (AIR = Item.getItemFromBlock(Blocks.AIR)) : AIR;
