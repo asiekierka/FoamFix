@@ -228,9 +228,11 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite {
     private static void uploadTextureMaxMips(int maxMips, int[][] data, int width, int height, int originX, int originY, boolean linearFiltering, boolean clamped, boolean mipFiltering) {
         int mips = maxMips >= 0 ? Math.min(maxMips, data.length-1) : data.length-1;
         for (int mip = 0; mip <= mips; ++mip) {
-            TextureUtil.uploadTextureSub(mip, data[mip], width >> mip, height >> mip, originX >> mip, originY >> mip, linearFiltering,
-                    clamped, mipFiltering);
-            checkGLError("uploadTextureMaxMips mip="+mip);
+            if ((width >> mip) > 0 & (height >> mip) > 0) {
+                TextureUtil.uploadTextureSub(mip, data[mip], width >> mip, height >> mip, originX >> mip, originY >> mip, linearFiltering,
+                        clamped, mipFiltering);
+                checkGLError("uploadTextureMaxMips mip=" + mip);
+            }
         }
     }
 
