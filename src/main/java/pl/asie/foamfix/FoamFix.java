@@ -82,6 +82,7 @@ public class FoamFix {
         logger = LogManager.getLogger("foamfix");
         stage = 0;
 
+
         FoamFixShared.config.init(event.getSuggestedConfigurationFile(), false);
 
         proxy.preInit();

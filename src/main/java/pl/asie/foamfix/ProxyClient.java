@@ -91,6 +91,10 @@ public class ProxyClient extends ProxyCommon {
 		super.preInit();
 		MinecraftForge.EVENT_BUS.register(new FoamFixModelDeduplicate());
 
+		if (FoamFixShared.config.txEnable) {
+			MinecraftForge.EVENT_BUS.register(new FastTextureAtlasSprite.EventHandler());
+		}
+
 		if (!FoamFixShared.config.geDeduplicate) {
 			deduplicator = null;
 		}

@@ -25,6 +25,10 @@ package pl.asie.foamfix.client;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureUtil;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.ARBCopyImage;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -36,6 +40,19 @@ import pl.asie.foamfix.shared.FoamFixShared;
 import java.util.List;
 
 public class FastTextureAtlasSprite extends TextureAtlasSprite {
+    public static class EventHandler {
+        @SubscribeEvent(priority = EventPriority.LOWEST)
+        public void onModelBakeLast(ModelBakeEvent event) {
+            if (FoamFixShared.config.txRemoveUnnecessaryMiplevels) {
+                for (TextureAtlasSprite sprite : event.getModelManager().texMap.mapUploadedSprites.values()) {
+                    if (sprite instanceof FastTextureAtlasSprite) {
+                        ((FastTextureAtlasSprite) sprite).cleanUnnecessaryData();
+                    }
+                }
+            }
+        }
+    }
+
     private int textureId = -1;
     private int mipLevels = 0;
 
@@ -45,6 +62,18 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite {
 
     public boolean isTextureCached() {
         return textureId != -1;
+    }
+
+    public void cleanUnnecessaryData() {
+        // Remove miplevels > 0 if the conditions are right.
+        if (FoamFixShared.config.txRemoveUnnecessaryMiplevels) {
+            if (!this.hasAnimationMetadata() || (FoamFix.shouldFasterAnimation && textureId != -1 && !this.animationMetadata.isInterpolate())) {
+                for (int i = 0; i < framesTextureData.size(); i++) {
+                    int[][] data = framesTextureData.get(i);
+                    framesTextureData.set(i, new int[][]{data[0]});
+                }
+            }
+        }
     }
 
     @Override
@@ -62,7 +91,6 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite {
             int k = animationMetadata.getFrameIndex(frameCounter);
 
             if (i != k && k >= 0 && k < framesTextureData.size()) {
-
                 if(FoamFix.shouldFasterAnimation && textureId != -1) {
                     int destTex = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
                     checkGLError("updateAnimation | fastPath getPreviousTexture");
@@ -92,18 +120,19 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite {
         }
     }
 
-    private int interpolateColor(double ratio, int from, int to) {
+    private int interpolate(double ratio, int from, int to) {
         return (int)((ratio * from) + ((1.0D - ratio) * to));
     }
 
+    // NOTE: Unlike most texture processing, this returns BGRA!
     private boolean interpolateFrame(int[] to, int[] from1, int[] from2, double ratio) {
         if (from1.length == from2.length) {
             for (int i = 0; i < from1.length; ++i) {
                 int color1 = from1[i];
                 int color2 = from2[i];
-                int colorRed = this.interpolateColor(ratio, color1 >> 16 & 0xFF, color2 >> 16 & 0xFF);
-                int colorGreen = this.interpolateColor(ratio, color1 >> 8 & 0xFF, color2 >> 8 & 0xFF);
-                int colorBlue = this.interpolateColor(ratio, color1 & 0xFF, color2 & 0xFF);
+                int colorRed = this.interpolate(ratio, color1 >> 16 & 0xFF, color2 >> 16 & 0xFF);
+                int colorGreen = this.interpolate(ratio, color1 >> 8 & 0xFF, color2 >> 8 & 0xFF);
+                int colorBlue = this.interpolate(ratio, color1 & 0xFF, color2 & 0xFF);
                 to[i] = color1 & 0xFF000000 | colorRed << 16 | colorGreen << 8 | colorBlue;
             }
             return true;
