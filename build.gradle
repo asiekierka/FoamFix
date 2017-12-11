@@ -1,16 +1,21 @@
 buildscript {
-    repositories {
-        jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+	repositories {
+		jcenter()
+		maven { url = "http://files.minecraftforge.net/maven" }
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
+	}
+	dependencies {
+		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
 		classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
-    }
+		classpath "gradle.plugin.net.minecrell:licenser:0.3"
+	}
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'net.minecrell.licenser'
 
 version = "0.8.2-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -30,6 +35,19 @@ minecraft {
 
 repositories {
 	mavenCentral()
+}
+
+license {
+	sourceSets = [project.sourceSets.main]
+	header = project.file("docs/licenses/COPYING")
+	ignoreFailures = true
+	exclude '**/*.lang'
+	exclude '**/*.info'
+	exclude '**/*.mcmeta'
+
+	matching('**/pl/asie/foamfix/api/**') {
+		header = project.file("docs/licenses/LICENSE-API")
+	}
 }
 
 configurations {
