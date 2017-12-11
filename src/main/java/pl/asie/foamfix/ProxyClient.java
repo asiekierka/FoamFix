@@ -66,6 +66,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import org.lwjgl.opengl.ContextCapabilities;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.shared.FoamFixShared;
@@ -136,15 +137,21 @@ public class ProxyClient extends ProxyCommon {
 	}
 
 	public void updateFasterAnimationFlag() {
-		if (FoamFixShared.config.txFasterAnimation) {
+		if (FoamFixShared.config.txFasterAnimation > 0) {
 			ContextCapabilities caps = GLContext.getCapabilities();
 			boolean copyImageSupported = caps.OpenGL43 || caps.GL_ARB_copy_image;
 			if(!copyImageSupported) {
 				FoamFix.logger.warn("Fast animated textures require OpenGL 4.3 or ARB_copy_image extension, which were not detected. Using original slow path.");
 				FoamFix.shouldFasterAnimation = false;
 			} else {
-				FoamFix.logger.info("Using fast animated textures.");
-				FoamFix.shouldFasterAnimation = true;
+			    String vendor = GL11.glGetString(GL11.GL_VENDOR);
+			    if ("Advanced Micro Devices, Inc.".equals(vendor) || FoamFixShared.config.txFasterAnimation == 2) {
+                    FoamFix.logger.info("Using fast animated textures.");
+                    FoamFix.shouldFasterAnimation = true;
+                } else {
+                    FoamFix.logger.warn("Fast animated textures currently only seem to boost performance on AMD cards. Using original slow path.");
+                    FoamFix.shouldFasterAnimation = false;
+                }
 			}
 		}
 	}

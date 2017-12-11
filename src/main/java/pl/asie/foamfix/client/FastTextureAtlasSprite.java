@@ -72,10 +72,6 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite implements IFoamF
         super(p_i1282_1_);
     }
 
-    public boolean isTextureCached() {
-        return textureId != -1;
-    }
-
     @Override
     public void updateAnimation() {
         if (FoamFixShared.config.clDisableTextureAnimations)

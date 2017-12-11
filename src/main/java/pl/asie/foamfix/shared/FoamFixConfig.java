@@ -79,7 +79,8 @@ public class FoamFixConfig {
 	public boolean twImmediateLightingUpdates;
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 	public boolean expUnpackBakedQuads;
-	public boolean txEnable, txFasterAnimation;
+	public boolean txEnable;
+	public int txFasterAnimation;
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 
 	public boolean staging4305;
@@ -169,14 +170,14 @@ public class FoamFixConfig {
 		}
 
 		if (isCoremod) {
-			boolean oldTxFasterAnimation = txFasterAnimation;
+			int oldTxFasterAnimation = txFasterAnimation;
 			int oldTxCacheAnimationMaxFrames = txCacheAnimationMaxFrames;
 			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
 
 			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true);
 
 			txEnable = getBoolean("enable", "textures", true, "If false, disables any patches from this category.", true, true);
-			txFasterAnimation = getBoolean("fasterAnimation", "textures", true, "Enables the faster animation path. Set to false only if true causes issues.", false, true);
+			txFasterAnimation = getInt("fasterAnimation", "textures", 1, 0, 2,"Controls the faster animation path. 0 - disable, 2 - force enable, 1 (default) - enable on devices which have been shown to benefit from it.", false, true);
 			txCacheAnimationMaxFrames = getInt("maxAnimationFramesForCache", "textures", 256, 0, Integer.MAX_VALUE, "The maximum amount of frames an animation can have for it to be cached. If you have a lot of VRAM, set higher.", false, true);
 			txMaxAnimationMipLevel = getInt("maxAnimationMipLevel", "textures", -1, -1, 4, "Set to a number to disable animation updates past that mip level. -1 means update all. Higher numbers update more levels.", false, true);
 
