@@ -31,11 +31,12 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.util.glu.GLU;
 import pl.asie.foamfix.FoamFix;
+import pl.asie.foamfix.api.IFoamFixSprite;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.util.List;
 
-public class FastTextureAtlasSprite extends TextureAtlasSprite {
+public class FastTextureAtlasSprite extends TextureAtlasSprite implements IFoamFixSprite {
     private int textureId = -1;
     private int mipLevels = 0;
 
@@ -63,7 +64,7 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite {
 
             if (i != k && k >= 0 && k < framesTextureData.size()) {
 
-                if(FoamFix.shouldFasterAnimation && textureId != -1) {
+                if (textureId != -1) {
                     int destTex = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
                     checkGLError("updateAnimation | fastPath getPreviousTexture");
 
@@ -234,5 +235,10 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite {
         mipLevels = FoamFixShared.config.txMaxAnimationMipLevel >= 0 ? Math.min(FoamFixShared.config.txMaxAnimationMipLevel, p_147963_1_) : p_147963_1_;
 
         super.generateMipmaps(p_147963_1_);
+    }
+
+    @Override
+    public boolean isStoredOnGPU() {
+        return textureId != -1 || !hasAnimationMetadata();
     }
 }
