@@ -174,7 +174,7 @@ public class FoamFixConfig {
 			int oldTxCacheAnimationMaxFrames = txCacheAnimationMaxFrames;
 			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
 
-			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true);
+			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true, "(,14.23.1.2576)");
 
 			txEnable = getBoolean("enable", "textures", true, "If false, disables any patches from this category.", true, true);
 			txFasterAnimation = getInt("fasterAnimation", "textures", 1, 0, 2,"Controls the faster animation path. 0 - disable, 2 - force enable, 1 (default) - enable on devices which have been shown to benefit from it.", false, true);
