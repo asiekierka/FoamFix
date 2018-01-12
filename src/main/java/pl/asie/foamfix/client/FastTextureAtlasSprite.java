@@ -148,11 +148,11 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite implements IFoamF
             int[][] frame1 = this.framesTextureData.get(currentFrameIndex);
             int[][] frame2 = this.framesTextureData.get(nextFrameIndex);
             int mipLvl;
-            if (this.interpolatedFrameData == null || this.interpolatedFrameData.length != mipLevels) {
-                this.interpolatedFrameData = new int[mipLevels][];
+            if (this.interpolatedFrameData == null || this.interpolatedFrameData.length != mipLevels + 1) {
+                this.interpolatedFrameData = new int[mipLevels + 1][];
             }
 
-            for (mipLvl = 0; mipLvl < mipLevels; ++mipLvl) {
+            for (mipLvl = 0; mipLvl <= mipLevels; ++mipLvl) {
                 if (mipLvl >= frame1.length || mipLvl >= frame2.length) {
                     break;
                 }

@@ -179,7 +179,7 @@ public class FoamFixConfig {
 			txEnable = getBoolean("enable", "textures", true, "If false, disables any patches from this category.", true, true);
 			txFasterAnimation = getInt("fasterAnimation", "textures", 1, 0, 2,"Controls the faster animation path. 0 - disable, 2 - force enable, 1 (default) - enable on devices which have been shown to benefit from it.", false, true);
 			txCacheAnimationMaxFrames = getInt("maxAnimationFramesForCache", "textures", 256, 0, Integer.MAX_VALUE, "The maximum amount of frames an animation can have for it to be cached. If you have a lot of VRAM, set higher.", false, true);
-			txMaxAnimationMipLevel = getInt("maxAnimationMipLevel", "textures", -1, -1, 4, "Set to a number to disable animation updates past that mip level. -1 means update all. Higher numbers update more levels.", false, true);
+			txMaxAnimationMipLevel = getInt("maxAnimationMipLevel", "textures", -1, -1, 4, "Set to a number to disable animation updates past that mip level. -1 means update all. Higher numbers update more levels. To disable animation updates altogether, use the option for it.", false, true);
 
 			if (refreshTimes > 1) {
 				if (oldTxFasterAnimation != txFasterAnimation || oldTxCacheAnimationMaxFrames != txCacheAnimationMaxFrames || oldTxMaxAnimationMipLevel != txMaxAnimationMipLevel) {
