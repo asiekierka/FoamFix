@@ -58,6 +58,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -68,8 +71,10 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.foamfix.util.MethodHandleHelper;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 public class FoamFixModelDeduplicate {
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -79,7 +84,73 @@ public class FoamFixModelDeduplicate {
         // FoamUtils.wipeModelLoaderRegistryCache();
 
         if (FoamFixShared.config.geDeduplicate) {
-            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size() + 2);
+            FoamFix.logger.info("Deduplicating models...");
+            try {
+                Map<ResourceLocation, IModel> cache = (Map<ResourceLocation, IModel>) MethodHandleHelper.findFieldGetter(ModelLoaderRegistry.class, "cache").invoke();
+                if (cache != null) {
+                    ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", cache.size() + 2);
+
+                    if (ProxyClient.deduplicator == null) {
+                        ProxyClient.deduplicator = new Deduplicator();
+                    }
+
+                    ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
+
+                    ProxyClient.deduplicator.addObjects(ForgeRegistries.BLOCKS.getKeys());
+                    ProxyClient.deduplicator.addObjects(ForgeRegistries.ITEMS.getKeys());
+
+                    try {
+                        bakeBar.step("Vertex formats");
+
+                        for (Field f : DefaultVertexFormats.class.getDeclaredFields()) {
+                            if (f.getType() == VertexFormat.class) {
+                                f.setAccessible(true);
+                                ProxyClient.deduplicator.deduplicateObject(f.get(null), 0);
+                            }
+                        }
+                    } catch (Exception e) {
+
+                    }
+
+                    for (ResourceLocation loc : cache.keySet()) {
+                        IModel model = cache.get(loc);
+                        String modelName = loc.toString();
+                        bakeBar.step(String.format("[%s]", modelName));
+
+                        try {
+                            ProxyClient.deduplicator.addObject(loc);
+                            cache.put(loc, (IModel) ProxyClient.deduplicator.deduplicateObject(model, 0));
+                        } catch (Exception e) {
+
+                        }
+                    }
+
+                    try {
+                        bakeBar.step("Stats");
+
+                        for (Field f : StatList.class.getDeclaredFields()) {
+                            if (f.getType() == StatBase[].class) {
+                                f.setAccessible(true);
+                                for (StatBase statBase : (StatBase[]) f.get(null)) {
+                                    ProxyClient.deduplicator.deduplicateObject(statBase, 0);
+                                }
+                            }
+                        }
+
+                        for (StatBase statBase : StatList.ALL_STATS) {
+                            ProxyClient.deduplicator.deduplicateObject(statBase, 0);
+                        }
+                    } catch (Exception e) {
+
+                    }
+
+                    ProgressManager.pop(bakeBar);
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+
+            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
 
             if (ProxyClient.deduplicator == null) {
                 ProxyClient.deduplicator = new Deduplicator();
@@ -87,22 +158,6 @@ public class FoamFixModelDeduplicate {
 
             ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
             FoamFix.logger.info("Deduplicating models...");
-
-            ProxyClient.deduplicator.addObjects(ForgeRegistries.BLOCKS.getKeys());
-            ProxyClient.deduplicator.addObjects(ForgeRegistries.ITEMS.getKeys());
-
-            try {
-                bakeBar.step("Vertex formats");
-
-                for (Field f : DefaultVertexFormats.class.getDeclaredFields()) {
-                    if (f.getType() == VertexFormat.class) {
-                        f.setAccessible(true);
-                        ProxyClient.deduplicator.deduplicateObject(f.get(null), 0);
-                    }
-                }
-            } catch (Exception e) {
-
-            }
 
             for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
                 IBakedModel model = event.getModelRegistry().getObject(loc);
@@ -120,25 +175,6 @@ public class FoamFixModelDeduplicate {
                 } catch (Exception e) {
 
                 }
-            }
-
-            try {
-                bakeBar.step("Stats");
-
-                for (Field f : StatList.class.getDeclaredFields()) {
-                    if (f.getType() == StatBase[].class) {
-                        f.setAccessible(true);
-                        for (StatBase statBase : (StatBase[]) f.get(null)) {
-                            ProxyClient.deduplicator.deduplicateObject(statBase, 0);
-                        }
-                    }
-                }
-
-                for (StatBase statBase : StatList.ALL_STATS) {
-                    ProxyClient.deduplicator.deduplicateObject(statBase, 0);
-                }
-            } catch (Exception e) {
-
             }
 
             ProgressManager.pop(bakeBar);

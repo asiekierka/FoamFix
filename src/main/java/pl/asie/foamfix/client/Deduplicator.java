@@ -66,6 +66,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.client.renderer.block.model.multipart.Multipart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
@@ -74,6 +75,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
@@ -105,6 +109,9 @@ public class Deduplicator {
 
     private static final Style STYLE_EMPTY = new Style();
 
+    private static final MethodHandle EM_KEY_UNIVERSE_GETTER = MethodHandleHelper.findFieldGetter(EnumMap.class, "keyUniverse");
+    private static final MethodHandle EM_KEY_UNIVERSE_SETTER = MethodHandleHelper.findFieldSetter(EnumMap.class, "keyUniverse");
+
     private static final MethodHandle FIELD_UNPACKED_DATA_GETTER = MethodHandleHelper.findFieldGetter(UnpackedBakedQuad.class, "unpackedData");
     private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");
 
@@ -123,6 +130,7 @@ public class Deduplicator {
 
     private final Map<Object, java.util.Optional> JAVA_OPTIONALS = new HashMap<>();
     private final Map<Object, com.google.common.base.Optional> GUAVA_OPTIONALS = new HashMap<>();
+    private final IDeduplicatingStorage<Object[]> KEY_UNIVERSE_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.OBJECT_ARRAY);
     private final IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY);
     private final IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY_ARRAY);
     private final IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
@@ -155,6 +163,7 @@ public class Deduplicator {
         TRIM_ARRAYS_CLASSES.add(FoamyItemLayerModel.DynamicItemModel.class);
         TRIM_ARRAYS_CLASSES.add(SimpleBakedModel.class);
         TRIM_ARRAYS_CLASSES.add(WeightedBakedModel.class);
+        TRIM_ARRAYS_CLASSES.add(Multipart.class);
 
         BLACKLIST_CLASS.add(Object.class);
         BLACKLIST_CLASS.add(Class.class);
@@ -169,9 +178,8 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(TextureAtlasSprite.class);
         BLACKLIST_CLASS.add(ItemStack.class);
         BLACKLIST_CLASS.add(Gson.class);
+        BLACKLIST_CLASS.add(EnumBiMap.class);
         BLACKLIST_CLASS.add(ModelLoader.class);
-        BLACKLIST_CLASS.add(Class.class);
-        BLACKLIST_CLASS.add(BlockPart.class);
         BLACKLIST_CLASS.add(Minecraft.class);
         BLACKLIST_CLASS.add(BlockModelShapes.class);
         BLACKLIST_CLASS.add(ModelManager.class);
@@ -238,7 +246,8 @@ public class Deduplicator {
             n = OBJECT_STORAGE.deduplicate(o);
         } else {
             Class c = o.getClass();
-            if (ResourceLocation.class == c || ModelResourceLocation.class == c) {
+            if (ResourceLocation.class == c || ModelResourceLocation.class == c ||
+                    Vec3d.class == c || Vec3i.class == c || BlockPos.class == c) {
                 size = 16; // can't be bothered to measure string size
                 n = OBJECT_STORAGE.deduplicate(o);
             } else if (Style.class == c && FoamFixShared.isCoremod) {
@@ -331,6 +340,10 @@ public class Deduplicator {
             }
         }
 
+        if (c == BlockPartFace.class) {
+            ((BlockPartFace) o).blockFaceUV.uvs = (float[]) deduplicate0(((BlockPartFace) o).blockFaceUV.uvs);
+        }
+
         if (o instanceof BakedQuad) {
             if (c == BakedQuad.class) {
                 if (FoamFixShared.config.expUnpackBakedQuads) {
@@ -351,14 +364,14 @@ public class Deduplicator {
                     t.printStackTrace();
                 }
             }
-        } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || c == Style.class) {
+        } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || o instanceof BlockFaceUV || c == Style.class) {
             return deduplicate0(o);
-        } else if (c == ItemCameraTransforms.class) {
-            Object d = deduplicate0(o);
-            if (d != o)
+        } else if (c == ItemCameraTransforms.class || c == Vec3d.class || c == Vec3i.class || c == BlockPos.class) {
+            return deduplicate0(o);
+            /* if (d != o)
                 return d;
-            // TODO: Add ItemTransformVec3f dedup, maybe
-            return o;
+            TODO: Add ItemTransformVec3f dedup, maybe
+            return o; */
         } else if (o instanceof Item || o instanceof Block || o instanceof World
                 || o instanceof Entity || o instanceof Logger || o instanceof IRegistry) {
             BLACKLIST_CLASS.add(c);

@@ -73,6 +73,7 @@ public final class HashingStrategies {
     public static final HashingStrategy<Object> IDENTITY = new IdentityHashingStrategy<>();
     public static final HashingStrategy<ItemCameraTransforms> ITEM_CAMERA_TRANSFORMS = new ItemCameraTransformsStrategy();
     public static final HashingStrategy<ItemTransformVec3f> ITEM_TRANSFORM_VEC3F = new ItemTransformVecStrategy();
+    public static final HashingStrategy<Object[]> OBJECT_ARRAY = new ObjectArrayStrategy();
 
     private static int hashCode(Vector3f vector) {
         return ((Float.floatToIntBits(vector.getX())) * 31 + Float.floatToIntBits(vector.getY())) * 31 + Float.floatToIntBits(vector.getZ());
@@ -83,6 +84,18 @@ public final class HashingStrategies {
         hash = hash * 31 + HashingStrategies.hashCode(transform.scale);
         hash = hash * 31 + HashingStrategies.hashCode(transform.translation);
         return hash;
+    }
+
+    private static final class ObjectArrayStrategy implements HashingStrategy<Object[]> {
+        @Override
+        public int computeHashCode(Object[] object) {
+            return Arrays.hashCode(object);
+        }
+
+        @Override
+        public boolean equals(Object[] o1, Object[] o2) {
+            return Arrays.equals(o1, o2);
+        }
     }
 
     private static final class ItemCameraTransformsStrategy implements HashingStrategy<ItemCameraTransforms> {
