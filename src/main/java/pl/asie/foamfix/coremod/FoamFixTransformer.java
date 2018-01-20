@@ -56,21 +56,18 @@ package pl.asie.foamfix.coremod;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.RemappingClassAdapter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassReader;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.coremod.patches.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
@@ -290,12 +287,6 @@ public class FoamFixTransformer implements IClassTransformer {
         handlerCN.add(new ReturnIfBooleanTruePatch("clDisableTextureAnimations", "updateAnimations", "func_94248_c"),
                 "net.minecraft.client.renderer.texture.TextureMap");
 
-        if (FoamFixShared.config.geFixUnnecessaryGhostload) {
-            patchy.addTransformerId("fixUnnecessaryGhostload_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockBedInject",
-                    "func_190524_a", "neighborChanged"), "net.minecraft.block.BlockBed");
-        }
-
         if (FoamFixShared.config.geFasterHopper) {
             patchy.addTransformerId("fasterHopper_v1");
             handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.tileentity.TileEntityHopper", "pl.asie.foamfix.common.TileEntityFasterHopper", "createNewTileEntity", "func_149915_a"),
@@ -326,6 +317,28 @@ public class FoamFixTransformer implements IClassTransformer {
                     "pl.asie.foamfix.client.FastTextureAtlasSprite",
                     "makeAtlasSprite", "func_176604_a"
             ), "net.minecraft.client.renderer.texture.TextureAtlasSprite");
+        }
+
+        if (FoamFixShared.config.gbPatchBeds) {
+            patchy.addTransformerId("gbPatchBeds_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockBedInject",
+                    "func_190524_a", "neighborChanged"), "net.minecraft.block.BlockBed");
+        }
+
+        if (FoamFixShared.config.gbPatchFluids) {
+            patchy.addTransformerId("gbPatchFluids_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.ghostbuster.injections.GBWrapUpdateTick",
+                    "updateTick", "func_180650_b"),
+                    "net.minecraftforge.fluids.BlockFluidClassic",
+                    "net.minecraftforge.fluids.BlockFluidFinite",
+                    "net.minecraft.block.BlockStaticLiquid");
+        }
+
+        if (FoamFixShared.config.gbPatchGrass) {
+            patchy.addTransformerId("gbPatchGrass_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.ghostbuster.injections.GBWrapUpdateTick",
+                    "updateTick", "func_180650_b"),
+                    "net.minecraft.block.BlockGrass");
         }
 
         /* if (FoamFixShared.config.staging4370) {

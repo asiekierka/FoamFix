@@ -6,6 +6,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import pl.asie.foamfix.FoamFix;
+import pl.asie.foamfix.shared.FoamFixShared;
 
 public class ChunkProviderServerWrapped extends ChunkProviderServer {
 	public static boolean debugChunkProviding;
@@ -16,32 +17,44 @@ public class ChunkProviderServerWrapped extends ChunkProviderServer {
 
 	@Override
 	public Chunk provideChunk(int x, int z) {
-		Chunk chunk = this.getLoadedChunk(x, z);
-		if (chunk != null) {
-			return chunk;
-		}
-
 		if (debugChunkProviding) {
+			Chunk chunk = this.getLoadedChunk(x, z);
+			if (chunk != null) {
+				return chunk;
+			}
+
 			if (!world.getPersistentChunks().containsKey(new ChunkPos(x, z))) {
-				/* if (GBListener.lt >= 0) {
-					String blockLocStr = "[" + GBListener.l0 + ", " + GBListener.l1 + ", " + GBListener.l2 + ", dim " + GBListener.lw.provider.dimensionId + "]";
-					String funcName = Transformer.WGL_HOOKS[GBListener.lt * 2 + 1];
-					FoamFix.logger.info("Block at " + blockLocStr + " is being ghostloaded from " + funcName + "!");
-				} else { */
-					FoamFix.logger.info("Block in chunk [" + x + ", " + z + "] may be ghostloaded!");
-				// }
 				int i = 0;
-				for (StackTraceElement ste : new Throwable().getStackTrace()) {
-					try {
-						Class c = this.getClass().getClassLoader().loadClass(ste.getClassName());
-						if (MinecraftServer.class.isAssignableFrom(c)) {
+				StackTraceElement[] stea = new Throwable().getStackTrace();
+
+				if (stea.length > 1 && stea[1].toString().startsWith("net.minecraft.server.management.PlayerChunkMapEntry")) {
+					i = -1;
+				}
+
+				if (i >= 0 && !FoamFixShared.config.gbWrapperCountNotifyBlock) {
+					for (StackTraceElement ste : stea) {
+						if (ste.toString().startsWith("net.minecraft.world.World.markAndNotifyBlock")) {
+							i = -1;
 							break;
 						}
-						if ((i++) > 0) {
-							FoamFix.logger.info("- " + ste.toString());
-						}
-					} catch (Exception e) {
+					}
+				}
 
+				if (i >= 0) {
+					FoamFix.logger.info("Block in chunk [" + x + ", " + z + "] may be ghostloaded!");
+
+					for (StackTraceElement ste : stea) {
+						try {
+							Class c = this.getClass().getClassLoader().loadClass(ste.getClassName());
+							if (MinecraftServer.class.isAssignableFrom(c)) {
+								break;
+							}
+							if ((i++) > 0) {
+								FoamFix.logger.info("- " + ste.toString());
+							}
+						} catch (Exception e) {
+
+						}
 					}
 				}
 			}
