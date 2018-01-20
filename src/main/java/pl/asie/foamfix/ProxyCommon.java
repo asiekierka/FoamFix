@@ -62,6 +62,7 @@ import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFlowerPot;
 import net.minecraft.tileentity.TileEntityHopper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.client.Deduplicator;
 import pl.asie.foamfix.common.TileEntityFasterHopper;
@@ -76,6 +77,7 @@ public class ProxyCommon {
 	public void preInit() {
 		if (FoamFixShared.config.geFasterHopper) {
 			TileEntity.register("hopper", TileEntityFasterHopper.class);
+			FoamFix.TILE_OVERRIDES.put(TileEntityHopper.class, new ResourceLocation("hopper"));
 		}
 
 		if (FoamFixShared.config.lwRemovePackageManifestMap) {

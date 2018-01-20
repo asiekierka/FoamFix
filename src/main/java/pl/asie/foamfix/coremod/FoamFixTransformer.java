@@ -300,6 +300,10 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("fasterHopper_v1");
             handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.tileentity.TileEntityHopper", "pl.asie.foamfix.common.TileEntityFasterHopper", "createNewTileEntity", "func_149915_a"),
                     "net.minecraft.block.BlockHopper");
+
+            patchy.addTransformerId("tileEntityGetKeyWrap_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.TileEntityGetKeyWrapInject",
+                    "getKey", "func_190559_a"), "net.minecraft.tileentity.TileEntity");
         }
 
         if (FoamFixShared.config.geFixWorldEntityCleanup) {

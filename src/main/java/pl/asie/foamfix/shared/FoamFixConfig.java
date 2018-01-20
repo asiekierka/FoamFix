@@ -79,7 +79,7 @@ public class FoamFixConfig {
 	public boolean twImmediateLightingUpdates;
 	public boolean geFixUnnecessaryGhostload, geFasterHopper, geFixWorldEntityCleanup;
 	public boolean expUnpackBakedQuads;
-	public boolean txEnable;
+	public boolean txEnable, gbEnableWrapper;
 	public int txFasterAnimation;
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 
@@ -158,6 +158,7 @@ public class FoamFixConfig {
 		clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.", true, true);
 		clModelLoaderCleanup = getBoolean("modelLoaderCleanup", "client", true, "Remove unnecessary data from a pointlessly cached ModelLoader instance.", true, true);
 		expUnpackBakedQuads = getBoolean("unpackBakedQuads", "experimental", false, "Unpacks all baked quads. Increases RAM usage, but might speed some things up.", false, true);
+		gbEnableWrapper = getBoolean("enableDebuggingWrapper", "ghostbuster", false, "Wrap ChunkProviderServers to be able to provide the /ghostbuster command for debugging ghost chunkloads.", true, true);
 
 		if (refreshTimes > 1) {
 			if (oldGeDeduplicate != geDeduplicate || oldClDeduplicateRecursionLevel != clDeduplicateRecursionLevel || oldExpUnpackBakedQuads != expUnpackBakedQuads) {

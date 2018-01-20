@@ -62,6 +62,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -76,16 +78,20 @@ import pl.asie.foamfix.api.FoamFixAPI;
 import pl.asie.foamfix.client.FastTextureAtlasSprite;
 import pl.asie.foamfix.common.FoamFixHelper;
 import pl.asie.foamfix.common.PropertyValueDeduplicator;
+import pl.asie.foamfix.ghostbuster.CommandGhostBuster;
+import pl.asie.foamfix.ghostbuster.GhostBusterEventHandler;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Map;
 
 @Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.12.2,1.13)",
 dependencies = "required:forge@[14.23.0.2524,);", guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
 public class FoamFix {
     private static Item AIR;
+    public static Map<Class<? extends TileEntity>, ResourceLocation> TILE_OVERRIDES = new HashMap<>();
 
     @SidedProxy(clientSide = "pl.asie.foamfix.ProxyClient", serverSide = "pl.asie.foamfix.ProxyCommon", modId = "foamfix")
     public static ProxyCommon proxy;
@@ -101,6 +107,10 @@ public class FoamFix {
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
         AIR = Item.getItemFromBlock(Blocks.AIR);
+
+        if (FoamFixShared.config.gbEnableWrapper) {
+            event.registerServerCommand(new CommandGhostBuster());
+        }
     }
 
     @Mod.EventHandler
@@ -123,6 +133,10 @@ public class FoamFix {
             PropertyValueDeduplicator deduplicator = new PropertyValueDeduplicator();
             deduplicator.deduplicate();
             logger.info("Deduplicated " + deduplicator.successfuls + " property sets.");
+        }
+
+        if (FoamFixShared.config.gbEnableWrapper) {
+            MinecraftForge.EVENT_BUS.register(new GhostBusterEventHandler());
         }
 
         MinecraftForge.EVENT_BUS.register(proxy);
