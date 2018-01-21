@@ -38,6 +38,28 @@ public final class MethodHandleHelper {
 
     }
 
+    public static MethodHandle findConstructor(String s, Class<?>... types) {
+        try {
+            return MethodHandles.lookup().unreflectConstructor(
+                    ReflectionHelper.findConstructor(Class.forName(s), types)
+            );
+        } catch (IllegalAccessException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static MethodHandle findMethod(Class c, String nameDeobf, String nameObf, Class<?>... types) {
+        try {
+            return MethodHandles.lookup().unreflect(
+                    ReflectionHelper.findMethod(c, nameDeobf, nameObf, types)
+            );
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static MethodHandle findFieldGetter(Class c, String... names) {
         try {
             return MethodHandles.lookup().unreflectGetter(ReflectionHelper.findField(c, names));

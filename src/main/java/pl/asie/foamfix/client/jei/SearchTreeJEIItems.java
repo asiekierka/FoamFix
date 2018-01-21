@@ -26,30 +26,31 @@
  * additional permission to convey the resulting work.
  */
 
-package pl.asie.foamfix.ghostbuster.injections;
+package pl.asie.foamfix.client.jei;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import mezz.jei.gui.ingredients.IIngredientListElement;
+import mezz.jei.ingredients.IngredientFilter;
+import net.minecraft.client.util.ISearchTree;
+import net.minecraft.item.ItemStack;
+import pl.asie.foamfix.coremod.patches.jei.SearchTreeJEIPatchGlue;
 
-import java.util.Random;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class GBWrapUpdateTick extends Block {
-	public GBWrapUpdateTick(Material blockMaterialIn, MapColor blockMapColorIn) {
-		super(blockMaterialIn, blockMapColorIn);
-	}
-
+public class SearchTreeJEIItems implements ISearchTree<ItemStack> {
 	@Override
-	public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-		if (worldIn.isAreaLoaded(pos, 1)) {
-			updateTick_foamfix_old(worldIn, pos, state, rand);
+	public List<ItemStack> search(String searchText) {
+		try {
+			return ((List<IIngredientListElement>) SearchTreeJEIPatchGlue.GET_INGREDIENT_LIST_UNCACHED.invokeExact(
+					(IngredientFilter) SearchTreeJEIPatchGlue.src, searchText
+			)).stream()
+			.filter((a) -> a != null && a.getIngredient() instanceof ItemStack)
+			.map((a) -> (ItemStack) a.getIngredient())
+			.collect(Collectors.toList());
+		} catch (Throwable e) {
+			e.printStackTrace();
+			return Collections.emptyList();
 		}
-	}
-
-	public void updateTick_foamfix_old(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-
 	}
 }

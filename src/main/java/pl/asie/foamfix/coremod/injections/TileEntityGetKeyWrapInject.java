@@ -33,6 +33,11 @@ import net.minecraft.util.ResourceLocation;
 import pl.asie.foamfix.FoamFix;
 
 public class TileEntityGetKeyWrapInject {
+	public static ResourceLocation func_190559_a(Class<? extends TileEntity> c) {
+		ResourceLocation loc = FoamFix.TILE_OVERRIDES.get(c);
+		return loc != null ? loc : TileEntityGetKeyWrapInject.getKey_foamfix_old(c);
+	}
+
 	public static ResourceLocation getKey(Class<? extends TileEntity> c) {
 		ResourceLocation loc = FoamFix.TILE_OVERRIDES.get(c);
 		return loc != null ? loc : TileEntityGetKeyWrapInject.getKey_foamfix_old(c);

@@ -112,16 +112,18 @@ public class FoamFixModelDeduplicate {
 
                     }
 
-                    for (ResourceLocation loc : cache.keySet()) {
-                        IModel model = cache.get(loc);
-                        String modelName = loc.toString();
-                        bakeBar.step(String.format("[%s]", modelName));
+                    if (FoamFixShared.config.clDeduplicateIModels) {
+                        for (ResourceLocation loc : cache.keySet()) {
+                            IModel model = cache.get(loc);
+                            String modelName = loc.toString();
+                            bakeBar.step(String.format("[%s]", modelName));
 
-                        try {
-                            ProxyClient.deduplicator.addObject(loc);
-                            cache.put(loc, (IModel) ProxyClient.deduplicator.deduplicateObject(model, 0));
-                        } catch (Exception e) {
+                            try {
+                                ProxyClient.deduplicator.addObject(loc);
+                                ProxyClient.deduplicator.deduplicateObject(model, 0);
+                            } catch (Exception e) {
 
+                            }
                         }
                     }
 

@@ -26,30 +26,17 @@
  * additional permission to convey the resulting work.
  */
 
-package pl.asie.foamfix.ghostbuster.injections;
+package pl.asie.foamfix.client.jei;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import mezz.jei.api.IJeiRuntime;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.JEIPlugin;
+import pl.asie.foamfix.coremod.patches.jei.SearchTreeJEIPatchGlue;
 
-import java.util.Random;
-
-public class GBWrapUpdateTick extends Block {
-	public GBWrapUpdateTick(Material blockMaterialIn, MapColor blockMapColorIn) {
-		super(blockMaterialIn, blockMapColorIn);
-	}
-
+@JEIPlugin
+public class SearchTreeJEIPlugin implements IModPlugin {
 	@Override
-	public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-		if (worldIn.isAreaLoaded(pos, 1)) {
-			updateTick_foamfix_old(worldIn, pos, state, rand);
-		}
-	}
-
-	public void updateTick_foamfix_old(World worldIn, BlockPos pos, IBlockState state, Random rand) {
-
+	public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+		SearchTreeJEIPatchGlue.src = jeiRuntime.getIngredientFilter();
 	}
 }

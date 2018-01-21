@@ -77,13 +77,14 @@ public class FoamFixConfig {
 	public boolean twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
-	public boolean gbPatchBeds, geFasterHopper, geFixWorldEntityCleanup;
+	public boolean gbPatchBeds, geFasterHopper, geFixWorldEntityCleanup, clDeduplicateIModels;
 	public boolean expUnpackBakedQuads;
 	public boolean txEnable, gbEnableWrapper, gbWrapperCountNotifyBlock;
 	public int txFasterAnimation;
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 
 	public boolean gbPatchGrass, gbPatchFluids;
+	public boolean clJeiCreativeSearch;
 
 	public boolean staging4305;
 	public int refreshTimes = 0;
@@ -152,22 +153,19 @@ public class FoamFixConfig {
 		boolean oldGeDeduplicate = geDeduplicate;
 		int oldClDeduplicateRecursionLevel = clDeduplicateRecursionLevel;
 		boolean oldExpUnpackBakedQuads = expUnpackBakedQuads;
+		boolean oldClDeduplicateIModels = clDeduplicateIModels;
+		boolean oldClJeiCreativeSearch = clJeiCreativeSearch;
 
 		lwWeakenResourceCache = getBoolean("weakenResourceCache", "launchwrapper", true, "Weaken LaunchWrapper's byte[] resource cache to make it cleanuppable by the GC. Safe.", true, true);
 		lwRemovePackageManifestMap = getBoolean("removePackageManifestMap", "launchwrapper", true, "Remove Launchwrapper package manifest map (which is not used anyway).", true, true);
 		geDeduplicate = getBoolean("deduplicate", "general", true, "Enable deduplication of redundant objects in memory.", false, true);
 		clDeduplicateRecursionLevel = getInt("deduplicateModelsMaxRecursion", "client", 6, 1, Integer.MAX_VALUE, "The maximum amount of levels of recursion for the deduplication process. Smaller values will deduplicate less data, but make the process run faster.", false, true);
+		clDeduplicateIModels = getBoolean("deduplicateModelBakers", "client", true, "Deduplicates IModels too. Takes a few seconds more, but shaves off another bit of RAM.", false, true);
 		clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.", true, true);
 		clModelLoaderCleanup = getBoolean("modelLoaderCleanup", "client", true, "Remove unnecessary data from a pointlessly cached ModelLoader instance.", true, true);
 		expUnpackBakedQuads = getBoolean("unpackBakedQuads", "experimental", false, "Unpacks all baked quads. Increases RAM usage, but might speed some things up.", false, true);
 		gbEnableWrapper = getBoolean("enableDebuggingWrapper", "ghostbuster", false, "Wrap ChunkProviderServers to be able to provide the /ghostbuster command for debugging ghost chunkloads.", true, true);
 		gbWrapperCountNotifyBlock = getBoolean("wrapperShowsNeighborUpdates", "ghostbuster", false, "Should the /ghostbuster debugger show neighbor updates?", false, true);
-
-		if (refreshTimes > 1) {
-			if (oldGeDeduplicate != geDeduplicate || oldClDeduplicateRecursionLevel != clDeduplicateRecursionLevel || oldExpUnpackBakedQuads != expUnpackBakedQuads) {
-				resourceDirty = true;
-			}
-		}
 
 		if (isCoremod && getBoolean("forceDisable", "coremod", false, "Disables all coremod functionality.", true, true)) {
 			isCoremod = false;
@@ -181,7 +179,10 @@ public class FoamFixConfig {
 			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true, "(,14.23.1.2576)");
 
 		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
+			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
 			gbPatchGrass = getBoolean("patchGrass", "ghostbuster", true, "Should grass be prevented from ghost chunkloading?", true, true);
+
+			clJeiCreativeSearch = getBoolean("jeiCreativeSearch", "client", true, "Makes vanilla creative tab search use JEI's lookups - saves a lot of RAM *and* gives you fancy JEI features!", true, true);
 
 			txEnable = getBoolean("enable", "textures", true, "If false, disables any patches from this category.", true, true);
 			txFasterAnimation = getInt("fasterAnimation", "textures", 1, 0, 2,"Controls the faster animation path. 0 - disable, 2 - force enable, 1 (default) - enable on devices which have been shown to benefit from it.", false, true);
@@ -215,9 +216,14 @@ public class FoamFixConfig {
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "experimental", false, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time! May cause issues, however - please test and report back!", true, true);
-			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
 			geFasterHopper = getBoolean("fasterHopper", "coremod", true, "Speeds up the hopper's calculations.", true, true);
 			geFixWorldEntityCleanup = getBoolean("fixWorldEntityCleanup", "coremod", true, "Fixes the server not removing unloaded entities/tile entities if no chunkloaders are active. Thanks to CreativeMD for finding this!", true, true);
+		}
+
+		if (refreshTimes > 1) {
+			if (oldClJeiCreativeSearch != clJeiCreativeSearch && oldClDeduplicateIModels != clDeduplicateIModels || oldGeDeduplicate != geDeduplicate || oldClDeduplicateRecursionLevel != clDeduplicateRecursionLevel || oldExpUnpackBakedQuads != expUnpackBakedQuads) {
+				resourceDirty = true;
+			}
 		}
 
 		twDisableRedstoneLight = getBoolean("disableRedstoneLight", "tweaks", false, "Prevent redstone from causing light updates by removing its light level.", true, true);

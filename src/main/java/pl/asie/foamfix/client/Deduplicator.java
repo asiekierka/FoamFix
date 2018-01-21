@@ -64,6 +64,7 @@ import gnu.trove.set.hash.TCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.block.model.multipart.Multipart;
@@ -84,6 +85,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
+import net.minecraftforge.client.model.animation.ModelBlockAnimation;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.logging.log4j.Logger;
@@ -128,8 +130,8 @@ public class Deduplicator {
     public int successfuls = 0;
     public int maxRecursion = 0;
 
-    private final Map<Object, java.util.Optional> JAVA_OPTIONALS = new HashMap<>();
-    private final Map<Object, com.google.common.base.Optional> GUAVA_OPTIONALS = new HashMap<>();
+    private final Map<Object, java.util.Optional> JAVA_OPTIONALS = new IdentityHashMap<>();
+    private final Map<Object, com.google.common.base.Optional> GUAVA_OPTIONALS = new IdentityHashMap<>();
     private final IDeduplicatingStorage<Object[]> KEY_UNIVERSE_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.OBJECT_ARRAY);
     private final IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY);
     private final IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY_ARRAY);
@@ -182,7 +184,11 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(ModelLoader.class);
         BLACKLIST_CLASS.add(Minecraft.class);
         BLACKLIST_CLASS.add(BlockModelShapes.class);
+        BLACKLIST_CLASS.add(BlockFaceUV.class); // BlockPartFace handles it
         BLACKLIST_CLASS.add(ModelManager.class);
+        BLACKLIST_CLASS.add(BlockPartRotation.class); // not handled
+        BLACKLIST_CLASS.add(ModelBlockAnimation.class); // not handled
+        BLACKLIST_CLASS.add(BufferBuilder.class);
 
         BLACKLIST_CLASS.add(Logger.class);
         BLACKLIST_CLASS.add(Joiner.class);
@@ -190,12 +196,6 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(Cache.class);
         BLACKLIST_CLASS.add(LoadingCache.class);
         BLACKLIST_CLASS.add(VertexFormatElement.class);
-
-        // 1.10/1.11
-        addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.VertexBuffer");
-
-        // 1.12
-        addClassFromName(BLACKLIST_CLASS, "net.minecraft.client.renderer.BufferBuilder");
     }
 
     private boolean shouldCheckClass(Class c) {
@@ -259,7 +259,7 @@ public class Deduplicator {
                 size = 80; // minimum size
                 n = ICT_STORAGE.deduplicate((ItemCameraTransforms) o);
             } else {
-                return null;
+                throw new RuntimeException("Unsupported: " + c);
             }
         }
 
@@ -342,6 +342,7 @@ public class Deduplicator {
 
         if (c == BlockPartFace.class) {
             ((BlockPartFace) o).blockFaceUV.uvs = (float[]) deduplicate0(((BlockPartFace) o).blockFaceUV.uvs);
+            return o;
         }
 
         if (o instanceof BakedQuad) {
@@ -394,20 +395,21 @@ public class Deduplicator {
         } else if (o instanceof java.util.Optional) {
             java.util.Optional opt = (java.util.Optional) o;
             if (opt.isPresent()) {
-                if (JAVA_OPTIONALS.containsKey(opt.get())) {
-                    successfuls++;
-                    return JAVA_OPTIONALS.get(opt.get());
-                }
-
                 Object b = deduplicateObject(opt.get(), recursion + 1);
-                if (b != null && b != opt.get()) {
-                    java.util.Optional opt2 = java.util.Optional.of(b);
-                    JAVA_OPTIONALS.put(b, opt2);
-                    JAVA_OPTIONALS.put(opt.get(), opt2);
-                    return opt2;
-                } else {
-                    JAVA_OPTIONALS.put(opt.get(), opt);
-                    return opt;
+                if (b != null) {
+                    if (JAVA_OPTIONALS.containsKey(b)) {
+                        successfuls++;
+                        return JAVA_OPTIONALS.get(b);
+                    }
+
+                    if (b != opt.get()) {
+                        java.util.Optional opt2 = java.util.Optional.of(b);
+                        JAVA_OPTIONALS.put(b, opt2);
+                        return opt2;
+                    } else {
+                        JAVA_OPTIONALS.put(opt.get(), opt);
+                        return opt;
+                    }
                 }
             } else {
                 return opt;
@@ -415,26 +417,27 @@ public class Deduplicator {
         } else if (o instanceof com.google.common.base.Optional) {
             Optional opt = (Optional) o;
             if (opt.isPresent()) {
-                if (GUAVA_OPTIONALS.containsKey(opt.get())) {
-                    successfuls++;
-                    return GUAVA_OPTIONALS.get(opt.get());
-                }
-
                 Object b = deduplicateObject(opt.get(), recursion + 1);
-                if (b != null && b != opt.get()) {
-                    com.google.common.base.Optional opt2 = com.google.common.base.Optional.of(b);
-                    GUAVA_OPTIONALS.put(b, opt2);
-                    GUAVA_OPTIONALS.put(opt.get(), opt2);
-                    return opt2;
-                } else {
-                    GUAVA_OPTIONALS.put(opt.get(), opt);
-                    return opt;
+                if (b != null) {
+                    if (GUAVA_OPTIONALS.containsKey(b)) {
+                        successfuls++;
+                        return GUAVA_OPTIONALS.get(b);
+                    }
+
+                    if (b != opt.get()) {
+                        com.google.common.base.Optional opt2 = com.google.common.base.Optional.of(b);
+                        GUAVA_OPTIONALS.put(b, opt2);
+                        return opt2;
+                    } else {
+                        GUAVA_OPTIONALS.put(opt.get(), opt);
+                        return opt;
+                    }
                 }
             } else {
                 return opt;
             }
         } else if (o instanceof Multimap) {
-            if (o instanceof ImmutableMultimap) {
+            if (o instanceof ImmutableMultimap || o instanceof SortedSetMultimap) {
                 for (Object value : ((ImmutableMultimap) o).values()) {
                     deduplicateObject(value, recursion + 1);
                 }
@@ -449,9 +452,13 @@ public class Deduplicator {
                 }
             }
         } else if (o instanceof Map) {
-            if (o instanceof ImmutableMap) {
+            if (o instanceof SortedMap) {
+                for (Object v : ((Map) o).values()) {
+                    deduplicateObject(v, recursion + 1);
+                }
+            } else if (o instanceof ImmutableMap) {
                 ImmutableMap im = (ImmutableMap) o;
-                Map newMap = new HashMap();
+                ImmutableMap.Builder newMap = (o instanceof ImmutableBiMap) ? ImmutableBiMap.builder() : ImmutableMap.builder();
                 boolean deduplicated = false;
                 for (Object key : im.keySet()) {
                     Object a = im.get(key);
@@ -460,14 +467,7 @@ public class Deduplicator {
                     if (b != null && b != a)
                         deduplicated = true;
                 }
-                if (deduplicated) {
-                    if (o instanceof ImmutableSortedMap)
-                        return ImmutableSortedMap.copyOf(newMap);
-                    else if (o instanceof ImmutableBiMap)
-                        return ImmutableBiMap.copyOf(newMap);
-                    else
-                        return ImmutableMap.copyOf(newMap);
-                }
+                return deduplicated ? newMap.build() : o;
             } else {
                 for (Object key : ((Map) o).keySet()) {
                     Object value = ((Map) o).get(key);
@@ -479,17 +479,17 @@ public class Deduplicator {
         } else if (o instanceof List) {
             if (o instanceof ImmutableList) {
                 ImmutableList il = (ImmutableList) o;
-                List newList = new ArrayList();
+                ImmutableList.Builder builder = ImmutableList.builder();
                 boolean deduplicated = false;
                 for (int i = 0; i < il.size(); i++) {
                     Object a = il.get(i);
                     Object b = deduplicateObject(a, recursion + 1);
-                    newList.add(b != null ? b : a);
+                    builder.add(b != null ? b : a);
                     if (b != null && b != a)
                         deduplicated = true;
                 }
                 if (deduplicated) {
-                    return ImmutableList.copyOf(newList);
+                    return builder.build();
                 }
             } else {
                 List l = (List) o;
@@ -497,25 +497,41 @@ public class Deduplicator {
                     l.set(i, deduplicateObject(l.get(i), recursion + 1));
                 }
             }
-        } else if (o instanceof Collection) {
-            if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
-                try {
-                    COLLECTION_CONSTRUCTORS.put(c, MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class)));
-                } catch (Exception e) {
-                    COLLECTION_CONSTRUCTORS.put(c, null);
+        } else if (o instanceof ImmutableSet) {
+            if (!(o instanceof ImmutableSortedSet)) {
+                ImmutableSet.Builder builder = new ImmutableSet.Builder();
+                for (Object o1 : ((Set) o)) {
+                    builder.add(deduplicateObject(o1, recursion + 1));
+                }
+                o = builder.build();
+            } else {
+                for (Object o1 : ((Set) o)) {
+                    deduplicateObject(o1, recursion + 1);
                 }
             }
-
-            MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(c);
-            if (constructor != null) {
-                try {
-                    Collection nc = (Collection) constructor.invoke();
-                    for (Object o1 : ((Collection) o)) {
-                        nc.add(deduplicateObject(o1, recursion + 1));
+        } else if (o instanceof Collection) {
+            if (!(o instanceof SortedSet)) {
+                if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
+                    try {
+                        COLLECTION_CONSTRUCTORS.put(c, MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class)));
+                    } catch (Exception e) {
+                        COLLECTION_CONSTRUCTORS.put(c, null);
                     }
-                    return nc;
-                } catch (Throwable t) {
+                }
 
+                MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(c);
+                if (constructor != null) {
+                    try {
+                        Collection nc = (Collection) constructor.invoke();
+                        if (nc != null) {
+                            for (Object o1 : ((Collection) o)) {
+                                nc.add(deduplicateObject(o1, recursion + 1));
+                            }
+                            return nc;
+                        }
+                    } catch (Throwable t) {
+
+                    }
                 }
             }
 

@@ -75,16 +75,16 @@ import pl.asie.patchy.handlers.*;
 import pl.asie.patchy.helpers.ConstructorReplacingTransformer;
 
 public class FoamFixTransformer implements IClassTransformer {
-    public static ClassNode spliceClasses(final ClassNode data, final String className, final String... methods) {
+    public static ClassNode spliceClasses(final ClassNode data, final String className, final boolean addMethods, final String... methods) {
         try {
             final byte[] dataSplice = ((LaunchClassLoader) FoamFixTransformer.class.getClassLoader()).getClassBytes(className);
-            return spliceClasses(data, dataSplice, className, methods);
+            return spliceClasses(data, dataSplice, className, addMethods, methods);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static ClassNode spliceClasses(final ClassNode nodeData, final byte[] dataSplice, final String className, final String... methods) {
+    public static ClassNode spliceClasses(final ClassNode nodeData, final byte[] dataSplice, final String className, final boolean addMethods, final String... methods) {
         // System.out.println("Splicing from " + className + " to " + targetClassName)
         if (dataSplice == null) {
             throw new RuntimeException("Class " + className + " not found! This is a FoamFix bug!");
@@ -130,7 +130,7 @@ public class FoamFixTransformer implements IClassTransformer {
                     }
                 }
 
-                if (!added) {
+                if (!added && addMethods) {
                     System.out.println("Added METHOD: " + targetClassName + "." + mn.name);
                     nodeData.methods.add(mn);
                     added = true;
@@ -208,9 +208,9 @@ public class FoamFixTransformer implements IClassTransformer {
         if (FoamFixShared.config.geSmallPropertyStorage) {
             patchy.addTransformerId("smallPropertyStorage_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer",
-                    "createState", "createState"), "net.minecraft.block.state.BlockStateContainer");
+		            false, "createState", "createState"), "net.minecraft.block.state.BlockStateContainer");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer",
-                    "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
+		            false, "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
         }
 
         /* if (FoamFixShared.config.geSmallLightingOptimize) {
@@ -226,27 +226,27 @@ public class FoamFixTransformer implements IClassTransformer {
         if (FoamFixShared.config.twImmediateLightingUpdates) {
             patchy.addTransformerId("immediateLightingUpdates_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.RenderGlobalImmediateInject",
-                    "notifyLightSet","func_174959_b"), "net.minecraft.client.renderer.RenderGlobal");
+                    false, "notifyLightSet","func_174959_b"), "net.minecraft.client.renderer.RenderGlobal");
         }
 
         if (FoamFixShared.config.clDynamicItemModels) {
             patchy.addTransformerId("dynamicItemModels_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.client.FoamFixDynamicItemModels",
-                    "bake", "bake"), "net.minecraftforge.client.model.ItemLayerModel");
+		            false, "bake", "bake"), "net.minecraftforge.client.model.ItemLayerModel");
         }
 
         if (FoamFixShared.config.clParallelModelBaking) {
             patchy.addTransformerId("parallelModelBaking_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.ModelBakeryParallelInject",
-                    "setupModelRegistry", "func_177570_a"), "net.minecraftforge.client.model.ModelLoader");
+		            false, "setupModelRegistry", "func_177570_a"), "net.minecraftforge.client.model.ModelLoader");
         }
 
         if (FoamFixShared.config.clFasterVertexLighter) {
             patchy.addTransformerId("fasterVertexLighter_v2");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoInject",
-                            "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS"), "net.minecraftforge.client.model.pipeline.BlockInfo");
+                            true, "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS"), "net.minecraftforge.client.model.pipeline.BlockInfo");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.VertexLighterFlatInject",
-                    "updateLightmap", "updateLightmap", "updateBlockInfo", "updateBlockInfo"),
+                    true, "updateLightmap", "updateLightmap", "updateBlockInfo", "updateBlockInfo"),
                     "net.minecraftforge.client.model.pipeline.VertexLighterFlat");
         }
 
@@ -270,10 +270,10 @@ public class FoamFixTransformer implements IClassTransformer {
         if (FoamFixShared.config.geFasterPropertyComparisons) {
             patchy.addTransformerId("fasterPropertyComparisons_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.PropertyFasterComparisonsInject$Bool",
-                    "equals", "equals", "hashCode", "hashCode"), "net.minecraft.block.properties.PropertyBool");
+                    true, "equals", "equals", "hashCode", "hashCode"), "net.minecraft.block.properties.PropertyBool");
             for (String s : new String[] { "net.minecraft.block.properties.PropertyInteger", "net.minecraft.block.properties.PropertyEnum" }) {
                 handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingHashCodeInject",
-                        "hashCode", "hashCode", "foamfix_hashCode", "foamfix_hashCode", "foamfix_hashCode_calced", "foamfix_hashCode_calced"),
+		                true, "hashCode", "hashCode", "foamfix_hashCode", "foamfix_hashCode", "foamfix_hashCode_calced", "foamfix_hashCode_calced"),
                         s);
             }
         }
@@ -294,20 +294,20 @@ public class FoamFixTransformer implements IClassTransformer {
 
             patchy.addTransformerId("tileEntityGetKeyWrap_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.TileEntityGetKeyWrapInject",
-                    "getKey", "func_190559_a"), "net.minecraft.tileentity.TileEntity");
+                    false, "getKey", "func_190559_a"), "net.minecraft.tileentity.TileEntity");
         }
 
         if (FoamFixShared.config.geFixWorldEntityCleanup) {
             patchy.addTransformerId("fixWorldEntityCleanup_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.WorldRemovalInject",
-                    "foamfix_removeUnloadedEntities", "foamfix_removeUnloadedEntities"), "net.minecraft.world.World");
+                    true, "foamfix_removeUnloadedEntities", "foamfix_removeUnloadedEntities"), "net.minecraft.world.World");
             handlerCN.add(new WorldServerRemovalPatch(), "net.minecraft.world.WorldServer");
         }
 
         if (FoamFixShared.config.staging4305) {
             patchy.addTransformerId("staging4305_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.staging.Patch4305",
-                    "diffuseLight", "diffuseLight"), "net.minecraftforge.client.model.pipeline.LightUtil");
+		            true, "diffuseLight", "diffuseLight"), "net.minecraftforge.client.model.pipeline.LightUtil");
         }
 
         if (FoamFixShared.config.txEnable) {
@@ -322,23 +322,30 @@ public class FoamFixTransformer implements IClassTransformer {
         if (FoamFixShared.config.gbPatchBeds) {
             patchy.addTransformerId("gbPatchBeds_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockBedInject",
-                    "func_190524_a", "neighborChanged"), "net.minecraft.block.BlockBed");
+                    false, "neighborChanged", "func_189540_a"), "net.minecraft.block.BlockBed");
         }
 
-        if (FoamFixShared.config.gbPatchFluids) {
+        /* if (FoamFixShared.config.gbPatchFluids) {
             patchy.addTransformerId("gbPatchFluids_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.ghostbuster.injections.GBWrapUpdateTick",
-                    "updateTick", "func_180650_b"),
+                    false, "updateTick", "func_180650_b"),
                     "net.minecraftforge.fluids.BlockFluidClassic",
                     "net.minecraftforge.fluids.BlockFluidFinite",
                     "net.minecraft.block.BlockStaticLiquid");
-        }
+        } */
 
         if (FoamFixShared.config.gbPatchGrass) {
             patchy.addTransformerId("gbPatchGrass_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.ghostbuster.injections.GBWrapUpdateTick",
-                    "updateTick", "func_180650_b"),
+		            false, "updateTick", "func_180650_b"),
                     "net.minecraft.block.BlockGrass");
+        }
+
+        if (FoamFixShared.config.clJeiCreativeSearch) {
+            patchy.addTransformerId("clJeiCreativeSearch_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.patches.jei.SearchTreeJEIManagerInject",
+                    false, "onResourceManagerReload", "func_110549_a"),
+                    "net.minecraft.client.util.SearchTreeManager");
         }
 
         /* if (FoamFixShared.config.staging4370) {
