@@ -438,7 +438,7 @@ public class Deduplicator {
             }
         } else if (o instanceof Multimap) {
             if (o instanceof ImmutableMultimap || o instanceof SortedSetMultimap) {
-                for (Object value : ((ImmutableMultimap) o).values()) {
+                for (Object value : ((Multimap) o).values()) {
                     deduplicateObject(value, recursion + 1);
                 }
             } else {
