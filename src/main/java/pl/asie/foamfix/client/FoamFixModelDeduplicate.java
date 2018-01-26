@@ -53,6 +53,8 @@
  */
 package pl.asie.foamfix.client;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -60,6 +62,7 @@ import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -71,22 +74,52 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.foamfix.util.FoamUtils;
 import pl.asie.foamfix.util.MethodHandleHelper;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.Map;
 
-public class FoamFixModelDeduplicate {
+public final class FoamFixModelDeduplicate {
+    public static final FoamFixModelDeduplicate INSTANCE = new FoamFixModelDeduplicate();
+
+    private FoamFixModelDeduplicate() {
+
+    }
+
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onModelBake(ModelBakeEvent event) {
-        // TODO: analyze impact + obj. references
-        // TODO: figure out why it breaks Botania (#1, refer to vazkii/botania/client/model/FloatingFlowerModel.java)
-        // FoamUtils.wipeModelLoaderRegistryCache();
+        Map<ResourceLocation, IModel> cache;
+
+        try {
+            cache = (Map<ResourceLocation, IModel>) MethodHandleHelper.findFieldGetter(ModelLoaderRegistry.class, "cache").invoke();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            cache = Collections.emptyMap();
+        }
+
+        if (FoamFixShared.config.clWipeModelCache) {
+            int itemsCleared = 0;
+            FoamFix.logger.info("Clearing ModelLoaderRegistry cache (" + cache.size() + " items)...");
+            for (ResourceLocation r : ImmutableSet.copyOf(cache.keySet())) {
+                if ("minecraft".equals(r.getResourceDomain()) || "fml".equals(r.getResourceDomain()) || "forge".equals(r.getResourceDomain())) {
+                    if (r.getResourcePath().endsWith("/generated")) {
+                        continue;
+                    }
+                }
+
+                cache.remove(r);
+                itemsCleared++;
+            }
+
+            FoamFix.logger.info("Cleared " + itemsCleared + " objects.");
+            cache = Collections.emptyMap();
+        }
 
         if (FoamFixShared.config.geDeduplicate) {
             FoamFix.logger.info("Deduplicating models...");
             try {
-                Map<ResourceLocation, IModel> cache = (Map<ResourceLocation, IModel>) MethodHandleHelper.findFieldGetter(ModelLoaderRegistry.class, "cache").invoke();
                 if (cache != null) {
                     ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", cache.size() + 2);
 

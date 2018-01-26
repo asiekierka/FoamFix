@@ -53,6 +53,12 @@ public class ModelLoaderCleanup {
 					t.printStackTrace();
 				}
 
+				try {
+					((Map) STATE_MODELS_GETTER.invoke(loader)).clear();
+				} catch (Throwable t) {
+					t.printStackTrace();
+				}
+
 				loader = null;
 				MinecraftForge.EVENT_BUS.unregister(this);
 			}
@@ -60,6 +66,7 @@ public class ModelLoaderCleanup {
 	}
 
 	private static final MethodHandle LOADING_EXCEPTIONS_GETTER = MethodHandleHelper.findFieldGetter(ModelLoader.class, "loadingExceptions");
+	private static final MethodHandle STATE_MODELS_GETTER = MethodHandleHelper.findFieldGetter(ModelLoader.class, "stateModels");
 	private final Ticker ticker = new Ticker();
 	private ModelLoader loader;
 

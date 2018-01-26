@@ -69,7 +69,7 @@ import java.util.Set;
 
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwRemovePackageManifestMap;
-	public boolean geDeduplicate, clCleanRedundantModelRegistry, clDynamicItemModels;
+	public boolean geDeduplicate, clWipeModelCache, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public boolean clFasterVertexLighter, clInitOptions, clModelLoaderCleanup;
 	public boolean clParallelModelBaking, clDisableTextureAnimations;
 	public boolean geBlacklistLibraryTransformers;
@@ -175,6 +175,7 @@ public class FoamFixConfig {
 			int oldTxFasterAnimation = txFasterAnimation;
 			int oldTxCacheAnimationMaxFrames = txCacheAnimationMaxFrames;
 			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
+			boolean oldClWipeModelCache = clWipeModelCache;
 
 			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true, "(,14.23.1.2576)");
 
@@ -183,6 +184,7 @@ public class FoamFixConfig {
 			gbPatchGrass = getBoolean("patchGrass", "ghostbuster", true, "Should grass be prevented from ghost chunkloading?", true, true);
 
 			clJeiCreativeSearch = getBoolean("jeiCreativeSearch", "client", true, "Makes vanilla creative tab search use JEI's lookups - saves a lot of RAM *and* gives you fancy JEI features!", true, true);
+			clWipeModelCache = getBoolean("wipeModelCache", "client", true, "Wipes the IModel cache after baking is finished. Saves a lot of RAM, as most IModels will not be reloaded.", false, true);
 
 			txEnable = getBoolean("enable", "textures", true, "If false, disables any patches from this category.", true, true);
 			txFasterAnimation = getInt("fasterAnimation", "textures", 1, 0, 2,"Controls the faster animation path. 0 - disable, 2 - force enable, 1 (default) - enable on devices which have been shown to benefit from it.", false, true);
@@ -190,7 +192,7 @@ public class FoamFixConfig {
 			txMaxAnimationMipLevel = getInt("maxAnimationMipLevel", "textures", -1, -1, 4, "Set to a number to disable animation updates past that mip level. -1 means update all. Higher numbers update more levels. To disable animation updates altogether, use the option for it.", false, true);
 
 			if (refreshTimes > 1) {
-				if (oldTxFasterAnimation != txFasterAnimation || oldTxCacheAnimationMaxFrames != txCacheAnimationMaxFrames || oldTxMaxAnimationMipLevel != txMaxAnimationMipLevel) {
+				if (oldClWipeModelCache != clWipeModelCache || oldTxFasterAnimation != txFasterAnimation || oldTxCacheAnimationMaxFrames != txCacheAnimationMaxFrames || oldTxMaxAnimationMipLevel != txMaxAnimationMipLevel) {
 					resourceDirty = true;
 				}
 

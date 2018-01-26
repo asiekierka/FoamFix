@@ -348,6 +348,13 @@ public class FoamFixTransformer implements IClassTransformer {
                     "net.minecraft.client.util.SearchTreeManager");
         }
 
+        if (FoamFixShared.config.clWipeModelCache) {
+            patchy.addTransformerId("wipeModelCache_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.VanillaModelWrapperInject",
+                    false,"bakeNormal", "bakeNormal"),
+                    "net.minecraftforge.client.model.ModelLoader$VanillaModelWrapper");
+        }
+
         /* if (FoamFixShared.config.staging4370) {
             patchy.addTransformerId("staging4370_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingHashCodeInject",

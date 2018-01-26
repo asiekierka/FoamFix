@@ -72,6 +72,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 public final class FoamUtils {
+	public static final MethodHandle PMW_GET_PARENT;
 	public static final MethodHandle MLR_GET_TEXTURES;
 	public static final MethodHandle ML_LOAD_BLOCK;
 
@@ -80,22 +81,29 @@ public final class FoamUtils {
 
 		try {
 			Class k = Class.forName("net.minecraftforge.client.model.ModelLoaderRegistry");
-			Method m = k.getDeclaredMethod("getTextures");
-			m.setAccessible(true);
-			MLR_GET_TEXTURES_TMP = MethodHandles.lookup().unreflect(m);
+			MLR_GET_TEXTURES_TMP = MethodHandleHelper.findMethod(k, "getTextures", "getTextures");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		MLR_GET_TEXTURES = MLR_GET_TEXTURES_TMP;
 
+		MethodHandle PMW_GET_PARENT_TMP = null;
+
+		try {
+			Class k = Class.forName("net.minecraftforge.client.model.PerspectiveMapWrapper");
+			PMW_GET_PARENT_TMP = MethodHandleHelper.findFieldGetter(k, "parent");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		PMW_GET_PARENT = PMW_GET_PARENT_TMP;
+
 		MethodHandle ML_LOAD_BLOCK_TMP = null;
 
 		try {
 			Class k = Class.forName("net.minecraft.client.renderer.block.model.ModelBakery");
-			Method m = k.getDeclaredMethod("loadBlock", BlockStateMapper.class, Block.class, ResourceLocation.class);
-			m.setAccessible(true);
-			ML_LOAD_BLOCK_TMP = MethodHandles.lookup().unreflect(m);
+			ML_LOAD_BLOCK_TMP = MethodHandleHelper.findMethod(k, "loadBlock", "loadBlock", BlockStateMapper.class, Block.class, ResourceLocation.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -104,22 +112,5 @@ public final class FoamUtils {
 	}
 
 	private FoamUtils() {
-	}
-
-	public static void wipeModelLoaderRegistryCache() {
-	    Field resourceCacheField = ReflectionHelper.findField(ModelLoaderRegistry.class, "cache");
-	    try {
-			Map<ResourceLocation, IModel> oldResourceCache = (Map<ResourceLocation, IModel>) resourceCacheField.get(null);
-			int itemsCleared = 0;
-		    FoamFix.logger.info("Clearing ModelLoaderRegistry cache (" + oldResourceCache.size() + " items)...");
-			for (ResourceLocation r : Sets.newHashSet(oldResourceCache.keySet())) {
-				// System.out.println(r + " -> " + oldResourceCache.get(r).getClass().getName());
-				oldResourceCache.remove(r);
-				itemsCleared++;
-			}
-			FoamFix.logger.info("Cleared " + itemsCleared + " objects.");
-	    } catch (IllegalAccessException e) {
-	        e.printStackTrace();
-	    }
 	}
 }

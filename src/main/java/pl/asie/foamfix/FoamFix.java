@@ -122,6 +122,8 @@ public class FoamFix {
 
         FoamFixShared.config.init(event.getSuggestedConfigurationFile(), false);
 
+        MinecraftForge.EVENT_BUS.register(proxy);
+
         proxy.preInit();
     }
 

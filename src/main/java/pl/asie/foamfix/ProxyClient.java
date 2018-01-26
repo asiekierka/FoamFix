@@ -63,13 +63,18 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.foamfix.util.FoamUtils;
 import pl.asie.foamfix.util.MethodHandleHelper;
 
 import javax.annotation.Nullable;
@@ -78,6 +83,7 @@ import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
 	public static Deduplicator deduplicator = new Deduplicator();
+	public static int bakingStage = 0;
 
 	public static final IBakedModel DUMMY_MODEL = new IBakedModel() {
 		private final ItemOverrideList itemOverrideList = ItemOverrideList.NONE;
@@ -115,10 +121,21 @@ public class ProxyClient extends ProxyCommon {
 
 	private ModelLoaderCleanup cleanup;
 
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onModelRegistry(ModelRegistryEvent event) {
+		bakingStage = 0;
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOW)
+	public void onModelBake(ModelBakeEvent event) {
+		bakingStage = 1;
+
+		FoamFixModelDeduplicate.INSTANCE.onModelBake(event);
+	}
+
 	@Override
 	public void preInit() {
 		super.preInit();
-		MinecraftForge.EVENT_BUS.register(new FoamFixModelDeduplicate());
 
 		if (!FoamFixShared.config.geDeduplicate) {
 			deduplicator = null;
@@ -145,7 +162,7 @@ public class ProxyClient extends ProxyCommon {
 				FoamFix.shouldFasterAnimation = false;
 			} else {
 			    String vendor = GL11.glGetString(GL11.GL_VENDOR);
-			    if ("Advanced Micro Devices, Inc.".equals(vendor) || FoamFixShared.config.txFasterAnimation == 2) {
+			    if ("Advanced Micro Devices, Inc.".equals(vendor) || "ATI Technologies Inc.".equals(vendor) || FoamFixShared.config.txFasterAnimation == 2) {
                     FoamFix.logger.info("Using fast animated textures.");
                     FoamFix.shouldFasterAnimation = true;
                 } else {
