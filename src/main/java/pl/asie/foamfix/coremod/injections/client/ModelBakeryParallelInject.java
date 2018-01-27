@@ -44,11 +44,12 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.ProgressManager;
+import org.apache.commons.lang3.tuple.Pair;
 import pl.asie.foamfix.util.FoamUtils;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 
 public class ModelBakeryParallelInject extends ModelBakery {
     private final Map<ModelResourceLocation, IModel> stateModels = Maps.newHashMap();
@@ -90,9 +91,9 @@ public class ModelBakeryParallelInject extends ModelBakery {
         }
 
         IBakedModel missingBaked = missingModel.bake(missingModel.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
-        Map<IModel, IBakedModel> bakedModels = Maps.newConcurrentMap();
-        HashMultimap<IModel, ModelResourceLocation> modelsParallel = HashMultimap.create();
-        HashMultimap<IModel, ModelResourceLocation> models = HashMultimap.create();
+        Map<IModel, IBakedModel> bakedModels = new MapMaker().concurrencyLevel(ForkJoinPool.commonPool().getPoolSize() + 1).initialCapacity(stateModels.size()).makeMap();
+        Set<IModel> modelsParallel = new HashSet<>(stateModels.size() - 1);
+        Multimap<IModel, ModelResourceLocation> models = MultimapBuilder.hashKeys().linkedListValues().build();
 
         boolean foundFancyMissingModel = false;
         for (Map.Entry<ModelResourceLocation, IModel> modelEntry : stateModels.entrySet()) {
@@ -100,15 +101,14 @@ public class ModelBakeryParallelInject extends ModelBakery {
                 models.put(modelEntry.getValue(), modelEntry.getKey());
                 foundFancyMissingModel = true;
             } else {
-                modelsParallel.put(modelEntry.getValue(), modelEntry.getKey());
+                modelsParallel.add(modelEntry.getValue());
             }
         }
 
-        ModelLoaderParallelHelper.bake(bakedModels, models, getMissingModel(), missingBaked, false);
-        ModelLoaderParallelHelper.bake(bakedModels, modelsParallel, getMissingModel(), missingBaked, true);
+        ModelLoaderParallelHelper.bake(bakedModels, models, getMissingModel(), missingBaked);
+        ModelLoaderParallelHelper.bakeParallel(bakedModels, modelsParallel, getMissingModel(), missingBaked);
 
-        for (Map.Entry<ModelResourceLocation, IModel> e : stateModels.entrySet())
-        {
+        for (Map.Entry<ModelResourceLocation, IModel> e : stateModels.entrySet()) {
             bakedRegistry.putObject(e.getKey(), bakedModels.get(e.getValue()));
         }
         return bakedRegistry;

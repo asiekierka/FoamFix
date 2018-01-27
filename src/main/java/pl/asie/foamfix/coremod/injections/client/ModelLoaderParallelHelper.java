@@ -46,6 +46,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.ProgressManager;
+import org.apache.commons.lang3.tuple.Pair;
 import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.ProxyClient;
 import pl.asie.foamfix.client.Deduplicator;
@@ -71,32 +72,32 @@ public class ModelLoaderParallelHelper extends ModelBakery {
         super(manager, map, shapes);
     }
 
-    public static void bake(Map<IModel, IBakedModel> bakedModels, Multimap<IModel, ModelResourceLocation> models, IModel missingModel, IBakedModel missingBaked, boolean parallel) {
-        ProgressManager.ProgressBar bakeBar = ProgressManager.push("ModelLoader: baking", models.keySet().size());
+    public static void bakeParallel(Map<IModel, IBakedModel> bakedModels, Set<IModel> models, IModel missingModel, IBakedModel missingBaked) {
+        ProgressManager.ProgressBar bakeBar = ProgressManager.push("ModelLoader: baking (parallel)", 1);
+        bakeBar.step("please wait");
 
-        if (parallel) {
-            models.keySet().parallelStream().forEach((model -> {
-                synchronized (bakeBar) {
-                    bakeBar.step("[" + Joiner.on(", ").join(models.get(model)) + "]");
-                }
-                if (model == missingModel) {
-                    bakedModels.put(model, missingBaked);
-                } else {
-                    IBakedModel bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
-                    bakedModels.put(model, bakedModel);
-                }
-            }));
-        } else {
-            for (IModel model : models.keys()) {
-                synchronized (bakeBar) {
-                    bakeBar.step("[" + Joiner.on(", ").join(models.get(model)) + "]");
-                }
-                if (model == missingModel) {
-                    bakedModels.put(model, missingBaked);
-                } else {
-                    IBakedModel bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
-                    bakedModels.put(model, bakedModel);
-                }
+        models.parallelStream().forEach((model -> {
+            if (model == missingModel) {
+                bakedModels.put(model, missingBaked);
+            } else {
+                IBakedModel bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+                bakedModels.put(model, bakedModel);
+            }
+        }));
+
+        ProgressManager.pop(bakeBar);
+    }
+
+    public static void bake(Map<IModel, IBakedModel> bakedModels, Multimap<IModel, ModelResourceLocation> models, IModel missingModel, IBakedModel missingBaked) {
+        ProgressManager.ProgressBar bakeBar = ProgressManager.push("ModelLoader: baking", models.size());
+
+        for (IModel model : models.keySet()) {
+            bakeBar.step("[" + Joiner.on(", ").join(models.get(model)) + "]");
+            if (model == missingModel) {
+                bakedModels.put(model, missingBaked);
+            } else {
+                IBakedModel bakedModel = model.bake(model.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
+                bakedModels.put(model, bakedModel);
             }
         }
 
