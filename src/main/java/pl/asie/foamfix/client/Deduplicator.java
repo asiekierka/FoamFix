@@ -250,8 +250,12 @@ public class Deduplicator {
                     Vec3d.class == c || Vec3i.class == c || BlockPos.class == c) {
                 size = 16; // can't be bothered to measure string size
                 n = OBJECT_STORAGE.deduplicate(o);
-            } else if (Style.class == c && FoamFixShared.isCoremod) {
-                n = deduplicateStyleIfCoremodPresent((Style) o);
+            } else if (Style.class == c) {
+                if (FoamFixShared.isCoremod) {
+                    n = deduplicateStyleIfCoremodPresent((Style) o);
+                } else {
+                    return o;
+                }
             } else if (TRSRTransformation.class == c) {
                 size = 257; // size after full, x86_64
                 n = OBJECT_STORAGE.deduplicate(o);

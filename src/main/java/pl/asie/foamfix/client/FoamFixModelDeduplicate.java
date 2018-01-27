@@ -102,16 +102,23 @@ public final class FoamFixModelDeduplicate {
         if (FoamFixShared.config.clWipeModelCache) {
             int itemsCleared = 0;
             FoamFix.logger.info("Clearing ModelLoaderRegistry cache (" + cache.size() + " items)...");
-            for (ResourceLocation r : ImmutableSet.copyOf(cache.keySet())) {
+            int cacheSize = cache.size();
+            cache.entrySet().removeIf((e) -> {
+                ResourceLocation r = e.getKey();
+
                 if ("minecraft".equals(r.getResourceDomain()) || "fml".equals(r.getResourceDomain()) || "forge".equals(r.getResourceDomain())) {
                     if (r.getResourcePath().endsWith("/generated")) {
-                        continue;
+                        return false;
+                    }
+
+                    if (r.getResourcePath().startsWith("builtin/")) {
+                        return false;
                     }
                 }
 
-                cache.remove(r);
-                itemsCleared++;
-            }
+                return true;
+            });
+            itemsCleared += cacheSize - cache.size();
 
             FoamFix.logger.info("Cleared " + itemsCleared + " objects.");
             cache = Collections.emptyMap();
