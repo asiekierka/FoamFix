@@ -246,8 +246,14 @@ public class Deduplicator {
             n = OBJECT_STORAGE.deduplicate(o);
         } else {
             Class c = o.getClass();
-            if (ResourceLocation.class == c || ModelResourceLocation.class == c ||
-                    Vec3d.class == c || Vec3i.class == c || BlockPos.class == c) {
+            if (o instanceof ResourceLocation) {
+                if (ResourceLocation.class == c || ModelResourceLocation.class == c) {
+                    size = 16; // can't be bothered to measure string size
+                    n = OBJECT_STORAGE.deduplicate(o);
+                } else {
+                    return o;
+                }
+            } else if (Vec3d.class == c || Vec3i.class == c || BlockPos.class == c) {
                 size = 16; // can't be bothered to measure string size
                 n = OBJECT_STORAGE.deduplicate(o);
             } else if (Style.class == c) {
@@ -369,7 +375,7 @@ public class Deduplicator {
                     t.printStackTrace();
                 }
             }
-        } else if (o instanceof ResourceLocation || o instanceof TRSRTransformation || o instanceof BlockFaceUV || c == Style.class) {
+        } else if (o instanceof ResourceLocation || c == TRSRTransformation.class || c == Style.class) {
             return deduplicate0(o);
         } else if (c == ItemCameraTransforms.class || c == Vec3d.class || c == Vec3i.class || c == BlockPos.class) {
             return deduplicate0(o);
