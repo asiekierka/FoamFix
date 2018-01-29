@@ -35,20 +35,16 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.MathHelper;
-import pl.asie.foamfix.FoamFix;
 
 import java.util.*;
 
 public class PropertyValueMapper {
-	private static final Comparator<? super IProperty<?>> COMPARATOR_BIT_FITNESS = new Comparator<IProperty<?>>() {
-		@Override
-		public int compare(IProperty<?> first, IProperty<?> second) {
-			int diff1 = getPropertyEntry(first).bitSize - first.getAllowedValues().size();
-			int diff2 = getPropertyEntry(second).bitSize - second.getAllowedValues().size();
-			// We want to put properties with higher diff-values last,
-			// so that the array is as small as possible.
-			return diff1 - diff2;
-		}
+	private static final Comparator<? super IProperty<?>> COMPARATOR_BIT_FITNESS = (Comparator<IProperty<?>>) (first, second) -> {
+		int diff1 = getPropertyEntry(first).bitSize - first.getAllowedValues().size();
+		int diff2 = getPropertyEntry(second).bitSize - second.getAllowedValues().size();
+		// We want to put properties with higher diff-values last,
+		// so that the array is as small as possible.
+		return diff1 - diff2;
 	};
 
 	public static class Entry {
@@ -98,7 +94,7 @@ public class PropertyValueMapper {
 	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
 	private final Entry[] entryList;
-	private final TObjectIntMap<IProperty> entryPositionMap;
+	private final TObjectIntMap<String> entryPositionMap;
 	private final IBlockState[] stateMap;
 
 	public PropertyValueMapper(BlockStateContainer container) {
@@ -113,10 +109,11 @@ public class PropertyValueMapper {
 		}
 
 		entryPositionMap = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
+
 		int bitPos = 0;
 		Entry lastEntry = null;
 		for (Entry ee : entryList) {
-			entryPositionMap.put(ee.property, bitPos);
+			entryPositionMap.put(ee.property.getName(), bitPos);
 			bitPos += ee.bits;
 			lastEntry = ee;
 		}
@@ -146,7 +143,7 @@ public class PropertyValueMapper {
 		return e;
 	}
 
-	public int generateValue(IBlockState state) {
+	protected int generateValue(IBlockState state) {
 		int bitPos = 0;
 		int value = 0;
 		for (Entry e : entryList) {
@@ -159,7 +156,7 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(int value, IProperty<T> property, V propertyValue) {
-		int bitPos = entryPositionMap.get(property);
+		int bitPos = entryPositionMap.get(property.getName());
 		if (bitPos >= 0) {
 			Entry e = getPropertyEntry(property);
 			if (e != null) {
@@ -180,7 +177,7 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> int withPropertyValue(int value, IProperty<T> property, V propertyValue) {
-		int bitPos = entryPositionMap.get(property);
+		int bitPos = entryPositionMap.get(property.getName());
 		if (bitPos >= 0) {
 			Entry e = getPropertyEntry(property);
 			if (e != null) {
@@ -197,4 +194,5 @@ public class PropertyValueMapper {
 
 		return -1;
 	}
+
 }

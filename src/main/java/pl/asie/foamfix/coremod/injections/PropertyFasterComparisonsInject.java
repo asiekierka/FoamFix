@@ -29,8 +29,12 @@
 package pl.asie.foamfix.coremod.injections;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyHelper;
+import net.minecraft.util.IStringSerializable;
+import scala.actors.threadpool.Arrays;
 
 import java.util.Collection;
 
@@ -62,6 +66,25 @@ public class PropertyFasterComparisonsInject {
         @Override
         public String getName(Boolean aBoolean) {
             return null;
+        }
+    }
+
+    public static class Enum<T extends java.lang.Enum<T> & IStringSerializable> extends PropertyEnum<T> {
+        protected Enum(String name, Class<T> valueClass, Collection<T> allowedValues) {
+            super(name, valueClass, allowedValues);
+        }
+
+        @Override
+        public boolean equals(Object p_equals_1_) {
+            if (this == p_equals_1_) {
+                return true;
+            } else if (p_equals_1_ instanceof PropertyEnum) {
+                PropertyEnum<?> propertyenum = (PropertyEnum)p_equals_1_;
+                // if valueclasses are equal, nameToValue is also equal unless the mod does something horrifying
+                return this.allowedValues.equals(propertyenum.allowedValues) && (this.getValueClass() == propertyenum.getValueClass() || this.nameToValue.equals(propertyenum.nameToValue));
+            } else {
+                return false;
+            }
         }
     }
 }

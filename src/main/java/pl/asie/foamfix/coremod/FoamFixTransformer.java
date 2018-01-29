@@ -55,19 +55,20 @@ package pl.asie.foamfix.coremod;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.sun.org.apache.bcel.internal.generic.INVOKESPECIAL;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassReader;
 import net.minecraft.launchwrapper.IClassTransformer;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 import pl.asie.foamfix.coremod.patches.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
@@ -123,6 +124,20 @@ public class FoamFixTransformer implements IClassTransformer {
                         MethodNode oldMn = nodeData.methods.get(j);
                         System.out.println("Spliced in METHOD: " + targetClassName + "." + mn.name);
                         nodeData.methods.set(j, mn);
+                        if (nodeData.superName != null && nodeData.name.equals(nodeSplice.superName)) {
+                            ListIterator<AbstractInsnNode> nodeListIterator = mn.instructions.iterator();
+                            while (nodeListIterator.hasNext()) {
+                                AbstractInsnNode node = nodeListIterator.next();
+                                if (node instanceof MethodInsnNode
+                                        && node.getOpcode() == Opcodes.INVOKESPECIAL) {
+                                    MethodInsnNode methodNode = (MethodInsnNode) node;
+                                    if (targetClassName2.equals(methodNode.owner)) {
+                                        methodNode.owner = nodeData.superName;
+                                    }
+                                }
+                            }
+                        }
+
                         oldMn.name = methodList.get((methodList.indexOf(oldMn.name)) & (~1)) + "_foamfix_old";
                         nodeData.methods.add(oldMn);
                         added = true;
@@ -268,9 +283,11 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         if (FoamFixShared.config.geFasterPropertyComparisons) {
-            patchy.addTransformerId("fasterPropertyComparisons_v1");
+            patchy.addTransformerId("fasterPropertyComparisons_v2");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.PropertyFasterComparisonsInject$Bool",
                     true, "equals", "equals", "hashCode", "hashCode"), "net.minecraft.block.properties.PropertyBool");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.PropertyFasterComparisonsInject$Enum",
+                    false, "equals", "equals"), "net.minecraft.block.properties.PropertyEnum");
             for (String s : new String[] { "net.minecraft.block.properties.PropertyInteger", "net.minecraft.block.properties.PropertyEnum" }) {
                 handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingHashCodeInject",
 		                true, "hashCode", "hashCode", "foamfix_hashCode", "foamfix_hashCode", "foamfix_hashCode_calced", "foamfix_hashCode_calced"),

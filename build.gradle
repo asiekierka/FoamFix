@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecrell.licenser'
 
-version = "0.9.0-1.12.2"
+version = "0.9.1-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -25,10 +25,10 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
-    version = "1.12.2-14.23.1.2600"
+    version = "1.12.2-14.23.1.2606"
     runDir = "run"
     
-    mappings = "snapshot_20180121"
+    mappings = "snapshot_20180128"
 
     replace '@VERSION@', project.version
 }
@@ -63,8 +63,8 @@ repositories {
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.12.2:4.8.5.146"
-	compile "org.openjdk.jmh:jmh-generator-annprocess:1.17.4"
+	deobfCompile "mezz.jei:jei_1.12.2:4.8.5.147"
+	compile "org.openjdk.jmh:jmh-generator-annprocess:1.20"
 }
 
 processResources {
