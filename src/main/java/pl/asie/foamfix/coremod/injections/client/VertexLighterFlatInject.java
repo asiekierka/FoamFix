@@ -40,6 +40,8 @@ import pl.asie.foamfix.client.FoamyConstants;
 
 public class VertexLighterFlatInject extends QuadGatheringTransformer {
     protected BlockInfo blockInfo;
+    
+    // lightmap patch
 
     @Override
     protected void processQuad() {

@@ -36,7 +36,10 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import pl.asie.foamfix.FoamFix;
+import scala.tools.cmd.Opt;
 
+import java.lang.invoke.MethodHandle;
 import java.util.*;
 
 /**
@@ -69,7 +72,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 				}
 
 				int newValue = owner.withPropertyValue(value, property, propertyValue);
-				if (newValue == -1) {
+				if (newValue < 0) {
 					throw new IllegalArgumentException("Cannot set property " + property + " because FoamFix could not find a mapping for it! Please reproduce without FoamFix first!");
 				}
 
@@ -91,42 +94,50 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 
 	@Override
 	public <V> IExtendedBlockState withProperty(IUnlistedProperty<V> property, V value) {
-		if (!this.unlistedProperties.containsKey(property)) {
-			throw new IllegalArgumentException("Cannot set unlisted property " + property + " as it does not exist in " + getBlock().getBlockState());
-		}
-
 		if (!property.isValid(value)) {
 			throw new IllegalArgumentException("Cannot set unlisted property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(getBlock()) + ", it is not an allowed value");
 		}
 
-		Map<IUnlistedProperty<?>, Optional<?>> newMap = new HashMap<>(unlistedProperties);
-		newMap.put(property, Optional.ofNullable(value));
+		boolean hasOpt = false;
+		boolean setValue = false;
 
-		if (value != null) {
-			return new FoamyExtendedBlockState(owner, getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
-		} else {
-			for (Optional optional : unlistedProperties.values()) {
-				if (optional.isPresent()) {
-					return new FoamyExtendedBlockState(owner, getBlock(), getProperties(), ImmutableMap.copyOf(newMap), this.value);
-				}
+		// TODO: Call with known initial capacity
+		ImmutableMap.Builder<IUnlistedProperty<?>, Optional<?>> newMap = new ImmutableMap.Builder<>();
+		for (Map.Entry<IUnlistedProperty<?>, Optional<?>> entry : unlistedProperties.entrySet()) {
+			if (entry.getKey().equals(property)) {
+				newMap.put(property, Optional.ofNullable(value));
+				setValue = true;
+			} else {
+				newMap.put(entry.getKey(), entry.getValue());
+				hasOpt |= entry.getValue().isPresent();
 			}
+		}
 
+		if (!setValue) {
+			throw new IllegalArgumentException("Cannot set unlisted property " + property + " as it does not exist in " + getBlock().getBlockState());
+		}
+
+		if (value != null || hasOpt) {
+			return new FoamyExtendedBlockState(owner, getBlock(), getProperties(), newMap.build(), this.value);
+		} else {
 			return (IExtendedBlockState) owner.getPropertyByValue(this.value);
 		}
 	}
 
 	@Override
 	public Collection<IUnlistedProperty<?>> getUnlistedNames() {
-		return Collections.unmodifiableCollection(unlistedProperties.keySet());
+		return unlistedProperties.keySet();
 	}
 
 	@Override
 	public <V> V getValue(IUnlistedProperty<V> property) {
-		if(!this.unlistedProperties.containsKey(property)) {
+		Optional optional = this.unlistedProperties.get(property);
+
+		if (optional == null) {
 			throw new IllegalArgumentException("Cannot get unlisted property " + property + " as it does not exist in " + getBlock().getBlockState());
 		}
 
-		return property.getType().cast(this.unlistedProperties.get(property).orElse(null));
+		return property.getType().cast(optional.orElse(null));
 	}
 
 	@Override
