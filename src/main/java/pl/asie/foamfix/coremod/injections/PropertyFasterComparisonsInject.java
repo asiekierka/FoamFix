@@ -78,9 +78,10 @@ public class PropertyFasterComparisonsInject {
         public boolean equals(Object p_equals_1_) {
             if (this == p_equals_1_) {
                 return true;
-            } else if (p_equals_1_ instanceof PropertyEnum) {
+            } else if (p_equals_1_ instanceof PropertyEnum && super.equals(p_equals_1_)) {
                 PropertyEnum<?> propertyenum = (PropertyEnum)p_equals_1_;
                 // if valueclasses are equal, nameToValue is also equal unless the mod does something horrifying
+                // if valueclasses are equal and allowedValues is not equal, it would have bailed earlier anyway
                 return this.allowedValues.equals(propertyenum.allowedValues) && (this.getValueClass() == propertyenum.getValueClass() || this.nameToValue.equals(propertyenum.nameToValue));
             } else {
                 return false;

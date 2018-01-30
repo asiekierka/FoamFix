@@ -60,7 +60,6 @@ import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.sun.org.apache.bcel.internal.generic.INVOKESPECIAL;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
