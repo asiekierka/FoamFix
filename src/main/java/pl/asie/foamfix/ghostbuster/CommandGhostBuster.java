@@ -49,7 +49,7 @@ public class CommandGhostBuster extends CommandBase {
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (args.length >= 1) {
 			if ("on".equals(args[0])) {
 				ChunkProviderServerWrapped.debugChunkProviding = true;

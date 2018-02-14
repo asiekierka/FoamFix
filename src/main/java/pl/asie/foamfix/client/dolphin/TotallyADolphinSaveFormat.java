@@ -59,7 +59,7 @@ public class TotallyADolphinSaveFormat implements ISaveFormat {
     }
 
     @Override
-    public List<WorldSummary> getSaveList() throws AnvilConverterException {
+    public List<WorldSummary> getSaveList() {
         return Collections.emptyList();
     }
 

@@ -87,7 +87,7 @@ public class BenchmarkResourceLookup {
 		try {
 			return cache.get(location, new Callable<Boolean>() {
 				@Override
-				public Boolean call() throws Exception {
+				public Boolean call() {
 					return DefaultResourcePack.class.getResource("/assets/" + loc.getResourceDomain() + "/" + loc.getResourcePath()) != null || BenchmarkResourceLookup.this.resourceIndex.isFileExisting(loc);
 				}
 			});

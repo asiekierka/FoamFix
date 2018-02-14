@@ -43,7 +43,7 @@ public class ModelVanillaLoaderInject {
 		return model;
 	}
 
-	public IModel loadModel_foamfix_old(ResourceLocation modelLocation) throws Exception {
+	public IModel loadModel_foamfix_old(ResourceLocation modelLocation) {
 		return null;
 	}
 }
