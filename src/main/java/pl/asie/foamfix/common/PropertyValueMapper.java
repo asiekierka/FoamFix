@@ -90,7 +90,6 @@ public class PropertyValueMapper {
 		} */
 	}
 
-	private static final Map<IProperty, Entry> entryNIMap = new HashMap<>();
 	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
 	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
@@ -138,11 +137,7 @@ public class PropertyValueMapper {
 	protected static Entry getPropertyEntry(IProperty property) {
 		Entry e = entryMap.get(property);
 		if (e == null) {
-			e = entryNIMap.get(property);
-			if (e == null) {
-				e = new Entry(property);
-				entryNIMap.put(property, e);
-			}
+			e = new Entry(property);
 			entryMap.put(property, e);
 		}
 		return e;
