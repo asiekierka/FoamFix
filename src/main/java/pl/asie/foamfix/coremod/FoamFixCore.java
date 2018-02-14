@@ -126,8 +126,7 @@ public class FoamFixCore implements IFMLLoadingPlugin {
                 Field transformersField = ReflectionHelper.findField(LaunchClassLoader.class, "transformers");
                 List<IClassTransformer> transformerList = (List<IClassTransformer>) transformersField.get(classLoader);
 
-                for (int i = 0; i < transformerList.size(); i++) {
-                    IClassTransformer transformer = transformerList.get(i);
+                for (IClassTransformer transformer : transformerList) {
                     IClassTransformer parentTransformer = transformer;
                     if (transformer instanceof ASMTransformerWrapper.TransformerWrapper) {
                         Field parentTransformerField = ReflectionHelper.findField(ASMTransformerWrapper.TransformerWrapper.class, "parent");
