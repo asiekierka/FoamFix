@@ -88,7 +88,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Mod(modid = "foamfix", name = "FoamFix", version = "@VERSION@", acceptableRemoteVersions = "*", acceptedMinecraftVersions = "[1.12.2,1.13)",
-dependencies = "required:forge@[14.23.0.2524,);", guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
+dependencies = "required:forge@[14.23.2.2611,);", guiFactory = "pl.asie.foamfix.client.gui.FoamFixGuiFactory")
 public class FoamFix {
     private static Item AIR;
     public static Map<Class<? extends TileEntity>, ResourceLocation> TILE_OVERRIDES = new HashMap<>();

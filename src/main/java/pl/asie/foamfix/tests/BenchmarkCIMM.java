@@ -81,7 +81,7 @@ public class BenchmarkCIMM {
 
 	@Benchmark
 	public void addEntitiesThenLookupFoamy() {
-		FoamyClassInheritanceMultiMap<Entity> cimm2 = new FoamyClassInheritanceMultiMap<Entity>(Entity.class);
+		FoamyClassInheritanceMultiMap<Entity> cimm2 = new FoamyClassInheritanceMultiMap<>(Entity.class);
 		for (int i = 0; i < 100; i++) {
 			cimm2.add(zombies[i]);
 			cimm2.add(items[i]);
