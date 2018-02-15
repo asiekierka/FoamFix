@@ -78,7 +78,7 @@ public class FoamFixConfig {
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
 	public boolean gbPatchBeds, geFasterHopper, geFixWorldEntityCleanup, clDeduplicateIModels;
-	public boolean gbNotifyNonUnloadedWorlds, gbNullNonUnloadedWorlds, gbForgeGCNonUnloaded;
+	public boolean gbNotifyNonUnloadedWorlds, gbForgeGCNonUnloaded;
 	public int gbWorldUnloadTime;
 	public boolean expUnpackBakedQuads;
 	public boolean txEnable, gbEnableWrapper, gbWrapperCountNotifyBlock;
@@ -172,8 +172,7 @@ public class FoamFixConfig {
 		clClearCachesOnUnload = getBoolean("clearCachesOnWorldUnload", "client", true, "Clears caches on world unload a bit faster than usual. Prevents temporary memory leaks. More effective in Anarchy.", true, true);
 
 		gbForgeGCNonUnloaded = getBoolean("nonUnloadedWorldsForceGCOnCheck", "ghostbuster", false, "For FoamFix debugging/development purposes only.", false, false);
-		gbNotifyNonUnloadedWorlds = getBoolean("checkNonUnloadedWorlds", "ghostbuster", true, "Checks if worlds do not unload after a specified amount of time, and notifies the user if that is the case.", true, true);
-		gbNullNonUnloadedWorlds = getBoolean("nullNonUnloadedWorlds", "ghostbuster", false, "Nullifies fields in a non-unloaded world in an attempt to force the garbage collector to unload it. Might help you if you have related problems. Requires checkNonUnloadedWorlds = true.", true, true);
+		gbNotifyNonUnloadedWorlds = getBoolean("checkNonUnloadedWorldClients", "ghostbuster", true, "Checks if worlds do not unload after a specified amount of time, and notifies the user if that is the case.", true, true);
 		gbWorldUnloadTime = getInt("checkNonUnloadedWorldTimeout", "ghostbuster", 60, 10, 3600, "The amount of time FoamFix should wait for a world to be deemed non-unloaded.", true, true);
 
 		if (isCoremod && getBoolean("forceDisable", "coremod", false, "Disables all coremod functionality.", true, true)) {

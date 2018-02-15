@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -41,20 +42,22 @@ import pl.asie.foamfix.shared.FoamFixShared;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+// Actually a client-side world leak detector.
 public class WorldNuller {
 	private final List<UnloadEntry> unload_queue_client = Lists.newArrayList();
-	private final List<UnloadEntry> unload_queue_server = Lists.newArrayList();
+//	private final List<UnloadEntry> unload_queue_server = Lists.newArrayList();
 
 	private WorldNuller() {
 
 	}
 
 	public static void init() {
-		FoamFix.logger.info("Registered server-side world unload notifier!");
-		MinecraftForge.EVENT_BUS.register(new ServerNuller());
+//		FoamFix.logger.info("Registered server-side world unload notifier!");
+//		MinecraftForge.EVENT_BUS.register(new ServerNuller());
 	}
 
 	public static void initClient() {
@@ -67,7 +70,7 @@ public class WorldNuller {
 		if (event.getWorld().isRemote) {
 			unload_queue_client.add(new UnloadEntry(event.getWorld()));
 		} else {
-			unload_queue_server.add(new UnloadEntry(event.getWorld()));
+//			unload_queue_server.add(new UnloadEntry(event.getWorld()));
 		}
 	}
 
@@ -75,7 +78,6 @@ public class WorldNuller {
 		WeakReference<World> worldRef;
 		long timeOfUnload;
 		String name;
-		boolean hasNullified = false;
 
 		UnloadEntry(World world) {
 			this.worldRef = new WeakReference<>(world);
@@ -92,10 +94,9 @@ public class WorldNuller {
 		boolean tick(long now) {
 			long passedTime = now - timeOfUnload;
 			int delay = FoamFixShared.config.gbWorldUnloadTime * 1000;
-			if (hasNullified) delay *= 2;
 			if (passedTime < delay) return false;
 			World world = worldRef.get();
-			if (world != null && (hasNullified || !FoamFixShared.config.gbNullNonUnloadedWorlds) && FoamFixShared.config.gbForgeGCNonUnloaded) {
+			if (world != null && FoamFixShared.config.gbForgeGCNonUnloaded) {
 				world = null;
 				log("Unloaded world " + name + " was not garbage collected, forcing GC as requested...");
 				System.gc();
@@ -107,41 +108,26 @@ public class WorldNuller {
 				return true;
 			}
 			if (world instanceof WorldServer) {
-				for (WorldServer w : FMLCommonHandler.instance().getMinecraftServerInstance().worlds) {
-					if (world == w) {
-						// Don't panic. Minecraft keeps instances of vanilla worlds around.
-						// This is fine. This is absolutely fine.
-						return true;
+				if (DimensionManager.getWorld(world.provider.getDimension()) == world) {
+					return true;
+				}
+
+				MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+				if (server != null && server.worlds != null) {
+					for (WorldServer w : server.worlds) {
+						if (world == w) {
+							// Don't panic. Minecraft keeps instances of vanilla worlds around.
+							// This is fine. This is absolutely fine.
+							return true;
+						}
 					}
 				}
 			}
 			log("Unloaded world " + name + " is still hanging around after " + secs + " seconds.");
 			if (spam) {
 				log("This may be due to a world leak, or there is little memory pressure.");
-				if (FoamFixShared.config.gbNullNonUnloadedWorlds) {
-					log("It is about to have its fields nulled out. Use the relevant FoamFix options to disable this or adjust the wait time.");
-				} else {
-					log("Use the relevant FoamFix options to adjust the wait time.");
-				}
+				log("Use the relevant FoamFix options to adjust the wait time.");
 				spam = false;
-			}
-			if (FoamFixShared.config.gbNullNonUnloadedWorlds && !hasNullified) {
-				for (Field field : world.getClass().getFields()) {
-					field.setAccessible(true);
-					if (Modifier.isStatic(field.getModifiers())) {
-						continue;
-					} else if (field.getType().isPrimitive()) {
-						continue;
-					}
-					try {
-						field.set(world, null);
-					} catch (Throwable e) {
-						e.printStackTrace();
-					}
-				}
-				log("Nullification completed. Will check again.");
-				hasNullified = true;
-				return false;
 			}
 			return true;
 		}
@@ -149,7 +135,7 @@ public class WorldNuller {
 
 	void tick(TickEvent event, boolean server) {
 		if (event.phase != TickEvent.Phase.END) return;
-		List<UnloadEntry> unload_queue = server ? unload_queue_server : unload_queue_client;
+		List<UnloadEntry> unload_queue = server ? Collections.emptyList() : unload_queue_client;
 		if (unload_queue.isEmpty()) return;
 		long now = System.currentTimeMillis();
 		unload_queue.removeIf(e -> e.tick(now));
