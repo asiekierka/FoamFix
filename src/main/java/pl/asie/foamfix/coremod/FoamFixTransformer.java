@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -54,6 +54,7 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -106,6 +107,7 @@ public class FoamFixTransformer implements IClassTransformer {
         ClassNode nodeSplice = new ClassNode();
         readerSplice.accept(new ClassRemapper(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
         for (String s : nodeSplice.interfaces) {
+            System.out.println(s);
             if (s.contains("IFoamFix")) {
                 nodeData.interfaces.add(s);
                 System.out.println("Added INTERFACE: " + s);
@@ -369,6 +371,16 @@ public class FoamFixTransformer implements IClassTransformer {
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.VanillaModelWrapperInject",
                     false,"bakeNormal", "bakeNormal"),
                     "net.minecraftforge.client.model.ModelLoader$VanillaModelWrapper");
+        }
+
+        if (FoamFixShared.config.clClearCachesOnUnload) {
+            patchy.addTransformerId("clearCachesOnUnload_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoClearCacheInject",
+                    true, "foamfix_clear", "foamfix_clear"), "net.minecraftforge.client.model.pipeline.BlockInfo");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.ForgeBlockModelRendererClearCacheInject",
+                    false, "render", "render"), "net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.AnimationModelBaseClearCacheInject",
+                    false, "render", "render"), "net.minecraftforge.client.model.animation.AnimationModelBase");
         }
 
         /* if (FoamFixShared.config.staging4370) {

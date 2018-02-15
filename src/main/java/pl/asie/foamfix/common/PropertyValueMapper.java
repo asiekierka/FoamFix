@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -28,6 +28,7 @@
 
 package pl.asie.foamfix.common;
 
+import com.google.common.collect.Lists;
 import gnu.trove.impl.Constants;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -44,7 +45,11 @@ public class PropertyValueMapper {
 		int diff2 = getPropertyEntry(second).bitSize - second.getAllowedValues().size();
 		// We want to put properties with higher diff-values last,
 		// so that the array is as small as possible.
-		return diff1 - diff2;
+		if (diff1 == diff2) {
+			return first.getName().compareTo(second.getName());
+		} else {
+			return diff1 - diff2;
+		}
 	};
 
 	public static class Entry {
@@ -67,7 +72,23 @@ public class PropertyValueMapper {
 			this.bits = bits;
 			int i = 0;
 
-			for (Object o : property.getAllowedValues()) {
+			/* List<Object> allowedValues = Lists.newArrayList(property.getAllowedValues());
+			Collections.sort(allowedValues, (o1, o2) -> {
+				if (o1 == null || o2 == null) {
+					if (o1 == o2) {
+						return 0;
+					} else if (o1 == null) {
+						return Integer.MIN_VALUE;
+					} else {
+						return Integer.MAX_VALUE;
+					}
+				} else {
+					return o1.hashCode() - o2.hashCode();
+				}
+			}); */
+			Collection<Object> allowedValues = property.getAllowedValues();
+
+			for (Object o : allowedValues) {
 				this.values.put(o, i++);
 			}
 		}
@@ -76,7 +97,7 @@ public class PropertyValueMapper {
 			return values.get(v);
 		}
 
-		/* @Override
+		@Override
 		public boolean equals(Object other) {
 			if (!(other instanceof Entry))
 				return false;
@@ -87,10 +108,9 @@ public class PropertyValueMapper {
 		@Override
 		public int hashCode() {
 			return property.hashCode();
-		} */
+		}
 	}
 
-	private static final Map<IProperty, Entry> entryNIMap = new HashMap<>();
 	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
 	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
@@ -102,7 +122,7 @@ public class PropertyValueMapper {
 		Collection<IProperty<?>> properties = container.getProperties();
 
 		entryList = new Entry[properties.size()];
-		List<IProperty<?>> propertiesSortedFitness = new ArrayList<>(properties);
+		List<IProperty<?>> propertiesSortedFitness = Lists.newArrayList(properties);
 		Collections.sort(propertiesSortedFitness, COMPARATOR_BIT_FITNESS);
 		int i = 0;
 		for (IProperty p : propertiesSortedFitness) {
@@ -138,11 +158,7 @@ public class PropertyValueMapper {
 	protected static Entry getPropertyEntry(IProperty property) {
 		Entry e = entryMap.get(property);
 		if (e == null) {
-			e = entryNIMap.get(property);
-			if (e == null) {
-				e = new Entry(property);
-				entryNIMap.put(property, e);
-			}
+			e = new Entry(property);
 			entryMap.put(property, e);
 		}
 		return e;

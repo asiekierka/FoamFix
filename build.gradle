@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecrell.licenser'
 
-version = "0.9.3-1.12.2"
+version = "0.9.4-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -25,10 +25,10 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
-    version = "1.12.2-14.23.1.2606"
+    version = "1.12.2-14.23.1.2608"
     runDir = "run"
     
-    mappings = "snapshot_20180128"
+    mappings = "snapshot_20180201"
 
     replace '@VERSION@', project.version
 }
@@ -47,6 +47,10 @@ license {
 
 	matching('**/pl/asie/foamfix/api/**') {
 		header = project.file("docs/licenses/LICENSE-API")
+	}
+
+	matching('**/pl/asie/foamfix/common/WorldNuller.java') {
+		header = project.file("docs/licenses/LICENSE-neptunepink")
 	}
 }
 

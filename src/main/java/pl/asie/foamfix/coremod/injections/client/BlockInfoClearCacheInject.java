@@ -28,20 +28,22 @@
 
 package pl.asie.foamfix.coremod.injections.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 
-public class RenderGlobalImmediateInject extends RenderGlobal {
-	public RenderGlobalImmediateInject(Minecraft mcIn) {
-		super(mcIn);
-	}
+/**
+ * Created by asie on 4/4/17.
+ */
+public class BlockInfoClearCacheInject implements IFoamFixBlockInfoClearCacheProxy {
+    private BlockPos blockPos;
+    private IBlockAccess world;
+    private IBlockState state;
 
-	@Override
-	public void notifyLightSet(BlockPos blockpos) {
-		int i = blockpos.getX();
-		int j = blockpos.getY();
-		int k = blockpos.getZ();
-		this.markBlocksForUpdate(i - 1, j - 1, k - 1, i + 1, j + 1, k + 1, false);
-	}
+    @Override
+    public void foamfix_clear() {
+        blockPos = null;
+        world = null;
+        state = null;
+    }
 }

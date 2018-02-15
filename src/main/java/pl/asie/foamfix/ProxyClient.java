@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -53,9 +53,11 @@
  */
 package pl.asie.foamfix;
 
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
@@ -63,16 +65,19 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
+import pl.asie.foamfix.common.WorldNuller;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.FoamUtils;
 import pl.asie.foamfix.util.MethodHandleHelper;
@@ -84,6 +89,8 @@ import java.util.List;
 public class ProxyClient extends ProxyCommon {
 	public static Deduplicator deduplicator = new Deduplicator();
 	public static int bakingStage = 0;
+
+	private static final MethodHandle REGION_CACHE_GETTER = MethodHandleHelper.findFieldGetter(MinecraftForgeClient.class, "regionCache");
 
 	public static final IBakedModel DUMMY_MODEL = new IBakedModel() {
 		private final ItemOverrideList itemOverrideList = ItemOverrideList.NONE;
@@ -120,6 +127,19 @@ public class ProxyClient extends ProxyCommon {
 	};
 
 	private ModelLoaderCleanup cleanup;
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	public void onWorldUnload(WorldEvent.Unload event) {
+		if (FoamFixShared.config.clClearCachesOnUnload && event.getWorld() instanceof WorldClient && REGION_CACHE_GETTER != null) {
+			try {
+				LoadingCache cache = (LoadingCache) (REGION_CACHE_GETTER.invoke());
+				cache.invalidateAll();
+				cache.cleanUp();
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+		}
+	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onModelRegistry(ModelRegistryEvent event) {
@@ -177,6 +197,10 @@ public class ProxyClient extends ProxyCommon {
 	public void init() {
 		super.init();
 		// MinecraftForge.EVENT_BUS.register(PleaseTrustMeLookImADolphin.INSTANCE);
+
+		if (FoamFixShared.config.gbNotifyNonUnloadedWorlds) {
+			WorldNuller.initClient();
+		}
 
 		if (FoamFixShared.config.clCleanRedundantModelRegistry) {
 			MinecraftForge.EVENT_BUS.register(new FoamFixModelRegistryDuplicateWipe());

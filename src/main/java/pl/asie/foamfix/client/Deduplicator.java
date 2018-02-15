@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -105,6 +105,7 @@ import java.util.*;
 @SuppressWarnings("deprecation")
 public class Deduplicator {
     private static final Set<Class> BLACKLIST_CLASS = new TCustomHashSet<>(HashingStrategies.IDENTITY);
+    private static final Set<Class> IMMUTABLE_CLASS = new TCustomHashSet<>(HashingStrategies.IDENTITY);
     private static final Set<Class> TRIM_ARRAYS_CLASSES = new TCustomHashSet<>(HashingStrategies.IDENTITY);
     private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new IdentityHashMap<>();
     private static final Map<Class, MethodHandle> COLLECTION_CONSTRUCTORS = new IdentityHashMap<>();
@@ -462,7 +463,11 @@ public class Deduplicator {
                 }
             }
         } else if (o instanceof Map) {
-            if (o instanceof SortedMap) {
+            for (Object v : ((Map) o).keySet()) {
+                deduplicateObject(v, recursion + 1);
+            }
+
+            if (o instanceof SortedMap || IMMUTABLE_CLASS.contains(c)) {
                 for (Object v : ((Map) o).values()) {
                     deduplicateObject(v, recursion + 1);
                 }
@@ -479,15 +484,27 @@ public class Deduplicator {
                 }
                 return deduplicated ? newMap.build() : o;
             } else {
-                for (Object key : ((Map) o).keySet()) {
-                    Object value = ((Map) o).get(key);
-                    Object valueD = deduplicateObject(value, recursion + 1);
-                    if (valueD != null && value != valueD)
-                        ((Map) o).put(key, valueD);
+                try {
+                    for (Object key : ((Map) o).keySet()) {
+                        Object value = ((Map) o).get(key);
+                        Object valueD = deduplicateObject(value, recursion + 1);
+                        if (valueD != null && value != valueD)
+                            ((Map) o).put(key, valueD);
+                    }
+                } catch (UnsupportedOperationException e) {
+                    IMMUTABLE_CLASS.add(c);
+                    for (Object v : ((Map) o).values()) {
+                        deduplicateObject(v, recursion + 1);
+                    }
                 }
             }
         } else if (o instanceof List) {
-            if (o instanceof ImmutableList) {
+            if (IMMUTABLE_CLASS.contains(c)) {
+                List l = (List) o;
+                for (int i = 0; i < l.size(); i++) {
+                    deduplicateObject(l.get(i), recursion + 1);
+                }
+            } else if (o instanceof ImmutableList) {
                 ImmutableList il = (ImmutableList) o;
                 ImmutableList.Builder builder = ImmutableList.builder();
                 boolean deduplicated = false;
@@ -503,8 +520,15 @@ public class Deduplicator {
                 }
             } else {
                 List l = (List) o;
-                for (int i = 0; i < l.size(); i++) {
-                    l.set(i, deduplicateObject(l.get(i), recursion + 1));
+                try {
+                    for (int i = 0; i < l.size(); i++) {
+                        l.set(i, deduplicateObject(l.get(i), recursion + 1));
+                    }
+                } catch (UnsupportedOperationException e) {
+                    IMMUTABLE_CLASS.add(c);
+                    for (int i = 0; i < l.size(); i++) {
+                        deduplicateObject(l.get(i), recursion + 1);
+                    }
                 }
             }
         } else if (o instanceof ImmutableSet) {
@@ -540,7 +564,7 @@ public class Deduplicator {
                             return nc;
                         }
                     } catch (Throwable t) {
-
+                        COLLECTION_CONSTRUCTORS.put(c, null);
                     }
                 }
             }

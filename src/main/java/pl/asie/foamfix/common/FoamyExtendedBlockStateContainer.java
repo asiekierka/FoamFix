@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -51,5 +51,9 @@ public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
 		} else {
 			return new FoamyExtendedBlockState(PropertyValueMapper.getOrCreate(this), block, properties, unlistedProperties);
 		}
+	}
+
+	protected BlockStateContainer.StateImplementation createState_foamfix_old(Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
+		return null;
 	}
 }

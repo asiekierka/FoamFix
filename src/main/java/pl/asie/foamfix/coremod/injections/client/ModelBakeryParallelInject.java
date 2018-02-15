@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -93,19 +93,18 @@ public class ModelBakeryParallelInject extends ModelBakery {
         IBakedModel missingBaked = missingModel.bake(missingModel.getDefaultState(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
         Map<IModel, IBakedModel> bakedModels = new MapMaker().concurrencyLevel(ForkJoinPool.commonPool().getPoolSize() + 1).initialCapacity(stateModels.size()).makeMap();
         Set<IModel> modelsParallel = new HashSet<>(stateModels.size() - 1);
-        Multimap<IModel, ModelResourceLocation> models = MultimapBuilder.hashKeys().linkedListValues().build();
+        // Multimap<IModel, ModelResourceLocation> models = MultimapBuilder.hashKeys().linkedListValues().build();
 
-        boolean foundFancyMissingModel = false;
         for (Map.Entry<ModelResourceLocation, IModel> modelEntry : stateModels.entrySet()) {
-            if (!foundFancyMissingModel && modelEntry.getValue().getClass().getName().equals("net.minecraftforge.client.model.FancyMissingModel")) {
-                models.put(modelEntry.getValue(), modelEntry.getKey());
-                foundFancyMissingModel = true;
-            } else {
+        //    if (!foundFancyMissingModel && modelEntry.getValue().getClass().getName().equals("net.minecraftforge.client.model.FancyMissingModel")) {
+        //        models.put(modelEntry.getValue(), modelEntry.getKey());
+        //        foundFancyMissingModel = true;
+        //    } else {
                 modelsParallel.add(modelEntry.getValue());
-            }
+        //    }
         }
 
-        ModelLoaderParallelHelper.bake(bakedModels, models, getMissingModel(), missingBaked);
+        // ModelLoaderParallelHelper.bake(bakedModels, models, getMissingModel(), missingBaked);
         ModelLoaderParallelHelper.bakeParallel(bakedModels, modelsParallel, getMissingModel(), missingBaked);
 
         for (Map.Entry<ModelResourceLocation, IModel> e : stateModels.entrySet()) {

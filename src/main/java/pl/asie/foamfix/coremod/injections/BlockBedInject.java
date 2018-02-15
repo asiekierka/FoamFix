@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -41,13 +41,13 @@ public class BlockBedInject extends BlockBed {
         EnumFacing enumfacing = state.getValue(FACING);
 
         if (state.getValue(PART) == BlockBed.EnumPartType.FOOT) {
-            pos = pos.offset(enumfacing);
-            if ((fromPos == null || fromPos.equals(pos)) && worldIn.getBlockState(pos).getBlock() != this) {
+            BlockPos pos2 = pos.offset(enumfacing);
+            if ((fromPos == null || fromPos.equals(pos2)) && worldIn.getBlockState(pos2).getBlock() != this) {
                 worldIn.setBlockToAir(pos);
             }
         } else {
-            pos = pos.offset(enumfacing.getOpposite());
-            if ((fromPos == null || fromPos.equals(pos)) && worldIn.getBlockState(pos).getBlock() != this) {
+            BlockPos pos2 = pos.offset(enumfacing.getOpposite());
+            if ((fromPos == null || fromPos.equals(pos2)) && worldIn.getBlockState(pos2).getBlock() != this) {
                 if (!worldIn.isRemote) {
                     this.dropBlockAsItem(worldIn, pos, state, 0);
                 }

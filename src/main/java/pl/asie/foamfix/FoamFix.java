@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -78,6 +78,7 @@ import pl.asie.foamfix.api.FoamFixAPI;
 import pl.asie.foamfix.client.FastTextureAtlasSprite;
 import pl.asie.foamfix.common.FoamFixHelper;
 import pl.asie.foamfix.common.PropertyValueDeduplicator;
+import pl.asie.foamfix.common.WorldNuller;
 import pl.asie.foamfix.ghostbuster.CommandGhostBuster;
 import pl.asie.foamfix.ghostbuster.GhostBusterEventHandler;
 import pl.asie.foamfix.shared.FoamFixShared;
@@ -139,6 +140,10 @@ public class FoamFix {
 
         if (FoamFixShared.config.gbEnableWrapper) {
             MinecraftForge.EVENT_BUS.register(new GhostBusterEventHandler());
+        }
+
+        if (FoamFixShared.config.gbNotifyNonUnloadedWorlds) {
+            WorldNuller.init();
         }
 
         MinecraftForge.EVENT_BUS.register(proxy);

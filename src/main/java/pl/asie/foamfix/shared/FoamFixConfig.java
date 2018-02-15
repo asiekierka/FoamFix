@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -78,8 +78,11 @@ public class FoamFixConfig {
 	public boolean geSmallPropertyStorage;
 	public boolean twImmediateLightingUpdates;
 	public boolean gbPatchBeds, geFasterHopper, geFixWorldEntityCleanup, clDeduplicateIModels;
+	public boolean gbNotifyNonUnloadedWorlds, gbNullNonUnloadedWorlds, gbForgeGCNonUnloaded;
+	public int gbWorldUnloadTime;
 	public boolean expUnpackBakedQuads;
 	public boolean txEnable, gbEnableWrapper, gbWrapperCountNotifyBlock;
+	public boolean clClearCachesOnUnload;
 	public int txFasterAnimation;
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 
@@ -166,6 +169,12 @@ public class FoamFixConfig {
 		expUnpackBakedQuads = getBoolean("unpackBakedQuads", "experimental", false, "Unpacks all baked quads. Increases RAM usage, but might speed some things up.", false, true);
 		gbEnableWrapper = getBoolean("enableDebuggingWrapper", "ghostbuster", false, "Wrap ChunkProviderServers to be able to provide the /ghostbuster command for debugging ghost chunkloads.", true, true);
 		gbWrapperCountNotifyBlock = getBoolean("wrapperShowsNeighborUpdates", "ghostbuster", false, "Should the /ghostbuster debugger show neighbor updates?", false, true);
+		clClearCachesOnUnload = getBoolean("clearCachesOnWorldUnload", "client", true, "Clears caches on world unload a bit faster than usual. Prevents temporary memory leaks. More effective in Anarchy.", true, true);
+
+		gbForgeGCNonUnloaded = getBoolean("nonUnloadedWorldsForceGCOnCheck", "ghostbuster", false, "For FoamFix debugging/development purposes only.", false, false);
+		gbNotifyNonUnloadedWorlds = getBoolean("checkNonUnloadedWorlds", "ghostbuster", true, "Checks if worlds do not unload after a specified amount of time, and notifies the user if that is the case.", true, true);
+		gbNullNonUnloadedWorlds = getBoolean("nullNonUnloadedWorlds", "ghostbuster", false, "Nullifies fields in a non-unloaded world in an attempt to force the garbage collector to unload it. Might help you if you have related problems. Requires checkNonUnloadedWorlds = true.", true, true);
+		gbWorldUnloadTime = getInt("checkNonUnloadedWorldTimeout", "ghostbuster", 60, 10, 3600, "The amount of time FoamFix should wait for a world to be deemed non-unloaded.", true, true);
 
 		if (isCoremod && getBoolean("forceDisable", "coremod", false, "Disables all coremod functionality.", true, true)) {
 			isCoremod = false;

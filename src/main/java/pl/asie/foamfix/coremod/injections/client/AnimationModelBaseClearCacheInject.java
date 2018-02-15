@@ -28,20 +28,24 @@
 
 package pl.asie.foamfix.coremod.injections.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 
-public class RenderGlobalImmediateInject extends RenderGlobal {
-	public RenderGlobalImmediateInject(Minecraft mcIn) {
-		super(mcIn);
+public class AnimationModelBaseClearCacheInject {
+	private VertexLighterFlat lighter;
+
+	public void render(Entity entity, float limbSwing, float limbSwingSpeed, float timeAlive, float yawHead, float rotationPitch, float scale) {
+		render_foamfix_old(entity, limbSwing, limbSwingSpeed, timeAlive, yawHead, rotationPitch, scale);
+		if (lighter instanceof IFoamFixBlockInfoClearCacheProxy) {
+			((IFoamFixBlockInfoClearCacheProxy) lighter).foamfix_clear();
+		}
 	}
 
-	@Override
-	public void notifyLightSet(BlockPos blockpos) {
-		int i = blockpos.getX();
-		int j = blockpos.getY();
-		int k = blockpos.getZ();
-		this.markBlocksForUpdate(i - 1, j - 1, k - 1, i + 1, j + 1, k + 1, false);
+	public void render_foamfix_old(Entity entity, float limbSwing, float limbSwingSpeed, float timeAlive, float yawHead, float rotationPitch, float scale) {
 	}
 }

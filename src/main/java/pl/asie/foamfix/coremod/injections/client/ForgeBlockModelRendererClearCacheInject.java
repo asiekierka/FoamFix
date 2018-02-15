@@ -28,20 +28,27 @@
 
 package pl.asie.foamfix.coremod.injections.client;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 
-public class RenderGlobalImmediateInject extends RenderGlobal {
-	public RenderGlobalImmediateInject(Minecraft mcIn) {
-		super(mcIn);
+import java.util.List;
+
+public class ForgeBlockModelRendererClearCacheInject {
+	public static boolean render(VertexLighterFlat lighter, IBlockAccess world, IBakedModel model, IBlockState state, BlockPos pos, BufferBuilder wr, boolean checkSides, long rand) {
+		boolean result = render_foamfix_old(lighter, world, model, state, pos, wr, checkSides, rand);
+		if (lighter instanceof IFoamFixBlockInfoClearCacheProxy) {
+			((IFoamFixBlockInfoClearCacheProxy) lighter).foamfix_clear();
+		}
+		return result;
 	}
 
-	@Override
-	public void notifyLightSet(BlockPos blockpos) {
-		int i = blockpos.getX();
-		int j = blockpos.getY();
-		int k = blockpos.getZ();
-		this.markBlocksForUpdate(i - 1, j - 1, k - 1, i + 1, j + 1, k + 1, false);
+	public static boolean render_foamfix_old(VertexLighterFlat lighter, IBlockAccess world, IBakedModel model, IBlockState state, BlockPos pos, BufferBuilder wr, boolean checkSides, long rand) {
+		return false;
 	}
 }
