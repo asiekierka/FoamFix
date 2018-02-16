@@ -69,6 +69,7 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.ClassReader;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.*;
+import pl.asie.foamfix.coremod.injections.crafting.ContainerPatchCrafting;
 import pl.asie.foamfix.coremod.patches.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.*;
@@ -381,6 +382,17 @@ public class FoamFixTransformer implements IClassTransformer {
                     false, "render", "render"), "net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.AnimationModelBaseClearCacheInject",
                     false, "render", "render"), "net.minecraftforge.client.model.animation.AnimationModelBase");
+        }
+
+        if (FoamFixShared.config.geCacheShiftCrafting) {
+            patchy.addTransformerId("cacheShiftCrafting_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.crafting.InventoryCraftResultInject",
+                    true,
+                    "setRecipeUsed", "func_193056_a",
+                    "foamfix_lastRecipeUsed", "foamfix_lastRecipeUsed",
+                    "foamfix_getLastRecipeUsed", "foamfix_getLastRecipeUsed"),
+                    "net.minecraft.inventory.InventoryCraftResult");
+            handlerCN.add(new ContainerPatchCrafting(), "net.minecraft.inventory.Container");
         }
 
         /* if (FoamFixShared.config.staging4370) {
