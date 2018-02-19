@@ -70,7 +70,7 @@ import java.util.Set;
 public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwRemovePackageManifestMap;
 	public boolean geDeduplicate, clWipeModelCache, clCleanRedundantModelRegistry, clDynamicItemModels;
-	public boolean clFasterVertexLighter, clInitOptions, clModelLoaderCleanup;
+	public boolean clInitOptions, clModelLoaderCleanup;
 	public boolean clParallelModelBaking, clDisableTextureAnimations;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, geFasterEntityLookup, geFasterPropertyComparisons, geFasterAirLookup, geFasterEntityDataManager;
@@ -214,7 +214,6 @@ public class FoamFixConfig {
 
 			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
 			clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.", true, false);
-			clFasterVertexLighter = getBoolean("fasterVertexLighter", "experimental", true, "Implements optimizations to VertexLighter(Flat) inspired by thecodewarrior and bs2609's work.", true, true);
 			// clTextureDoubleBuffering = getBoolean("textureDoubleBuffering", "experimental", true, "Makes texture animations double-buffered, letting the GPU process them independently of scene rendering.");
 			twImmediateLightingUpdates = getBoolean("immediateLightingUpdates", "tweaks", false, "Do not delay lighting updates over other types of updates.", true, true);
 			geBlacklistLibraryTransformers = getBoolean("blacklistLibraryTransformers", "coremod", true, "Stops certain non-Minecraft-related libraries from being ASM transformed. You shouldn't be transforming those anyway.", true, true);
