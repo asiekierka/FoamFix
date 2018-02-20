@@ -63,11 +63,12 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -78,6 +79,7 @@ import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.common.WorldNuller;
 import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.foamfix.util.FoamUtils;
 import pl.asie.foamfix.util.MethodHandleHelper;
 
 import javax.annotation.Nullable;
@@ -212,14 +214,6 @@ public class ProxyClient extends ProxyCommon {
 	@Override
 	public void postInit() {
 		super.postInit();
-/*
-		MethodHandle h = MethodHandleHelper.findFieldSetter(ForgeBlockModelRenderer.class, "lighterSmooth");
-		try {
-			h.invoke((ForgeBlockModelRenderer) Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer(), ThreadLocal.withInitial(() -> new VertexLighterSmoothAoMinimum(Minecraft.getMinecraft().getBlockColors())));
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-*/
 	}
 
 	@Override

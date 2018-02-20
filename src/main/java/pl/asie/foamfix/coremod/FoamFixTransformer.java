@@ -258,6 +258,15 @@ public class FoamFixTransformer implements IClassTransformer {
 		            false, "setupModelRegistry", "func_177570_a"), "net.minecraftforge.client.model.ModelLoader");
         }
 
+        if (FoamFixShared.config.clFasterVertexLighter) {
+            patchy.addTransformerId("fasterVertexLighter_v2");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoInject",
+                            true, "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS"), "net.minecraftforge.client.model.pipeline.BlockInfo");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.VertexLighterFlatInject",
+                    true, "updateLightmap", "updateLightmap", "updateBlockInfo", "updateBlockInfo"),
+                    "net.minecraftforge.client.model.pipeline.VertexLighterFlat");
+        }
+
         if (FoamFixShared.config.geBlockPosPatch) {
             patchy.addTransformerId("blockPosPatch_v1");
             handlerCN.add(BlockPosPatch::patchVec3i, "net.minecraft.util.math.Vec3i");
