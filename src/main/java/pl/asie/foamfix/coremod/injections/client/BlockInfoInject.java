@@ -29,18 +29,20 @@
 package pl.asie.foamfix.coremod.injections.client;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
  * Created by asie on 4/4/17.
  */
-public class BlockInfoInject implements IFoamFixBlockInfoDataProxy {
+public class BlockInfoInject implements IFoamFixPatchedBlockInfo {
     private BlockPos blockPos;
     private IBlockAccess world;
     private IBlockState state;
     private final int[][][] s = new int[3][3][3];
     private final int[][][] b = new int[3][3][3];
+    private final float[][][] ao = new float[3][3][3];
 
     @Override
     public int[][][] getRawS() {
@@ -53,14 +55,13 @@ public class BlockInfoInject implements IFoamFixBlockInfoDataProxy {
     }
 
     @Override
-    public void updateRawBS() {
+    public void updateAO() {
         for (int x = 0; x <= 2; x++)
             for (int y = 0; y <= 2; y++)
                 for (int z = 0; z <= 2; z++) {
                     BlockPos pos = blockPos.add(x - 1, y - 1, z - 1);
-                    int brightness = state.getPackedLightmapCoords(world, pos);
-                    s[x][y][z] = (brightness >> 0x14) & 0xF;
-                    b[x][y][z] = (brightness >> 0x04) & 0xF;
+                    IBlockState state = world.getBlockState(pos);
+                    ao[x][y][z] = state.getAmbientOcclusionLightValue();
                 }
     }
 }

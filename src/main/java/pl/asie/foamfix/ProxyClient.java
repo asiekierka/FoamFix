@@ -58,6 +58,7 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
@@ -69,15 +70,19 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer;
+import net.minecraftforge.client.model.pipeline.VertexLighterSmoothAo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.common.WorldNuller;
+import pl.asie.foamfix.coremod.injections.VertexLighterSmoothAoCheap;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.FoamUtils;
 import pl.asie.foamfix.util.MethodHandleHelper;
@@ -151,6 +156,37 @@ public class ProxyClient extends ProxyCommon {
 		bakingStage = 1;
 
 		FoamFixModelDeduplicate.INSTANCE.onModelBake(event);
+	}
+
+	private static final MethodHandle SMOOTH_LIGHT_GETTER = MethodHandleHelper.findFieldGetter(ForgeBlockModelRenderer.class, "lighterSmooth");
+	private static final MethodHandle SMOOTH_LIGHT_SETTER = MethodHandleHelper.findFieldSetter(ForgeBlockModelRenderer.class, "lighterSmooth");
+	private boolean isUsingMinimumLighter;
+
+	@SubscribeEvent
+	public void onTick(TickEvent.ClientTickEvent event) {
+		if (event.phase == TickEvent.Phase.END && FoamFixShared.isCoremod) {
+			updateSmoothLighting();
+		}
+	}
+
+	public void updateSmoothLighting() {
+		BlockModelRenderer bmr = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
+		if (bmr instanceof ForgeBlockModelRenderer && Minecraft.getMinecraft().world == null) {
+			boolean newUse = (Minecraft.getMinecraft().gameSettings.ambientOcclusion == 1);
+			newUse &= FoamFixShared.config.clCheapMinimumLighter;
+
+			if (isUsingMinimumLighter != newUse) {
+				isUsingMinimumLighter = newUse;
+
+				try {
+					SMOOTH_LIGHT_SETTER.invoke(Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer(),
+							isUsingMinimumLighter ? ThreadLocal.withInitial(() -> new VertexLighterSmoothAoCheap(Minecraft.getMinecraft().getBlockColors()))
+							: ThreadLocal.withInitial(() -> new VertexLighterSmoothAo(Minecraft.getMinecraft().getBlockColors())));
+				} catch (Throwable t) {
+					t.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override

@@ -54,7 +54,6 @@
 package pl.asie.foamfix.coremod;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -258,13 +257,10 @@ public class FoamFixTransformer implements IClassTransformer {
 		            false, "setupModelRegistry", "func_177570_a"), "net.minecraftforge.client.model.ModelLoader");
         }
 
-        if (FoamFixShared.config.clFasterVertexLighter) {
-            patchy.addTransformerId("fasterVertexLighter_v2");
+        if (FoamFixShared.config.clCheapMinimumLighter) {
+            patchy.addTransformerId("cheapMinimumLighter_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoInject",
-                            true, "getRawB", "getRawB", "getRawS", "getRawS", "updateRawBS", "updateRawBS"), "net.minecraftforge.client.model.pipeline.BlockInfo");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.VertexLighterFlatInject",
-                    true, "updateLightmap", "updateLightmap", "updateBlockInfo", "updateBlockInfo"),
-                    "net.minecraftforge.client.model.pipeline.VertexLighterFlat");
+                            true, "getRawB", "getRawB", "getRawS", "getRawS", "updateAO", "updateAO"), "net.minecraftforge.client.model.pipeline.BlockInfo");
         }
 
         if (FoamFixShared.config.geBlockPosPatch) {

@@ -28,9 +28,8 @@
 
 package pl.asie.foamfix.coremod.injections.client;
 
-public interface IFoamFixBlockInfoDataProxy {
+public interface IFoamFixPatchedBlockInfo {
     int[][][] getRawS();
     int[][][] getRawB();
-
-    void updateRawBS();
+    void updateAO();
 }
