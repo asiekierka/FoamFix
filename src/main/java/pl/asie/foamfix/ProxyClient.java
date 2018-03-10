@@ -82,6 +82,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.common.WorldNuller;
+import pl.asie.foamfix.coremod.VertexLighterOverrideHandler;
 import pl.asie.foamfix.coremod.injections.VertexLighterSmoothAoCheap;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.FoamUtils;
@@ -158,40 +159,17 @@ public class ProxyClient extends ProxyCommon {
 		FoamFixModelDeduplicate.INSTANCE.onModelBake(event);
 	}
 
-	private static final MethodHandle SMOOTH_LIGHT_GETTER = MethodHandleHelper.findFieldGetter(ForgeBlockModelRenderer.class, "lighterSmooth");
-	private static final MethodHandle SMOOTH_LIGHT_SETTER = MethodHandleHelper.findFieldSetter(ForgeBlockModelRenderer.class, "lighterSmooth");
-	private boolean isUsingMinimumLighter;
-
-	@SubscribeEvent
-	public void onTick(TickEvent.ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.END && FoamFixShared.isCoremod) {
-			updateSmoothLighting();
-		}
-	}
-
-	public void updateSmoothLighting() {
-		BlockModelRenderer bmr = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
-		if (bmr instanceof ForgeBlockModelRenderer && Minecraft.getMinecraft().world == null) {
-			boolean newUse = (Minecraft.getMinecraft().gameSettings.ambientOcclusion == 1);
-			newUse &= FoamFixShared.config.clCheapMinimumLighter;
-
-			if (isUsingMinimumLighter != newUse) {
-				isUsingMinimumLighter = newUse;
-
-				try {
-					SMOOTH_LIGHT_SETTER.invoke(Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer(),
-							isUsingMinimumLighter ? ThreadLocal.withInitial(() -> new VertexLighterSmoothAoCheap(Minecraft.getMinecraft().getBlockColors()))
-							: ThreadLocal.withInitial(() -> new VertexLighterSmoothAo(Minecraft.getMinecraft().getBlockColors())));
-				} catch (Throwable t) {
-					t.printStackTrace();
-				}
-			}
-		}
-	}
-
 	@Override
 	public void preInit() {
 		super.preInit();
+
+		if (FoamFixShared.isCoremod) {
+			try {
+				MinecraftForge.EVENT_BUS.register(Class.forName("pl.asie.foamfix.coremod.VertexLighterOverrideHandler").newInstance());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
 		if (!FoamFixShared.config.geDeduplicate) {
 			deduplicator = null;
