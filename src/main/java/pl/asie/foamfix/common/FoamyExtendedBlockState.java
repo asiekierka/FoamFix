@@ -37,7 +37,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import pl.asie.foamfix.FoamFix;
-import scala.tools.cmd.Opt;
 
 import java.lang.invoke.MethodHandle;
 import java.util.*;

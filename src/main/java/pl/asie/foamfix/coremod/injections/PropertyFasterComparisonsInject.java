@@ -34,7 +34,6 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyHelper;
 import net.minecraft.util.IStringSerializable;
-import scala.actors.threadpool.Arrays;
 
 import java.util.Collection;
 
