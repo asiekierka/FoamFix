@@ -30,6 +30,7 @@ package pl.asie.foamfix.coremod.injections.crafting;
 
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.item.crafting.IRecipe;
+import pl.asie.foamfix.shared.FoamFixShared;
 
 import javax.annotation.Nullable;
 
@@ -40,8 +41,6 @@ public class InventoryCraftResultInject extends InventoryCraftResult implements 
 	public void setRecipeUsed(@Nullable IRecipe r) {
 		if (r != null) {
 			this.foamfix_lastRecipeUsed = r;
-		} else if (getRecipeUsed() != null) {
-			this.foamfix_lastRecipeUsed = getRecipeUsed();
 		}
 		setRecipeUsed_foamfix_old(r);
 	}

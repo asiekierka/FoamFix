@@ -67,6 +67,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -122,6 +123,7 @@ public class FoamFix {
         stage = 0;
 
         FoamFixShared.config.init(event.getSuggestedConfigurationFile(), false);
+        FoamFixShared.fastWorkbenchLoaded = Loader.isModLoaded("fastbench");
 
         MinecraftForge.EVENT_BUS.register(proxy);
 
