@@ -81,6 +81,7 @@ public class FoamFixConfig {
 	public boolean gbPatchBeds, geFasterHopper, geFixWorldEntityCleanup, clDeduplicateIModels;
 	public boolean gbNotifyNonUnloadedWorlds, gbForgeGCNonUnloaded;
 	public int gbWorldUnloadTime;
+	public boolean dbgCountModels;
 	public boolean expUnpackBakedQuads;
 	public boolean txEnable, gbEnableWrapper, gbWrapperCountNotifyBlock;
 	public boolean clClearCachesOnUnload;
@@ -159,6 +160,8 @@ public class FoamFixConfig {
 		boolean oldExpUnpackBakedQuads = expUnpackBakedQuads;
 		boolean oldClDeduplicateIModels = clDeduplicateIModels;
 		boolean oldClJeiCreativeSearch = clJeiCreativeSearch;
+
+		dbgCountModels = getBoolean("countListBakedModels", "debug", false, "Should FoamFix count and list baked models during deduplication, per mod?", false, false);
 
 		lwWeakenResourceCache = getBoolean("weakenResourceCache", "launchwrapper", true, "Weaken LaunchWrapper's byte[] resource cache to make it cleanuppable by the GC. Safe.", true, true);
 		lwRemovePackageManifestMap = getBoolean("removePackageManifestMap", "launchwrapper", true, "Remove Launchwrapper package manifest map (which is not used anyway).", true, true);

@@ -55,6 +55,8 @@ package pl.asie.foamfix.client;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -77,9 +79,10 @@ import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.FoamUtils;
 import pl.asie.foamfix.util.MethodHandleHelper;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 public final class FoamFixModelDeduplicate {
     public static final FoamFixModelDeduplicate INSTANCE = new FoamFixModelDeduplicate();
@@ -88,8 +91,62 @@ public final class FoamFixModelDeduplicate {
 
     }
 
+    private void debugCountModels(ModelBakeEvent event) {
+        List<String> bmNames = new ArrayList<>();
+        TObjectIntMap<String> bmCountMod = new TObjectIntHashMap<>();
+        TObjectIntMap<String> bmCountVariant = new TObjectIntHashMap<>();
+
+        for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
+            bmNames.add(loc.toString());
+            bmCountMod.adjustOrPutValue(loc.getResourceDomain(), 1, 1);
+            bmCountVariant.adjustOrPutValue(loc.getResourceDomain() + ":" + loc.getResourcePath(), 1, 1);
+        }
+
+        List<String> bmCountModKeys = new ArrayList<>(bmCountMod.keySet());
+        List<String> bmCountVariantKeys = new ArrayList<>(bmCountVariant.keySet());
+
+        bmNames.sort(Comparator.naturalOrder());
+        bmCountModKeys.sort(Comparator.comparingInt(bmCountMod::get).reversed());
+        bmCountVariantKeys.sort(Comparator.comparingInt(bmCountVariant::get).reversed());
+
+        try {
+            File outFile = new File("foamfixBakedModelNames.txt");
+            PrintWriter writer = new PrintWriter(outFile);
+
+            for (String s : bmNames) {
+                writer.println(s);
+            }
+
+            writer.close();
+
+            outFile = new File("foamfixBakedModelCountsPerMod.txt");
+            writer = new PrintWriter(outFile);
+
+            for (String s : bmCountModKeys) {
+                writer.println(s + ": " + bmCountMod.get(s));
+            }
+
+            writer.close();
+
+            outFile = new File("foamfixBakedModelCountsPerBlock.txt");
+            writer = new PrintWriter(outFile);
+
+            for (String s : bmCountVariantKeys) {
+                writer.println(s + ": " + bmCountVariant.get(s));
+            }
+
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onModelBake(ModelBakeEvent event) {
+        if (FoamFixShared.config.dbgCountModels) {
+            debugCountModels(event);
+        }
+
         Map<ResourceLocation, IModel> cache;
 
         try {
