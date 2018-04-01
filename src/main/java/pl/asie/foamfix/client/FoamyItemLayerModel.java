@@ -37,6 +37,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -91,6 +92,77 @@ public class FoamyItemLayerModel implements IModel {
         OVERRIDES_GET = handle;
     }
 
+    public static class Static3DItemModel implements IBakedModel {
+        private final ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms;
+        private final VertexFormat format;
+        private final TextureAtlasSprite particle;
+        private final ItemOverrideList overrides;
+        private final List<TextureAtlasSprite> textures;
+        private final Optional<TRSRTransformation> transform;
+
+        private SoftReference<List<BakedQuad>> quadsSoft = null;
+
+        public Static3DItemModel(ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> transforms,
+                                 VertexFormat format, TextureAtlasSprite particle, ItemOverrideList overrides,
+                                 List<TextureAtlasSprite> textures, Optional<TRSRTransformation> transform) {
+            this.transforms = transforms;
+            this.format = format;
+            this.particle = particle;
+            this.overrides = overrides;
+            this.textures = textures;
+            this.transform = transform;
+        }
+
+        @Override
+        public Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType type) {
+            Pair<? extends IBakedModel, Matrix4f> pair = PerspectiveMapWrapper.handlePerspective(this, transforms, type);
+
+            return pair;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
+            if (quadsSoft == null || quadsSoft.get() == null) {
+                ImmutableList.Builder<BakedQuad> builder = new ImmutableList.Builder<>();
+
+                for (int i = 0; i <  textures.size(); i++) {
+                    TextureAtlasSprite sprite = textures.get(i);
+                    builder.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, format, transform));
+                }
+
+                quadsSoft = new SoftReference<>(builder.build());
+            }
+
+            return side == null ? quadsSoft.get() : Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public boolean isAmbientOcclusion() {
+            return true;
+        }
+
+        @Override
+        public boolean isGui3d() {
+            return false;
+        }
+
+        @Override
+        public boolean isBuiltInRenderer() {
+            return false;
+        }
+
+        @Override
+        public TextureAtlasSprite getParticleTexture() {
+            return particle;
+        }
+
+        @Override
+        public ItemOverrideList getOverrides() {
+            return overrides;
+        }
+    }
+
     public static class Dynamic3DItemModel implements IBakedModel {
         private final DynamicItemModel parent;
         private SoftReference<List<BakedQuad>> quadsSoft = null;
@@ -121,7 +193,7 @@ public class FoamyItemLayerModel implements IModel {
                     builder.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, parent.format, parent.transform));
                 }
 
-                quadsSoft = new SoftReference<List<BakedQuad>>(builder.build());
+                quadsSoft = new SoftReference<>(builder.build());
             }
 
             return side == null ? quadsSoft.get() : Collections.EMPTY_LIST;
@@ -245,40 +317,14 @@ public class FoamyItemLayerModel implements IModel {
     }
 
     public static IBakedModel bakeStatic(ItemLayerModel parent, final IModelState state, final VertexFormat format, final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
+        ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> map = PerspectiveMapWrapper.getTransforms(state);
+        TRSRTransformation guiTransform = map.get(ItemCameraTransforms.TransformType.GUI);
+
         ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
         Optional<TRSRTransformation> transform = state.apply(Optional.empty());
         List<ResourceLocation> textures = (List<ResourceLocation>) parent.getTextures();
         ImmutableList.Builder<TextureAtlasSprite> textureAtlas = new ImmutableList.Builder<>();
-
-        if (BUILD_QUAD != null) {
-            // Fast route!
-            for (int i = 0; i < textures.size(); i++) {
-                TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
-                textureAtlas.add(sprite);
-                try {
-                    builder.add((BakedQuad) BUILD_QUAD.invokeExact(format, transform, EnumFacing.SOUTH, sprite, i,
-                            0f, 0f, 8.5f / 16f, (float) sprite.getMinU(), (float) sprite.getMaxV(),
-                            1f, 0f, 8.5f / 16f, (float) sprite.getMaxU(), (float) sprite.getMaxV(),
-                            1f, 1f, 8.5f / 16f, (float) sprite.getMaxU(), (float) sprite.getMinV(),
-                            0f, 1f, 8.5f / 16f, (float) sprite.getMinU(), (float) sprite.getMinV()
-                    ));
-                } catch (Throwable t) {
-                    throw new RuntimeException(t);
-                }
-            }
-        } else {
-            // Slow fallback route :-(
-            for (int i = 0; i < textures.size(); i++) {
-                TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
-                for (BakedQuad quad : ItemLayerModel.getQuadsForSprite(i, sprite, format, transform)) {
-                    if (quad.getFace() == EnumFacing.SOUTH)
-                        builder.add(quad);
-                }
-            }
-        }
-
         TextureAtlasSprite particle = bakedTextureGetter.apply(textures.isEmpty() ? MISSINGNO : textures.get(0));
-        ImmutableMap<ItemCameraTransforms.TransformType, TRSRTransformation> map = PerspectiveMapWrapper.getTransforms(state);
         ItemOverrideList list;
         try {
             list = (ItemOverrideList) OVERRIDES_GET.invokeExact(parent);
@@ -286,8 +332,40 @@ public class FoamyItemLayerModel implements IModel {
             throw new RuntimeException(t);
         }
 
-        // This returns otherModel because the 3D model is default
-        return new DynamicItemModel(builder.build(), particle, map, list, textureAtlas.build(), format, transform).otherModel;
+        if (guiTransform != null && !guiTransform.isIdentity()) {
+            // Have only 3D model
+            return new Static3DItemModel(map, format, particle, list, textureAtlas.build(), transform);
+        } else {
+            if (BUILD_QUAD != null) {
+                // Fast route!
+                for (int i = 0; i < textures.size(); i++) {
+                    TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
+                    textureAtlas.add(sprite);
+                    try {
+                        builder.add((BakedQuad) BUILD_QUAD.invokeExact(format, transform, EnumFacing.SOUTH, sprite, i,
+                                0f, 0f, 8.5f / 16f, (float) sprite.getMinU(), (float) sprite.getMaxV(),
+                                1f, 0f, 8.5f / 16f, (float) sprite.getMaxU(), (float) sprite.getMaxV(),
+                                1f, 1f, 8.5f / 16f, (float) sprite.getMaxU(), (float) sprite.getMinV(),
+                                0f, 1f, 8.5f / 16f, (float) sprite.getMinU(), (float) sprite.getMinV()
+                        ));
+                    } catch (Throwable t) {
+                        throw new RuntimeException(t);
+                    }
+                }
+            } else {
+                // Slow fallback route :-(
+                for (int i = 0; i < textures.size(); i++) {
+                    TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
+                    for (BakedQuad quad : ItemLayerModel.getQuadsForSprite(i, sprite, format, transform)) {
+                        if (quad.getFace() == EnumFacing.SOUTH)
+                            builder.add(quad);
+                    }
+                }
+            }
+
+            // This returns otherModel because the 3D model is default
+            return new DynamicItemModel(builder.build(), particle, map, list, textureAtlas.build(), format, transform).otherModel;
+        }
     }
 
     @Override
