@@ -126,7 +126,7 @@ public class FoamyItemLayerModel implements IModel {
             if (quadsSoft == null || quadsSoft.get() == null) {
                 ImmutableList.Builder<BakedQuad> builder = new ImmutableList.Builder<>();
 
-                for (int i = 0; i <  textures.size(); i++) {
+                for (int i = 0; i < textures.size(); i++) {
                     TextureAtlasSprite sprite = textures.get(i);
                     builder.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, format, transform));
                 }
@@ -334,6 +334,11 @@ public class FoamyItemLayerModel implements IModel {
 
         if (guiTransform != null && !guiTransform.isIdentity()) {
             // Have only 3D model
+            for (int i = 0; i < textures.size(); i++) {
+                TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
+                textureAtlas.add(sprite);
+            }
+
             return new Static3DItemModel(map, format, particle, list, textureAtlas.build(), transform);
         } else {
             if (BUILD_QUAD != null) {
@@ -356,6 +361,8 @@ public class FoamyItemLayerModel implements IModel {
                 // Slow fallback route :-(
                 for (int i = 0; i < textures.size(); i++) {
                     TextureAtlasSprite sprite = bakedTextureGetter.apply(textures.get(i));
+                    textureAtlas.add(sprite);
+
                     for (BakedQuad quad : ItemLayerModel.getQuadsForSprite(i, sprite, format, transform)) {
                         if (quad.getFace() == EnumFacing.SOUTH)
                             builder.add(quad);
