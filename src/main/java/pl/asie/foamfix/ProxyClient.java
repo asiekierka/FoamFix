@@ -96,8 +96,6 @@ public class ProxyClient extends ProxyCommon {
 	public static Deduplicator deduplicator = new Deduplicator();
 	public static int bakingStage = 0;
 
-	private static final MethodHandle REGION_CACHE_GETTER = MethodHandleHelper.findFieldGetter(MinecraftForgeClient.class, "regionCache");
-
 	public static final IBakedModel DUMMY_MODEL = new IBakedModel() {
 		private final ItemOverrideList itemOverrideList = ItemOverrideList.NONE;
 
@@ -133,19 +131,6 @@ public class ProxyClient extends ProxyCommon {
 	};
 
 	private ModelLoaderCleanup cleanup;
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onWorldUnload(WorldEvent.Unload event) {
-		if (FoamFixShared.config.clClearCachesOnUnload && event.getWorld() instanceof WorldClient && REGION_CACHE_GETTER != null) {
-			try {
-				LoadingCache cache = (LoadingCache) (REGION_CACHE_GETTER.invoke());
-				cache.invalidateAll();
-				cache.cleanUp();
-			} catch (Throwable t) {
-				t.printStackTrace();
-			}
-		}
-	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onModelRegistry(ModelRegistryEvent event) {

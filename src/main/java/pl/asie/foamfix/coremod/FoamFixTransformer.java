@@ -319,12 +319,6 @@ public class FoamFixTransformer implements IClassTransformer {
             handlerCN.add(new WorldServerRemovalPatch(), "net.minecraft.world.WorldServer");
         }
 
-        if (FoamFixShared.config.staging4305) {
-            patchy.addTransformerId("staging4305_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.staging.Patch4305",
-		            true, "diffuseLight", "diffuseLight"), "net.minecraftforge.client.model.pipeline.LightUtil");
-        }
-
         if (FoamFixShared.config.txEnable) {
             patchy.addTransformerId("fastTextureAtlasSprite_v1");
             handlerCV.add(new ConstructorReplacingTransformer(
@@ -349,13 +343,6 @@ public class FoamFixTransformer implements IClassTransformer {
                     "net.minecraft.block.BlockStaticLiquid");
         } */
 
-        if (FoamFixShared.config.gbPatchGrass) {
-            patchy.addTransformerId("gbPatchGrass_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.ghostbuster.injections.GBWrapUpdateTick",
-		            false, "updateTick", "func_180650_b"),
-                    "net.minecraft.block.BlockGrass");
-        }
-
         if (FoamFixShared.config.clJeiCreativeSearch) {
             patchy.addTransformerId("clJeiCreativeSearch_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.patches.jei.SearchTreeJEIManagerInject",
@@ -371,11 +358,7 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         if (FoamFixShared.config.clClearCachesOnUnload) {
-            patchy.addTransformerId("clearCachesOnUnload_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoClearCacheInject",
-                    true, "foamfix_clear", "foamfix_clear"), "net.minecraftforge.client.model.pipeline.BlockInfo");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.ForgeBlockModelRendererClearCacheInject",
-                    false, "render", "render"), "net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer");
+            patchy.addTransformerId("clearCachesOnUnload_v2");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.AnimationModelBaseClearCacheInject",
                     false, "render", "render"), "net.minecraftforge.client.model.animation.AnimationModelBase");
         }

@@ -88,10 +88,9 @@ public class FoamFixConfig {
 	public int txFasterAnimation;
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 
-	public boolean gbPatchGrass, gbPatchFluids;
+	public boolean gbPatchFluids;
 	public boolean clJeiCreativeSearch;
 
-	public boolean staging4305;
 	public int refreshTimes = 0;
 
 	public int clDeduplicateRecursionLevel;
@@ -189,13 +188,10 @@ public class FoamFixConfig {
 			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
 			boolean oldClWipeModelCache = clWipeModelCache;
 
-			staging4305 = getBoolean("pr4305", "staging", true, "Adjust diffuse light calculation to match vanilla facing values", true, true, "(,14.23.1.2576)");
-
 			geCacheShiftCrafting = getBoolean("cacheShiftClickCrafting", "coremod", true, "Should the recipe used for shift-clicking be cached? Speeds up shift-crafting noticeably!", true, true);
 
 		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
 			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
-			gbPatchGrass = getBoolean("patchGrass", "ghostbuster", true, "Should grass be prevented from ghost chunkloading?", true, true, "(,14.23.2.2623)");
 
 			clJeiCreativeSearch = getBoolean("jeiCreativeSearch", "client", true, "Makes vanilla creative tab search use JEI's lookups - saves a lot of RAM *and* gives you fancy JEI features!", true, true);
 			clWipeModelCache = getBoolean("wipeModelCache", "client", true, "Wipes the IModel cache after baking is finished. Saves a lot of RAM, as most IModels will not be reloaded.", false, true);

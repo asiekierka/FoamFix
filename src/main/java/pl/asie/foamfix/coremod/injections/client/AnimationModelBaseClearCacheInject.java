@@ -41,9 +41,7 @@ public class AnimationModelBaseClearCacheInject {
 
 	public void render(Entity entity, float limbSwing, float limbSwingSpeed, float timeAlive, float yawHead, float rotationPitch, float scale) {
 		render_foamfix_old(entity, limbSwing, limbSwingSpeed, timeAlive, yawHead, rotationPitch, scale);
-		if (lighter instanceof IFoamFixBlockInfoClearCacheProxy) {
-			((IFoamFixBlockInfoClearCacheProxy) lighter).foamfix_clear();
-		}
+		lighter.resetBlockInfo();
 	}
 
 	public void render_foamfix_old(Entity entity, float limbSwing, float limbSwingSpeed, float timeAlive, float yawHead, float rotationPitch, float scale) {
