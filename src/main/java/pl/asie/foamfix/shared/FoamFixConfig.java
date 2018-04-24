@@ -188,7 +188,7 @@ public class FoamFixConfig {
 			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
 			boolean oldClWipeModelCache = clWipeModelCache;
 
-			geCacheShiftCrafting = getBoolean("cacheShiftClickCrafting", "coremod", true, "Should the recipe used for shift-clicking be cached? Speeds up shift-crafting noticeably!", true, true);
+//			geCacheShiftCrafting = getBoolean("cacheShiftClickCrafting", "coremod", true, "Should the recipe used for shift-clicking be cached? Speeds up shift-crafting noticeably!", true, true);
 
 		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
 			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
