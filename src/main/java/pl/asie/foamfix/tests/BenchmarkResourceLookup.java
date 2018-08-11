@@ -67,11 +67,11 @@ public class BenchmarkResourceLookup {
 	);
 
 	private InputStream getResourceStream(ResourceLocation location) {
-		return DefaultResourcePack.class.getResourceAsStream("/assets/" + location.getResourceDomain() + "/" + location.getResourcePath());
+		return DefaultResourcePack.class.getResourceAsStream("/assets/" + location.getNamespace() + "/" + location.getPath());
 	}
 
 	private InputStream getResourceStreamFastCached(ResourceLocation location) {
-		return resourceExistsFastCached(location) ? DefaultResourcePack.class.getResourceAsStream("/assets/" + location.getResourceDomain() + "/" + location.getResourcePath()) : null;
+		return resourceExistsFastCached(location) ? DefaultResourcePack.class.getResourceAsStream("/assets/" + location.getNamespace() + "/" + location.getPath()) : null;
 	}
 
 	public boolean resourceExists(ResourceLocation location) {
@@ -79,7 +79,7 @@ public class BenchmarkResourceLookup {
     }
 
 	public boolean resourceExistsFast(ResourceLocation location) {
-		return DefaultResourcePack.class.getResource("/assets/" + location.getResourceDomain() + "/" + location.getResourcePath()) != null || this.resourceIndex.isFileExisting(location);
+		return DefaultResourcePack.class.getResource("/assets/" + location.getNamespace() + "/" + location.getPath()) != null || this.resourceIndex.isFileExisting(location);
 	}
 
 	public boolean resourceExistsFastCached(ResourceLocation location) {
@@ -88,11 +88,11 @@ public class BenchmarkResourceLookup {
 			return cache.get(location, new Callable<Boolean>() {
 				@Override
 				public Boolean call() throws Exception {
-					return DefaultResourcePack.class.getResource("/assets/" + loc.getResourceDomain() + "/" + loc.getResourcePath()) != null || BenchmarkResourceLookup.this.resourceIndex.isFileExisting(loc);
+					return DefaultResourcePack.class.getResource("/assets/" + loc.getNamespace() + "/" + loc.getPath()) != null || BenchmarkResourceLookup.this.resourceIndex.isFileExisting(loc);
 				}
 			});
 		} catch (Exception e) {
-			return DefaultResourcePack.class.getResource("/assets/" + loc.getResourceDomain() + "/" + loc.getResourcePath()) != null || BenchmarkResourceLookup.this.resourceIndex.isFileExisting(loc);
+			return DefaultResourcePack.class.getResource("/assets/" + loc.getNamespace() + "/" + loc.getPath()) != null || BenchmarkResourceLookup.this.resourceIndex.isFileExisting(loc);
 		}
 	}
 

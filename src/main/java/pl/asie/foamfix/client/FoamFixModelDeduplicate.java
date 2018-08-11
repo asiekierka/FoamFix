@@ -98,8 +98,8 @@ public final class FoamFixModelDeduplicate {
 
         for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
             bmNames.add(loc.toString());
-            bmCountMod.adjustOrPutValue(loc.getResourceDomain(), 1, 1);
-            bmCountVariant.adjustOrPutValue(loc.getResourceDomain() + ":" + loc.getResourcePath(), 1, 1);
+            bmCountMod.adjustOrPutValue(loc.getNamespace(), 1, 1);
+            bmCountVariant.adjustOrPutValue(loc.getNamespace() + ":" + loc.getPath(), 1, 1);
         }
 
         List<String> bmCountModKeys = new ArrayList<>(bmCountMod.keySet());
@@ -163,12 +163,12 @@ public final class FoamFixModelDeduplicate {
             cache.entrySet().removeIf((e) -> {
                 ResourceLocation r = e.getKey();
 
-                if ("minecraft".equals(r.getResourceDomain()) || "fml".equals(r.getResourceDomain()) || "forge".equals(r.getResourceDomain())) {
-                    if (r.getResourcePath().endsWith("/generated")) {
+                if ("minecraft".equals(r.getNamespace()) || "fml".equals(r.getNamespace()) || "forge".equals(r.getNamespace())) {
+                    if (r.getPath().endsWith("/generated")) {
                         return false;
                     }
 
-                    if (r.getResourcePath().startsWith("builtin/")) {
+                    if (r.getPath().startsWith("builtin/")) {
                         return false;
                     }
                 }

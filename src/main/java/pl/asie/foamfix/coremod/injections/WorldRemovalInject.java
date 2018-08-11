@@ -67,7 +67,7 @@ public class WorldRemovalInject extends World implements IFoamFixWorldRemovable 
                 int k1 = entity.chunkCoordZ;
 
                 if (entity.addedToChunk && this.isChunkLoaded(j, k1, true)) {
-                    this.getChunkFromChunkCoords(j, k1).removeEntity(entity);
+                    this.getChunk(j, k1).removeEntity(entity);
                 }
             }
 

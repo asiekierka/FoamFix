@@ -51,7 +51,7 @@ public class PropertyValueDeduplicator {
 
         for (Block b : ForgeRegistries.BLOCKS) {
             // FIXME: Remove once Immersive Engineering fixes its stuff
-            if (b.getRegistryName() == null || !("immersiveengineering".equals(b.getRegistryName().getResourceDomain()))) {
+            if (b.getRegistryName() == null || !("immersiveengineering".equals(b.getRegistryName().getNamespace()))) {
                 for (IProperty property : b.getBlockState().getProperties()) {
                     try {
                         if (checkedProperties.add(property)) {

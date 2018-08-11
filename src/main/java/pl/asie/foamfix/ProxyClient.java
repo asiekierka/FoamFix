@@ -181,7 +181,7 @@ public class ProxyClient extends ProxyCommon {
 				FoamFix.shouldFasterAnimation = false;
 			} else {
 			    String vendor = GL11.glGetString(GL11.GL_VENDOR);
-			    if ("Advanced Micro Devices, Inc.".equals(vendor) || "ATI Technologies Inc.".equals(vendor) || FoamFixShared.config.txFasterAnimation == 2) {
+			    if ("Advanced Micro Devices, Inc.".equals(vendor) || "ATI Technologies Inc.".equals(vendor) || vendor.startsWith("AMD ") || vendor.startsWith("ATI ") || FoamFixShared.config.txFasterAnimation == 2) {
                     FoamFix.logger.info("Using fast animated textures.");
                     FoamFix.shouldFasterAnimation = true;
                 } else {
