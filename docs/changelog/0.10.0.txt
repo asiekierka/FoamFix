@@ -1,0 +1,13 @@
+Changes:
+
+* Optimized model deduplication speed, though with the increased number of recursion it won't be noticeable
+  in practice - however, it should lead to more RAM saved.
+* The new recommended deduplicateModelsMaxRecursion value is 9. If you run into any issues, please let me know
+  if the issues persist after setting the value back to 6!
+
+Bugs fixed:
+
+* [GitHub/#162, GitHub/#127] Improve deduplication blacklist
+* [GitHub/#153] Not detecting AMD/ATI cards on Linux with open drivers
+* [GitHub/#115] Workaround for long-standing, undebuggable BiblioCraft issue
+* Property caching not being implemented correctly

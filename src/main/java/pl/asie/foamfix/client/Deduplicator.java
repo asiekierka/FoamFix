@@ -56,13 +56,19 @@ package pl.asie.foamfix.client;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
+import com.google.common.hash.BloomFilter;
+import com.google.common.hash.Funnels;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import gnu.trove.set.hash.TCustomHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -71,6 +77,10 @@ import net.minecraft.client.renderer.block.model.multipart.Multipart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.LanguageManager;
+import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -82,6 +92,7 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.BakedItemModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.animation.AnimationItemOverrideList;
@@ -94,19 +105,24 @@ import pl.asie.foamfix.util.DeduplicatingStorageTrove;
 import pl.asie.foamfix.util.HashingStrategies;
 import pl.asie.foamfix.util.MethodHandleHelper;
 
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
 @SuppressWarnings("deprecation")
 public class Deduplicator {
-    private static final Set<Class> BLACKLIST_CLASS = new TCustomHashSet<>(HashingStrategies.IDENTITY);
-    private static final Set<Class> IMMUTABLE_CLASS = new TCustomHashSet<>(HashingStrategies.IDENTITY);
-    private static final Set<Class> TRIM_ARRAYS_CLASSES = new TCustomHashSet<>(HashingStrategies.IDENTITY);
+    private static final Set<Class> DEDUP0_CLASS = Sets.newIdentityHashSet();
+    private static final Set<Class> BLACKLIST_CLASS = Sets.newIdentityHashSet();
+    private static final Set<Class> IMMUTABLE_CLASS = Sets.newIdentityHashSet();
+    private static final Set<Class> TRIM_ARRAYS_CLASSES = Sets.newIdentityHashSet();
     private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new IdentityHashMap<>();
     private static final Map<Class, MethodHandle> COLLECTION_CONSTRUCTORS = new IdentityHashMap<>();
 
@@ -139,7 +155,7 @@ public class Deduplicator {
     private final IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
     private final IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
     // private final IDeduplicatingStorage<ItemTransformVec3f> IT3_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_TRANSFORM_VEC3F);
-    private final Set<Object> deduplicatedObjects = new TCustomHashSet<>(HashingStrategies.IDENTITY);
+    private final Set<Object> deduplicatedObjects = Sets.newIdentityHashSet();
     // public final TObjectIntMap<Class> dedupObjDataMap = new TObjectIntHashMap<>();
 
     public Deduplicator() {
@@ -154,6 +170,13 @@ public class Deduplicator {
     }
 
     static {
+        DEDUP0_CLASS.add(TRSRTransformation.class);
+        DEDUP0_CLASS.add(Style.class);
+        DEDUP0_CLASS.add(Vec3d.class);
+        DEDUP0_CLASS.add(Vec3i.class);
+        DEDUP0_CLASS.add(BlockPos.class);
+        DEDUP0_CLASS.add(ItemCameraTransforms.class);
+
         TRIM_ARRAYS_CLASSES.add(TextComponentKeybind.class);
         TRIM_ARRAYS_CLASSES.add(TextComponentScore.class);
         TRIM_ARRAYS_CLASSES.add(TextComponentSelector.class);
@@ -169,7 +192,6 @@ public class Deduplicator {
         TRIM_ARRAYS_CLASSES.add(Multipart.class);
 
         BLACKLIST_CLASS.add(Object.class);
-        BLACKLIST_CLASS.add(Class.class);
         BLACKLIST_CLASS.add(String.class);
         BLACKLIST_CLASS.add(Integer.class);
         BLACKLIST_CLASS.add(Long.class);
@@ -178,9 +200,21 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(Float.class);
         BLACKLIST_CLASS.add(Double.class);
         BLACKLIST_CLASS.add(Short.class);
+        BLACKLIST_CLASS.add(Class.class);
+        BLACKLIST_CLASS.add(Field.class);
+        BLACKLIST_CLASS.add(Method.class);
+        BLACKLIST_CLASS.add(MethodHandle.class);
+        BLACKLIST_CLASS.add(Vector3f.class);
+        BLACKLIST_CLASS.add(Vector4f.class);
+        BLACKLIST_CLASS.add(Matrix4f.class);
+        BLACKLIST_CLASS.add(org.lwjgl.util.vector.Vector3f.class);
+        BLACKLIST_CLASS.add(org.lwjgl.util.vector.Vector4f.class);
+        BLACKLIST_CLASS.add(org.lwjgl.util.vector.Matrix4f.class);
+        BLACKLIST_CLASS.add(Random.class);
         BLACKLIST_CLASS.add(TextureAtlasSprite.class);
         BLACKLIST_CLASS.add(ItemStack.class);
         BLACKLIST_CLASS.add(Gson.class);
+        BLACKLIST_CLASS.add(GsonBuilder.class);
         BLACKLIST_CLASS.add(EnumBiMap.class);
         BLACKLIST_CLASS.add(ModelLoader.class);
         BLACKLIST_CLASS.add(Minecraft.class);
@@ -190,6 +224,9 @@ public class Deduplicator {
         BLACKLIST_CLASS.add(BlockPartRotation.class); // not handled
         BLACKLIST_CLASS.add(ModelBlockAnimation.class); // not handled
         BLACKLIST_CLASS.add(BufferBuilder.class);
+        BLACKLIST_CLASS.add(SoundHandler.class);
+        BLACKLIST_CLASS.add(SoundManager.class);
+        BLACKLIST_CLASS.add(GameSettings.class);
 
         BLACKLIST_CLASS.add(Logger.class);
         BLACKLIST_CLASS.add(Joiner.class);
@@ -303,6 +340,14 @@ public class Deduplicator {
         }
     }
 
+    private static final Set<Class> cSet = new HashSet<>();
+    private static final boolean cSetProp;
+
+    static {
+        String s = System.getProperty("pl.asie.foamfix.debugDeduplicatedClasses", "");
+        cSetProp = !s.isEmpty();
+    }
+
     public Object deduplicateObject(Object o, int recursion) {
         if (o == null || recursion > maxRecursion)
             return o;
@@ -314,20 +359,20 @@ public class Deduplicator {
         if (!deduplicatedObjects.add(o))
             return o;
 
-        boolean canTrim = o instanceof Predicate || TRIM_ARRAYS_CLASSES.contains(c);
-
-        // System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
-
-        if (canTrim) {
-            if (c == SimpleBakedModel.class) {
-                for (EnumFacing facing : EnumFacing.VALUES) {
-                    List l = ((SimpleBakedModel) o).getQuads(null, facing, 0);
-                    trimArray(l);
-                }
+        if (cSetProp) {
+            if (cSet.add(c)) {
+                System.out.println("-" + Strings.repeat("-", recursion) + " " + c.getName());
             }
         }
 
         if (o instanceof IBakedModel) {
+            if (c == SimpleBakedModel.class) {
+                for (EnumFacing facing : EnumFacing.VALUES) {
+                    List l = ((IBakedModel) o).getQuads(null, facing, 0);
+                    trimArray(l);
+                }
+            }
+
             if (o instanceof PerspectiveMapWrapper) {
                 try {
                     Object to = IPAM_MW_TRANSFORMS_GETTER.invoke(o);
@@ -338,7 +383,7 @@ public class Deduplicator {
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
-            } else if ("net.minecraftforge.client.model.BakedItemModel".equals(c.getName())) {
+            } else if (c == BakedItemModel.class) {
                 try {
                     Object to = BIM_TRANSFORMS_GETTER.invoke(o);
                     Object toD = deduplicate0(to);
@@ -349,14 +394,11 @@ public class Deduplicator {
                     t.printStackTrace();
                 }
             }
-        }
-
-        if (c == BlockPartFace.class) {
+        } else if (c == BlockPartFace.class) {
+            //noinspection ConstantConditions
             ((BlockPartFace) o).blockFaceUV.uvs = (float[]) deduplicate0(((BlockPartFace) o).blockFaceUV.uvs);
             return o;
-        }
-
-        if (o instanceof BakedQuad) {
+        } else if (o instanceof BakedQuad) {
             if (c == BakedQuad.class) {
                 if (FoamFixShared.config.expUnpackBakedQuads) {
                     BakedQuad quad = (BakedQuad) o;
@@ -376,16 +418,13 @@ public class Deduplicator {
                     t.printStackTrace();
                 }
             }
-        } else if (o instanceof ResourceLocation || c == TRSRTransformation.class || c == Style.class) {
+            return o;
+        } else if (o instanceof ResourceLocation || DEDUP0_CLASS.contains(c)) {
             return deduplicate0(o);
-        } else if (c == ItemCameraTransforms.class || c == Vec3d.class || c == Vec3i.class || c == BlockPos.class) {
-            return deduplicate0(o);
-            /* if (d != o)
-                return d;
-            TODO: Add ItemTransformVec3f dedup, maybe
-            return o; */
         } else if (o instanceof Item || o instanceof Block || o instanceof World
-                || o instanceof Entity || o instanceof Logger || o instanceof IRegistry) {
+                || o instanceof Entity || o instanceof Logger || o instanceof IRegistry
+                || o instanceof SimpleReloadableResourceManager || o instanceof IResourcePack
+                || o instanceof LanguageManager || o instanceof BlockPos.MutableBlockPos) {
             BLACKLIST_CLASS.add(c);
             return o;
         } else if (o instanceof ItemOverrideList && o != ItemOverrideList.NONE) {
@@ -403,6 +442,7 @@ public class Deduplicator {
             } catch (Throwable t) {
 
             }
+            return o;
         } else if (o instanceof java.util.Optional) {
             java.util.Optional opt = (java.util.Optional) o;
             if (opt.isPresent()) {
@@ -462,6 +502,7 @@ public class Deduplicator {
                     ((Multimap) o).replaceValues(key, l);
                 }
             }
+            return o;
         } else if (o instanceof Map) {
             for (Object v : ((Map) o).keySet()) {
                 deduplicateObject(v, recursion + 1);
@@ -498,6 +539,7 @@ public class Deduplicator {
                     }
                 }
             }
+            return o;
         } else if (o instanceof List) {
             if (IMMUTABLE_CLASS.contains(c)) {
                 List l = (List) o;
@@ -531,6 +573,7 @@ public class Deduplicator {
                     }
                 }
             }
+            return o;
         } else if (o instanceof ImmutableSet) {
             if (!(o instanceof ImmutableSortedSet)) {
                 ImmutableSet.Builder builder = new ImmutableSet.Builder();
@@ -543,6 +586,7 @@ public class Deduplicator {
                     deduplicateObject(o1, recursion + 1);
                 }
             }
+            return o;
         } else if (o instanceof Collection) {
             if (!(o instanceof SortedSet)) {
                 if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
@@ -573,6 +617,7 @@ public class Deduplicator {
             for (Object o1 : ((Collection) o)) {
                 deduplicateObject(o1, recursion + 1);
             }
+            return o;
         } else if (c.isArray()) {
             for (int i = 0; i < Array.getLength(o); i++) {
                 Object entry = Array.get(o, i);
@@ -580,46 +625,49 @@ public class Deduplicator {
                 if (entryD != null && entry != entryD)
                     Array.set(o, i, entryD);
             }
-        } else {
-            if (!CLASS_FIELDS.containsKey(c)) {
-                ImmutableSet.Builder<MethodHandle[]> fsBuilder = ImmutableSet.builder();
-                Class cc = c;
-                do {
-                    for (Field f : cc.getDeclaredFields()) {
-                        if ((f.getModifiers() & Modifier.STATIC) != 0)
-                            continue;
+            return o;
+        }
 
-                        if (shouldCheckClass(f.getType())) {
-                            try {
-                                f.setAccessible(true);
-                                fsBuilder.add(new MethodHandle[]{
-                                        MethodHandles.lookup().unreflectGetter(f),
-                                        MethodHandles.lookup().unreflectSetter(f)
-                                });
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
+        boolean canTrim = o instanceof Predicate || TRIM_ARRAYS_CLASSES.contains(c);
+
+        for (MethodHandle[] mh : CLASS_FIELDS.computeIfAbsent(c, (cl) -> {
+            ImmutableSet.Builder<MethodHandle[]> fsBuilder = ImmutableSet.builder();
+            Class cc = cl;
+            do {
+                for (Field f : cc.getDeclaredFields()) {
+                    if ((f.getModifiers() & Modifier.STATIC) != 0)
+                        continue;
+
+                    if (shouldCheckClass(f.getType())) {
+                        try {
+                            f.setAccessible(true);
+                            fsBuilder.add(new MethodHandle[]{
+                                    MethodHandles.lookup().unreflectGetter(f),
+                                    MethodHandles.lookup().unreflectSetter(f)
+                            });
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
                         }
                     }
-                } while ((cc = cc.getSuperclass()) != Object.class);
-                CLASS_FIELDS.put(c, fsBuilder.build());
-            }
-
-            for (MethodHandle[] mh : CLASS_FIELDS.get(c)) {
-                try {
-                    // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
-                    Object value = mh[0].invoke(o);
-                    Object valueD = deduplicateObject(value, recursion + 1);
-
-                    if (canTrim) trimArray(valueD);
-
-                    if (valueD != null && value != valueD)
-                        mh[1].invoke(o, valueD);
-                } catch (IllegalAccessException e) {
-
-                } catch (Throwable t) {
-                    t.printStackTrace();
                 }
+            } while ((cc = cc.getSuperclass()) != Object.class);
+            return fsBuilder.build();
+        })) {
+            try {
+                // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
+                Object value = mh[0].invoke(o);
+                Object valueD = deduplicateObject(value, recursion + 1);
+
+                if (valueD != null) {
+                    if (canTrim) trimArray(valueD);
+                    if (valueD != value) {
+                        mh[1].invoke(o, valueD);
+                    }
+                }
+            } catch (IllegalAccessException e) {
+
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
         }
 

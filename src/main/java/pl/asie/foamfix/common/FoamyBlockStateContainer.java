@@ -44,6 +44,14 @@ public class FoamyBlockStateContainer extends BlockStateContainer {
 
 	@Override
 	protected BlockStateContainer.StateImplementation createState(Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
+		if (block == null || block.getClass().getName().startsWith("jds.bibliocraft")) {
+			return createState_foamfix_old(block, properties, unlistedProperties);
+		}
+
 		return new FoamyBlockState(PropertyValueMapper.getOrCreate(this), block, properties);
+	}
+
+	protected BlockStateContainer.StateImplementation createState_foamfix_old(Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
+		return null;
 	}
 }
