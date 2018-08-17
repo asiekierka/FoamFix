@@ -1,0 +1,130 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "https://www.dimdev.org/maven" }
+        maven { url 'http://repo.spongepowered.org/maven' }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath 'org.dimdev:ForgeGradle:2.3-SNAPSHOT'
+        classpath "gradle.plugin.net.minecrell:licenser:0.3"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.tweaker-client'
+apply plugin: 'java'
+apply plugin: 'org.spongepowered.mixin'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'net.minecrell.licenser'
+
+version = "0.11.0"
+group = "pl.asie.foamfix"
+archivesBaseName = "FoamFix"
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+if (System.getenv("BUILD_NUMBER") != null)
+    version += ".${System.getenv("BUILD_NUMBER")}"
+
+repositories {
+    mavenCentral()
+    maven { url 'https://www.dimdev.org/maven/' }
+    ivy {
+        artifactPattern "https://endless.blue/files/ivy/[module]-[revision].[ext]"
+    }
+}
+
+dependencies {
+    implementation 'org.dimdev:rift:1.0.4-51:dev'
+    shadow 'blue.endless:Jankson:0.0.3'
+    compile 'blue.endless:Jankson:0.0.3'
+}
+
+minecraft {
+    version = "1.13"
+    mappings = "snapshot_20180817"
+
+    runDir = "run"    
+    tweakClass = 'org.dimdev.riftloader.launch.RiftLoaderClientTweaker'
+
+    replace '@VERSION@', project.version
+    replace '@MC_VERSION@', version
+}
+
+mixin {
+    defaultObfuscationEnv notch
+    add sourceSets.main, 'mixins.foamfix.refmap.json'
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += 'docs'
+        }
+    }
+}
+
+license {
+    sourceSets = [project.sourceSets.main]
+    header = project.file("docs/licenses/COPYING")
+    ignoreFailures = true
+    exclude '**/*.lang'
+    exclude '**/*.info'
+    exclude '**/*.mcmeta'
+}
+
+configurations {
+	shadow
+	compile.extendsFrom shadow
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+jar {
+    manifest.attributes "Manifest-Version": "1.0"
+}
+
+shadowJar {
+    mainSpec.sourcePaths.clear()
+    dependsOn reobfJar
+
+    configurations = [project.configurations.shadow]
+    relocate 'blue.endless.jankson', 'pl.asie.foamfix.repack.blue.endless.jankson'
+
+    afterEvaluate {
+        from zipTree(reobfJar.jar)
+    }
+}
+
+artifacts {
+    archives shadowJar
+}
+
+/* reobfJar {
+	setJar(tasks.shadowJar.archivePath)
+}
+
+reobfJar.dependsOn shadowJar */
+
+task deobfJar(type: Jar) {
+    description = 'Creates a jar file containing the non-obfuscated class files'
+    classifier = 'deobf'
+    from sourceSets.main.output
+}

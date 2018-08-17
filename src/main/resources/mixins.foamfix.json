@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.7.7",
+  "compatibilityLevel": "JAVA_8",
+  "target": "@env(DEFAULT)",
+  "package": "pl.asie.foamfix.mixin",
+  "refmap": "mixins.foamfix.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "client.MixinModelManager",
+    "client.MixinSimpleBakedModel"
+  ]
+}

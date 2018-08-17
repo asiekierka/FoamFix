@@ -1,0 +1,10 @@
+{
+  "id": "foamfix",
+  "name": "FoamFix",
+  "authors": [
+    "asie"
+  ],
+  "listeners": [
+    "pl.asie.foamfix.FoamFixBootstrap"
+  ]
+}
