@@ -57,6 +57,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import gnu.trove.strategy.HashingStrategy;
 import gnu.trove.strategy.IdentityHashingStrategy;
+import it.unimi.dsi.fastutil.Hash;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import org.lwjgl.util.vector.Vector3f;
@@ -65,6 +66,18 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public final class HashingStrategies {
+    public static final Hash.Strategy<Object> FASTUTIL_IDENTITY = new Hash.Strategy<Object>() {
+        @Override
+        public int hashCode(Object o) {
+            return System.identityHashCode(o);
+        }
+
+        @Override
+        public boolean equals(Object a, Object b) {
+            return a == b;
+        }
+    };
+
     public static final HashingStrategy<byte[]> BYTE_ARRAY = new ByteArray();
     public static final HashingStrategy<float[]> FLOAT_ARRAY = new FloatArray();
     public static final HashingStrategy<float[][]> FLOAT_ARRAY_ARRAY = new FloatArrayArray();

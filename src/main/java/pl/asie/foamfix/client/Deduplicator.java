@@ -540,84 +540,86 @@ public class Deduplicator {
                 }
             }
             return o;
-        } else if (o instanceof List) {
-            if (IMMUTABLE_CLASS.contains(c)) {
-                List l = (List) o;
-                for (int i = 0; i < l.size(); i++) {
-                    deduplicateObject(l.get(i), recursion + 1);
-                }
-            } else if (o instanceof ImmutableList) {
-                ImmutableList il = (ImmutableList) o;
-                ImmutableList.Builder builder = ImmutableList.builder();
-                boolean deduplicated = false;
-                for (int i = 0; i < il.size(); i++) {
-                    Object a = il.get(i);
-                    Object b = deduplicateObject(a, recursion + 1);
-                    builder.add(b != null ? b : a);
-                    if (b != null && b != a)
-                        deduplicated = true;
-                }
-                if (deduplicated) {
-                    return builder.build();
-                }
-            } else {
-                List l = (List) o;
-                try {
-                    for (int i = 0; i < l.size(); i++) {
-                        l.set(i, deduplicateObject(l.get(i), recursion + 1));
-                    }
-                } catch (UnsupportedOperationException e) {
-                    IMMUTABLE_CLASS.add(c);
+        } else if (o instanceof Collection) {
+            if (o instanceof List) {
+                if (IMMUTABLE_CLASS.contains(c)) {
+                    List l = (List) o;
                     for (int i = 0; i < l.size(); i++) {
                         deduplicateObject(l.get(i), recursion + 1);
                     }
+                } else if (o instanceof ImmutableList) {
+                    ImmutableList il = (ImmutableList) o;
+                    ImmutableList.Builder builder = ImmutableList.builder();
+                    boolean deduplicated = false;
+                    for (int i = 0; i < il.size(); i++) {
+                        Object a = il.get(i);
+                        Object b = deduplicateObject(a, recursion + 1);
+                        builder.add(b != null ? b : a);
+                        if (b != null && b != a)
+                            deduplicated = true;
+                    }
+                    if (deduplicated) {
+                        return builder.build();
+                    }
+                } else {
+                    List l = (List) o;
+                    try {
+                        for (int i = 0; i < l.size(); i++) {
+                            l.set(i, deduplicateObject(l.get(i), recursion + 1));
+                        }
+                    } catch (UnsupportedOperationException e) {
+                        IMMUTABLE_CLASS.add(c);
+                        for (int i = 0; i < l.size(); i++) {
+                            deduplicateObject(l.get(i), recursion + 1);
+                        }
+                    }
                 }
-            }
-            return o;
-        } else if (o instanceof ImmutableSet) {
-            if (!(o instanceof ImmutableSortedSet)) {
-                ImmutableSet.Builder builder = new ImmutableSet.Builder();
-                for (Object o1 : ((Set) o)) {
-                    builder.add(deduplicateObject(o1, recursion + 1));
+                return o;
+            } else if (o instanceof ImmutableSet) {
+                if (!(o instanceof ImmutableSortedSet)) {
+                    ImmutableSet.Builder builder = new ImmutableSet.Builder();
+                    for (Object o1 : ((Set) o)) {
+                        builder.add(deduplicateObject(o1, recursion + 1));
+                    }
+                    o = builder.build();
+                } else {
+                    for (Object o1 : ((Set) o)) {
+                        deduplicateObject(o1, recursion + 1);
+                    }
                 }
-                o = builder.build();
+                return o;
             } else {
-                for (Object o1 : ((Set) o)) {
+                if (!(o instanceof SortedSet)) {
+                    if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
+                        try {
+                            COLLECTION_CONSTRUCTORS.put(c, MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class)));
+                        } catch (Exception e) {
+                            COLLECTION_CONSTRUCTORS.put(c, null);
+                        }
+                    }
+
+                    MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(c);
+                    if (constructor != null) {
+                        try {
+                            Collection nc = (Collection) constructor.invoke();
+                            if (nc != null) {
+                                for (Object o1 : ((Collection) o)) {
+                                    nc.add(deduplicateObject(o1, recursion + 1));
+                                }
+                                return nc;
+                            }
+                        } catch (Throwable t) {
+                            COLLECTION_CONSTRUCTORS.put(c, null);
+                        }
+                    }
+                }
+
+                // fallback
+                for (Object o1 : ((Collection) o)) {
                     deduplicateObject(o1, recursion + 1);
                 }
+                return o;
             }
-            return o;
-        } else if (o instanceof Collection) {
-            if (!(o instanceof SortedSet)) {
-                if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
-                    try {
-                        COLLECTION_CONSTRUCTORS.put(c, MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class)));
-                    } catch (Exception e) {
-                        COLLECTION_CONSTRUCTORS.put(c, null);
-                    }
-                }
-
-                MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(c);
-                if (constructor != null) {
-                    try {
-                        Collection nc = (Collection) constructor.invoke();
-                        if (nc != null) {
-                            for (Object o1 : ((Collection) o)) {
-                                nc.add(deduplicateObject(o1, recursion + 1));
-                            }
-                            return nc;
-                        }
-                    } catch (Throwable t) {
-                        COLLECTION_CONSTRUCTORS.put(c, null);
-                    }
-                }
-            }
-
-            // fallback
-            for (Object o1 : ((Collection) o)) {
-                deduplicateObject(o1, recursion + 1);
-            }
-            return o;
         } else if (c.isArray()) {
             for (int i = 0; i < Array.getLength(o); i++) {
                 Object entry = Array.get(o, i);

@@ -229,6 +229,12 @@ public class FoamFixTransformer implements IClassTransformer {
 		            false, "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
         }
 
+        if (FoamFixShared.config.gePatchChunkSerialization) {
+            patchy.addTransformerId("patchChunkSerialization_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockStateContainerSpongeInject",
+                    false, "getSerializedSize", "func_186018_a"), "net.minecraft.world.chunk.BlockStateContainer");
+        }
+
         /* if (FoamFixShared.config.geSmallLightingOptimize) {
             transformFunctions.put("net.minecraft.world.World", new TransformerFunction() {
                 @Override

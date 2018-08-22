@@ -1,0 +1,10 @@
+Additions:
+
+* Patch for BlockStateContainer.getSerializedSize()-related crashes, found by Aaron1011 of Sponge
+    * Source: https://github.com/SpongePowered/SpongeCommon/commit/a9423c7ec9f2b423b52c273f7e7a23818a8f3e41
+
+Changes:
+
+* Performance optimizations to model deduplication.
+* Memory and performance optimizations to block state property patch.
+* Temporaily made texture animation optimization opt-in.

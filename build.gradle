@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecrell.licenser'
 
-version = "0.10.0-1.12.2"
+version = "0.10.1-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 

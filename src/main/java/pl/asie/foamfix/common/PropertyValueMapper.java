@@ -29,13 +29,19 @@
 package pl.asie.foamfix.common;
 
 import com.google.common.collect.Lists;
-import gnu.trove.impl.Constants;
-import gnu.trove.map.TObjectIntMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.MathHelper;
+import pl.asie.foamfix.util.HashingStrategies;
 
 import java.util.*;
 
@@ -52,15 +58,14 @@ public class PropertyValueMapper {
 		}
 	};
 
-	public static class Entry {
+	public static abstract class Entry {
 		private final IProperty property;
-		private final TObjectIntMap values;
 		private final int bitSize;
 		private final int bits;
 
 		private Entry(IProperty property) {
 			this.property = property;
-			this.values = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
+
 			this.bitSize = MathHelper.smallestEncompassingPowerOfTwo(property.getAllowedValues().size());
 			int bits = 0;
 
@@ -70,7 +75,6 @@ public class PropertyValueMapper {
 				b >>= 1;
 			}
 			this.bits = bits;
-			int i = 0;
 
 			/* List<Object> allowedValues = Lists.newArrayList(property.getAllowedValues());
 			Collections.sort(allowedValues, (o1, o2) -> {
@@ -86,16 +90,9 @@ public class PropertyValueMapper {
 					return o1.hashCode() - o2.hashCode();
 				}
 			}); */
-			Collection<Object> allowedValues = property.getAllowedValues();
-
-			for (Object o : allowedValues) {
-				this.values.put(o, i++);
-			}
 		}
 
-		public int get(Object v) {
-			return values.get(v);
-		}
+		public abstract int get(Object v);
 
 		@Override
 		public boolean equals(Object other) {
@@ -111,11 +108,121 @@ public class PropertyValueMapper {
 		}
 	}
 
+	public static class BooleanEntry extends Entry {
+		private BooleanEntry(IProperty property) {
+			super(property);
+		}
+
+		@Override
+		public int get(Object v) {
+			return v == Boolean.TRUE ? 1 : 0;
+		}
+	}
+
+	public static class ObjectEntry extends Entry {
+		private Object2IntMap values;
+
+		private ObjectEntry(IProperty property, boolean identity) {
+			super(property);
+
+			//noinspection unchecked
+			this.values = identity ? new Object2IntOpenCustomHashMap(HashingStrategies.FASTUTIL_IDENTITY) : new Object2IntOpenHashMap();
+			this.values.defaultReturnValue(-1);
+			//noinspection unchecked
+			Collection<Object> allowedValues = property.getAllowedValues();
+
+			int i = 0;
+			for (Object o : allowedValues) {
+				this.values.put(o, i++);
+			}
+		}
+
+		@Override
+		public int get(Object v) {
+			return values.getInt(v);
+		}
+	}
+
+	public static class EnumEntrySorted extends Entry {
+		private EnumEntrySorted(IProperty property, int count) {
+			super(property);
+		}
+
+		@Override
+		public int get(Object v) {
+			return ((Enum) v).ordinal();
+		}
+
+		public static Entry create(PropertyEnum entry) {
+			Object[] values = entry.getValueClass().getEnumConstants();
+
+			if (entry.getAllowedValues().size() == values.length) {
+				return new EnumEntrySorted(entry, values.length);
+			} else {
+				return new ObjectEntry(entry, true);
+			}
+		}
+	}
+
+	public static class IntegerEntrySorted extends Entry {
+		private final int minValue, count;
+
+		private IntegerEntrySorted(IProperty property, int minValue, int count) {
+			super(property);
+
+			this.minValue = minValue;
+			this.count = count;
+		}
+
+		@Override
+		public int get(Object v) {
+			int vv = ((int) v) - minValue;
+			// if vv < 0, it will be rejected anyway
+			return vv < count ? vv : -1;
+		}
+	}
+
+	public static class IntegerEntry extends Entry {
+		private Int2IntMap values;
+
+		private IntegerEntry(IProperty property) {
+			super(property);
+
+			this.values = new Int2IntOpenHashMap();
+			this.values.defaultReturnValue(-1);
+			Collection<Object> allowedValues = property.getAllowedValues();
+
+			int i = 0;
+			for (Object o : allowedValues) {
+				this.values.put((int) o, i++);
+			}
+		}
+
+		@Override
+		public int get(Object v) {
+			return values.get(v);
+		}
+
+		public static Entry create(PropertyInteger entry) {
+			List<Integer> sorted = Lists.newArrayList(entry.getAllowedValues());
+			sorted.sort(Comparator.naturalOrder());
+
+			int min = sorted.get(0);
+			for (int i = 1; i < sorted.size(); i++) {
+				if ((sorted.get(i) - sorted.get(i - 1)) != 1) {
+					return new IntegerEntry(entry);
+				}
+			}
+
+			return new IntegerEntrySorted(entry, min, sorted.size());
+		}
+	}
+
 	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
 	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
 	private final Entry[] entryList;
-	private final TObjectIntMap<String> entryPositionMap;
+	private final Object2IntMap<String> entryPositionMap;
 	private final IBlockState[] stateMap;
 
 	public PropertyValueMapper(BlockStateContainer container) {
@@ -129,7 +236,8 @@ public class PropertyValueMapper {
 			entryList[i++] = getPropertyEntry(p);
 		}
 
-		entryPositionMap = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
+		entryPositionMap = new Object2IntOpenHashMap<>();
+		entryPositionMap.defaultReturnValue(-1);
 
 		int bitPos = 0;
 		Entry lastEntry = null;
@@ -158,7 +266,15 @@ public class PropertyValueMapper {
 	protected static Entry getPropertyEntry(IProperty property) {
 		Entry e = entryMap.get(property);
 		if (e == null) {
-			e = new Entry(property);
+			if (property instanceof PropertyInteger) {
+				e = IntegerEntry.create((PropertyInteger) property);
+			} else if (property.getClass() == PropertyBool.class && property.getAllowedValues().size() == 2) {
+				e = new BooleanEntry(property);
+			} else if (property instanceof PropertyEnum) {
+				e = EnumEntrySorted.create((PropertyEnum) property);
+			} else {
+				e = new ObjectEntry(property, false);
+			}
 			entryMap.put(property, e);
 		}
 		return e;
@@ -177,17 +293,16 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(int value, IProperty<T> property, V propertyValue) {
-		int bitPos = entryPositionMap.get(property.getName());
+		int bitPos = entryPositionMap.getInt(property.getName());
 		if (bitPos >= 0) {
 			Entry e = getPropertyEntry(property);
-			if (e != null) {
-				int nv = e.get(propertyValue);
-				if (nv < 0) return null;
+			int nv = e.get(propertyValue);
+			if (nv < 0) return null;
 
-				value &= ~((e.bitSize - 1) << bitPos);
-				value |= nv << bitPos;
-				return stateMap[value];
-			}
+			int bitMask = (e.bitSize - 1);
+			value = (value & (~(bitMask << bitPos)) | (nv << bitPos));
+
+			return stateMap[value];
 		}
 
 		return null;
@@ -198,19 +313,16 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> int withPropertyValue(int value, IProperty<T> property, V propertyValue) {
-		int bitPos = entryPositionMap.get(property.getName());
+		int bitPos = entryPositionMap.getInt(property.getName());
 		if (bitPos >= 0) {
 			Entry e = getPropertyEntry(property);
-			if (e != null) {
-				int bitMask = (e.bitSize - 1);
-				int nv = e.get(propertyValue);
-				if (nv < 0) return -1;
+			int nv = e.get(propertyValue);
+			if (nv < 0) return -1;
 
-				value &= ~(bitMask << bitPos);
-				value |= nv << bitPos;
+			int bitMask = (e.bitSize - 1);
+			value = (value & (~(bitMask << bitPos)) | (nv << bitPos));
 
-				return value;
-			}
+			return value;
 		}
 
 		return -1;
