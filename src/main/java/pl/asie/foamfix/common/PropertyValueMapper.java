@@ -29,6 +29,9 @@
 package pl.asie.foamfix.common;
 
 import com.google.common.collect.Lists;
+import gnu.trove.impl.Constants;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -222,7 +225,7 @@ public class PropertyValueMapper {
 	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
 	private final Entry[] entryList;
-	private final Object2IntMap<String> entryPositionMap;
+	private final TObjectIntMap<String> entryPositionMap;
 	private final IBlockState[] stateMap;
 
 	public PropertyValueMapper(BlockStateContainer container) {
@@ -236,8 +239,9 @@ public class PropertyValueMapper {
 			entryList[i++] = getPropertyEntry(p);
 		}
 
-		entryPositionMap = new Object2IntOpenHashMap<>();
-		entryPositionMap.defaultReturnValue(-1);
+//		entryPositionMap = new Object2IntOpenHashMap<>();
+//		entryPositionMap.defaultReturnValue(-1);
+		entryPositionMap = new TObjectIntHashMap<>(Constants.DEFAULT_CAPACITY, Constants.DEFAULT_LOAD_FACTOR, -1);
 
 		int bitPos = 0;
 		Entry lastEntry = null;
@@ -293,7 +297,7 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(int value, IProperty<T> property, V propertyValue) {
-		int bitPos = entryPositionMap.getInt(property.getName());
+		int bitPos = entryPositionMap.get(property.getName());
 		if (bitPos >= 0) {
 			Entry e = getPropertyEntry(property);
 			int nv = e.get(propertyValue);
@@ -313,7 +317,7 @@ public class PropertyValueMapper {
 	}
 
 	public <T extends Comparable<T>, V extends T> int withPropertyValue(int value, IProperty<T> property, V propertyValue) {
-		int bitPos = entryPositionMap.getInt(property.getName());
+		int bitPos = entryPositionMap.get(property.getName());
 		if (bitPos >= 0) {
 			Entry e = getPropertyEntry(property);
 			int nv = e.get(propertyValue);

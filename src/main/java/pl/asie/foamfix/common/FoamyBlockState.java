@@ -49,20 +49,17 @@ public class FoamyBlockState extends BlockStateContainer.StateImplementation {
 
 	@Override
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V value) {
-		Comparable<?> comparable = this.properties.get(property);
+		IBlockState state = owner.withProperty(this.value, property, value);
 
-		if (comparable == null) {
-			throw new IllegalArgumentException("Cannot set property " + property + " as it does not exist in " + this.getBlock().getBlockState());
-		} else if (comparable == value) {
-			return this;
-		} else {
-			IBlockState state = owner.withProperty(this.value, property, value);
-
-			if (state == null) {
-				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(this.getBlock()) + ", it is not an allowed value");
+		if (state == null) {
+			Comparable<?> comparable = this.properties.get(property);
+			if (comparable == null) {
+				throw new IllegalArgumentException("Cannot set property " + property + " as it does not exist in " + this.getBlock().getBlockState());
 			} else {
-				return state;
+				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(this.getBlock()) + ", it is not an allowed value");
 			}
+		} else {
+			return state;
 		}
 	}
 

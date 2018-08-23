@@ -53,7 +53,15 @@ public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
 		if (unlistedProperties == null || unlistedProperties.isEmpty()) {
 			return new FoamyBlockState(PropertyValueMapper.getOrCreate(this), block, properties);
 		} else {
-			return new FoamyExtendedBlockState(PropertyValueMapper.getOrCreate(this), block, properties, unlistedProperties);
+			boolean has = false;
+			for (Optional o : unlistedProperties.values()) {
+				if (o.isPresent()) {
+					has = true;
+					break;
+				}
+			}
+
+			return new FoamyExtendedBlockState(PropertyValueMapper.getOrCreate(this), block, properties, unlistedProperties, has);
 		}
 	}
 

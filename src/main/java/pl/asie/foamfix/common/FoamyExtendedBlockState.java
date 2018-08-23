@@ -46,48 +46,45 @@ import java.util.*;
  */
 public class FoamyExtendedBlockState extends FoamyBlockState implements IExtendedBlockState {
 	private final ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties;
+	private final boolean hasUnlistedProperty;
 
-	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {
+	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, boolean hasUnlistedProperty) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
+		this.hasUnlistedProperty = hasUnlistedProperty;
 	}
 
-	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, int value) {
+	public FoamyExtendedBlockState(PropertyValueMapper owner, Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties, boolean hasUnlistedProperty, int value) {
 		super(owner, block, properties);
 		this.unlistedProperties = unlistedProperties;
+		this.hasUnlistedProperty = hasUnlistedProperty;
 		this.value = value;
 	}
 
 	@Override
 	public <T extends Comparable<T>, V extends T> IBlockState withProperty(IProperty<T> property, V propertyValue) {
-		if (!this.getProperties().containsKey(property)) {
-			throw new IllegalArgumentException("Cannot set property " + property + " as it does not exist in " + getBlock().getBlockState());
-		} else {
-			if (!property.getAllowedValues().contains(propertyValue)) {
+		int newValue = owner.withPropertyValue(value, property, propertyValue);
+		if (newValue == value) {
+			return this;
+		} else if (newValue < 0) {
+			if (!this.getProperties().containsKey(property)) {
+				throw new IllegalArgumentException("Cannot set property " + property + " as it does not exist in " + getBlock().getBlockState());
+			} else if (!property.getAllowedValues().contains(propertyValue)) {
 				throw new IllegalArgumentException("Cannot set property " + property + " to " + value + " on block " + Block.REGISTRY.getNameForObject(getBlock()) + ", it is not an allowed value");
 			} else {
-				if (this.getProperties().get(property) == propertyValue) {
-					return this;
-				}
-
-				int newValue = owner.withPropertyValue(value, property, propertyValue);
-				if (newValue < 0) {
-					throw new IllegalArgumentException("Cannot set property " + property + " because FoamFix could not find a mapping for it! Please reproduce without FoamFix first!");
-				}
-
-				IBlockState state = owner.getPropertyByValue(newValue);
-				if (state == null) {
-					throw new IllegalArgumentException("Incomplete? list of values when trying to set property " + property + "! Please reproduce without FoamFix first! (Info: " + getBlock().getRegistryName() + " " + value + " -> " + newValue + ")");
-				}
-
-				for (Optional optional : unlistedProperties.values()) {
-					if (optional.isPresent()) {
-						return new FoamyExtendedBlockState(owner, getBlock(), state.getProperties(), unlistedProperties, newValue);
-					}
-				}
-
-				return state;
+				throw new IllegalArgumentException("Cannot set property " + property + " because FoamFix could not find a mapping for it! Please reproduce without FoamFix first!");
 			}
+		}
+
+		IBlockState state = owner.getPropertyByValue(newValue);
+		if (state == null) {
+			throw new IllegalArgumentException("Incomplete? list of values when trying to set property " + property + "! Please reproduce without FoamFix first! (Info: " + getBlock().getRegistryName() + " " + value + " -> " + newValue + ")");
+		}
+
+		if (hasUnlistedProperty) {
+			return new FoamyExtendedBlockState(owner, getBlock(), state.getProperties(), unlistedProperties, true, newValue);
+		} else {
+			return state;
 		}
 	}
 
@@ -103,12 +100,14 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		// TODO: Call with known initial capacity
 		ImmutableMap.Builder<IUnlistedProperty<?>, Optional<?>> newMap = new ImmutableMap.Builder<>();
 		for (Map.Entry<IUnlistedProperty<?>, Optional<?>> entry : unlistedProperties.entrySet()) {
-			if (entry.getKey().equals(property)) {
-				newMap.put(property, Optional.ofNullable(value));
+			IUnlistedProperty<?> entryKey = entry.getKey();
+			if (!setValue && entryKey.getName().equals(property.getName())) {
+				newMap.put(entryKey, Optional.ofNullable(value));
 				setValue = true;
 			} else {
-				newMap.put(entry.getKey(), entry.getValue());
-				hasOpt |= entry.getValue().isPresent();
+				Optional<?> entryValue = entry.getValue();
+				newMap.put(entryKey, entryValue);
+				hasOpt |= entryValue.isPresent();
 			}
 		}
 
@@ -117,7 +116,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		}
 
 		if (value != null || hasOpt) {
-			return new FoamyExtendedBlockState(owner, getBlock(), getProperties(), newMap.build(), this.value);
+			return new FoamyExtendedBlockState(owner, getBlock(), getProperties(), newMap.build(), true, this.value);
 		} else {
 			return (IExtendedBlockState) owner.getPropertyByValue(this.value);
 		}
