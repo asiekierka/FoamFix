@@ -101,7 +101,7 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		ImmutableMap.Builder<IUnlistedProperty<?>, Optional<?>> newMap = new ImmutableMap.Builder<>();
 		for (Map.Entry<IUnlistedProperty<?>, Optional<?>> entry : unlistedProperties.entrySet()) {
 			IUnlistedProperty<?> entryKey = entry.getKey();
-			if (!setValue && entryKey.getName().equals(property.getName())) {
+			if (!setValue && entryKey.equals(property)) {
 				newMap.put(entryKey, Optional.ofNullable(value));
 				setValue = true;
 			} else {
