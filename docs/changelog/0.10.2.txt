@@ -1,0 +1,4 @@
+* Fixed Lawful reference in FML coremod name
+* Improved compatibility of JEI search tree patch
+* Minor tweaks here and there
+
