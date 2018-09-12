@@ -52,17 +52,12 @@ public class SearchTreeJEIManagerInject implements IResourceManagerReloadListene
 				Map m = (Map) f.get(Minecraft.getMinecraft().getSearchTreeManager());
 				m.put(SearchTreeManager.ITEMS, new SearchTreeJEIItems());
 				FoamFix.logger.info("JEI search tree manager injection complete!");
-				for (ISearchTree<?> searchtree : (Collection<ISearchTree<?>>) m.values()) {
-					if (searchtree instanceof SearchTree) {
-						((SearchTree) searchtree).recalculate();
-					}
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			onResourceManagerReload_foamfix_old(resourceManager);
 		}
+
+		onResourceManagerReload_foamfix_old(resourceManager);
 	}
 
 	public void onResourceManagerReload_foamfix_old(IResourceManager resourceManager) {
