@@ -107,7 +107,6 @@ public class FoamFixTransformer implements IClassTransformer {
         ClassNode nodeSplice = new ClassNode();
         readerSplice.accept(new ClassRemapper(nodeSplice, remapper), ClassReader.EXPAND_FRAMES);
         for (String s : nodeSplice.interfaces) {
-            System.out.println(s);
             if (s.contains("IFoamFix")) {
                 nodeData.interfaces.add(s);
                 System.out.println("Added INTERFACE: " + s);
