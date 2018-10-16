@@ -53,6 +53,8 @@
  */
 package pl.asie.foamfix.shared;
 
+import java.util.Random;
+
 public class FoamFixShared {
 	public static final FoamFixConfig config = new FoamFixConfig();
 	public static boolean isCoremod = false;

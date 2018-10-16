@@ -1,0 +1,3 @@
+* Added option to change the speed of mob spawners checking for nearby players, as it quickly becomes a hotspot.
+    * While seemingly initially implemented in Paper, the patch in FoamFix differs conceptually from its version.
+* Tweaked model deduplication logic.

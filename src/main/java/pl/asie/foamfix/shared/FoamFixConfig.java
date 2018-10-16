@@ -62,6 +62,7 @@ public class FoamFixConfig {
 	public boolean clClearCachesOnUnload;
 	public int txFasterAnimation;
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
+	public int geMobSpawnerCheckSpeed;
 
 	public boolean gbPatchFluids;
 	public boolean clJeiCreativeSearch;
@@ -163,6 +164,7 @@ public class FoamFixConfig {
 			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
 			boolean oldClWipeModelCache = clWipeModelCache;
 
+			geMobSpawnerCheckSpeed = getInt("mobSpawnerCheckSpeed", "coremod", 20, 1, 200, "The amount of ticks per player presence check for mob spawners. Set to 1 to disable the patch and match vanilla behaviour.", true, true);
 //			geCacheShiftCrafting = getBoolean("cacheShiftClickCrafting", "coremod", true, "Should the recipe used for shift-clicking be cached? Speeds up shift-crafting noticeably!", true, true);
 
 		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
@@ -203,7 +205,7 @@ public class FoamFixConfig {
 			clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", false, "Threaded, parallel model baking.", true, true);
 			if (!isDeobfEnvironment)
 				geFasterEntityLookup = getBoolean("fasterEntityLookup", "coremod", true, "Speeds up entity lookup by optimizing ClassInheritanceMultiMap.getByClass.", true, true);
-			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup.", true, true);
+			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup. Initially found by Aikar (Paper/0181).", true, true);
 			geFasterPropertyComparisons = getBoolean("fasterPropertyComparisons", "coremod", true, "Optimizes blockstate property equals and hashCode methods.", true, true);
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "experimental", false, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time! May cause issues, however - please test and report back!", true, true);
 			geFasterHopper = getBoolean("fasterHopper", "coremod", true, "Speeds up the hopper's calculations.", true, true);

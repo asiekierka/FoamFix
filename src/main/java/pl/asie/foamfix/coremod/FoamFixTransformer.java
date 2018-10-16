@@ -339,6 +339,14 @@ public class FoamFixTransformer implements IClassTransformer {
                     false, "neighborChanged", "func_189540_a"), "net.minecraft.block.BlockBed");
         }
 
+        if (FoamFixShared.config.geMobSpawnerCheckSpeed > 1) {
+            patchy.addTransformerId("geMobSpawnerCheckSpeed_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingMobSpawnerLogicInject",
+                    false, "isActivated", "func_98279_f",
+                    "foamfix_activatedCache", "foamfix_activatedCache",
+                    "foamfix_activatedCacheTime", "foamfix_activatedCacheTime"), "net.minecraft.tileentity.MobSpawnerBaseLogic");
+        }
+
         /* if (FoamFixShared.config.gbPatchFluids) {
             patchy.addTransformerId("gbPatchFluids_v1");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.ghostbuster.injections.GBWrapUpdateTick",

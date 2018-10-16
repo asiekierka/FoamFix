@@ -84,6 +84,8 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -424,6 +426,7 @@ public class Deduplicator {
         } else if (o instanceof Item || o instanceof Block || o instanceof World
                 || o instanceof Entity || o instanceof Logger || o instanceof IRegistry
                 || o instanceof SimpleReloadableResourceManager || o instanceof IResourcePack
+                || o instanceof IRecipe || o instanceof Ingredient
                 || o instanceof LanguageManager || o instanceof BlockPos.MutableBlockPos) {
             BLACKLIST_CLASS.add(c);
             return o;
@@ -589,7 +592,7 @@ public class Deduplicator {
                 }
                 return o;
             } else {
-                if (!(o instanceof SortedSet)) {
+                if (o instanceof Set && !(o instanceof SortedSet)) {
                     if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
                         try {
                             COLLECTION_CONSTRUCTORS.put(c, MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class)));
