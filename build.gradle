@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecrell.licenser'
 
-version = "0.10.3-test2-1.12.2"
+version = "0.10.3-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -25,7 +25,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
-    version = "1.12.2-14.23.5.2770"
+    version = "1.12.2-14.23.5.2772"
     runDir = "run"
     
     mappings = "snapshot_20180808"

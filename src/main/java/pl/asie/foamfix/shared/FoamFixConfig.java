@@ -164,7 +164,7 @@ public class FoamFixConfig {
 			int oldTxMaxAnimationMipLevel = txMaxAnimationMipLevel;
 			boolean oldClWipeModelCache = clWipeModelCache;
 
-			geMobSpawnerCheckSpeed = getInt("mobSpawnerCheckSpeed", "coremod", 20, 1, 200, "The amount of ticks per player presence check for mob spawners. Set to 1 to disable the patch and match vanilla behaviour.", true, true);
+			geMobSpawnerCheckSpeed = getInt("mobSpawnerCheckSpeed", "coremod", 10, 1, 200, "The amount of ticks per player presence check for mob spawners. Set to 1 to disable the patch and match vanilla behaviour.", true, true);
 //			geCacheShiftCrafting = getBoolean("cacheShiftClickCrafting", "coremod", true, "Should the recipe used for shift-clicking be cached? Speeds up shift-crafting noticeably!", true, true);
 
 		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
