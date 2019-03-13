@@ -303,9 +303,6 @@ public class FoamFixTransformer implements IClassTransformer {
             handlerCN.add(new EntityDataManagerPatch(), "net.minecraft.network.datasync.EntityDataManager");
         }
 
-        patchy.addTransformerId("disableTextureAnimations_v1");
-        handlerCN.add(new ReturnIfBooleanTruePatch("clDisableTextureAnimations", "updateAnimations", "func_94248_c"),
-                "net.minecraft.client.renderer.texture.TextureMap");
 
         if (FoamFixShared.config.geFasterHopper) {
             patchy.addTransformerId("fasterHopper_v1");

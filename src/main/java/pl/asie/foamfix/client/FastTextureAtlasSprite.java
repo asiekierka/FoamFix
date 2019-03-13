@@ -62,6 +62,7 @@ import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.api.IFoamFixSprite;
 import pl.asie.foamfix.shared.FoamFixShared;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class FastTextureAtlasSprite extends TextureAtlasSprite implements IFoamFixSprite {
@@ -74,7 +75,7 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite implements IFoamF
 
     @Override
     public void updateAnimation() {
-        if (FoamFixShared.config.clDisableTextureAnimations)
+        if (FoamFixShared.config.clDisableTextureAnimations && Arrays.stream(FoamFixShared.config.clTextureAnimationsWhitelist).filter(s -> !s.isEmpty()).noneMatch(s -> this.getIconName().startsWith(s)))
             return;
 
         ++tickCounter;
