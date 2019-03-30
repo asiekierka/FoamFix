@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016, 2017, 2018 Adrian Siekierka
+ * Copyright (C) 2016, 2017, 2018, 2019 Adrian Siekierka
  *
  * This file is part of FoamFix.
  *
@@ -36,6 +36,7 @@ import pl.asie.foamfix.shared.FoamFixShared;
 
 public class CachingMobSpawnerLogicInject extends MobSpawnerBaseLogic implements IFoamFixMobSpawnerLogic {
     private boolean foamfix_activatedCache;
+    private int foamfix_activatedCachePESize;
     private long foamfix_activatedCacheTime;
     private boolean foamfix_forcedCache;
     private long foamfix_forcedCacheTime;
@@ -43,9 +44,16 @@ public class CachingMobSpawnerLogicInject extends MobSpawnerBaseLogic implements
     @Override
     public boolean isActivated() {
         World world = getSpawnerWorld();
+        int peSize = world.playerEntities.size();
         long time = world.getTotalWorldTime();
         if (time == foamfix_forcedCacheTime) {
             return foamfix_forcedCache;
+        }
+
+        // Try to detect mods like PNC:Repressurized, which add a fake player
+        // to the list for a fraction of a tick.
+        if (peSize != foamfix_activatedCachePESize) {
+            foamfix_activatedCacheTime = 0;
         }
 
         if (time < foamfix_activatedCacheTime) {
@@ -54,6 +62,7 @@ public class CachingMobSpawnerLogicInject extends MobSpawnerBaseLogic implements
 
         //System.out.println("update? " + time + " " + foamfix_activatedCacheTime);
         foamfix_activatedCacheTime = time + (world.rand.nextInt()&1) + FoamFixShared.config.geMobSpawnerCheckSpeed;
+        foamfix_activatedCachePESize = peSize;
         //System.out.println("update= " + time + " " + foamfix_activatedCacheTime);
         return (foamfix_activatedCache = isActivated_foamfix_old());
     }

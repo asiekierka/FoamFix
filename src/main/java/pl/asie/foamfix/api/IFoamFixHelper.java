@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2017, 2018 Adrian Siekierka
+ * Copyright (c) 2016, 2017, 2018, 2019 Adrian Siekierka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
