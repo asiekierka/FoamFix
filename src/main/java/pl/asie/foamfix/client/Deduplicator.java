@@ -148,10 +148,10 @@ public class Deduplicator {
 
     private final Map<Object, java.util.Optional> JAVA_OPTIONALS = new IdentityHashMap<>();
     private final Map<Object, com.google.common.base.Optional> GUAVA_OPTIONALS = new IdentityHashMap<>();
-    private final IDeduplicatingStorage<Object[]> KEY_UNIVERSE_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.OBJECT_ARRAY);
+    // private final IDeduplicatingStorage<Object[]> KEY_UNIVERSE_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.OBJECT_ARRAY);
     private final IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY);
     private final IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY_ARRAY);
-    private final IDeduplicatingStorage OBJECT_STORAGE = new DeduplicatingStorageTrove(HashingStrategies.GENERIC);
+    private final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
     private final IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
     // private final IDeduplicatingStorage<ItemTransformVec3f> IT3_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_TRANSFORM_VEC3F);
     private final Set<Object> deduplicatedObjects = Sets.newIdentityHashSet();

@@ -95,7 +95,6 @@ public class FoamyExtendedBlockState extends FoamyBlockState implements IExtende
 		boolean hasOpt = false;
 		boolean setValue = false;
 
-		// TODO: Call with known initial capacity
 		ImmutableMap.Builder<IUnlistedProperty<?>, Optional<?>> newMap = new ImmutableMap.Builder<>();
 		for (Map.Entry<IUnlistedProperty<?>, Optional<?>> entry : unlistedProperties.entrySet()) {
 			IUnlistedProperty<?> entryKey = entry.getKey();

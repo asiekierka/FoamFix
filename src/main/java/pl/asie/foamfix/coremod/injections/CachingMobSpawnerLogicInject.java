@@ -31,16 +31,23 @@ package pl.asie.foamfix.coremod.injections;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import pl.asie.foamfix.api.IFoamFixMobSpawnerLogic;
 import pl.asie.foamfix.shared.FoamFixShared;
 
-public class CachingMobSpawnerLogicInject extends MobSpawnerBaseLogic {
+public class CachingMobSpawnerLogicInject extends MobSpawnerBaseLogic implements IFoamFixMobSpawnerLogic {
     private boolean foamfix_activatedCache;
     private long foamfix_activatedCacheTime;
+    private boolean foamfix_forcedCache;
+    private long foamfix_forcedCacheTime;
 
     @Override
     public boolean isActivated() {
         World world = getSpawnerWorld();
         long time = world.getTotalWorldTime();
+        if (time == foamfix_forcedCacheTime) {
+            return foamfix_forcedCache;
+        }
+
         if (time < foamfix_activatedCacheTime) {
             return foamfix_activatedCache;
         }
@@ -69,5 +76,16 @@ public class CachingMobSpawnerLogicInject extends MobSpawnerBaseLogic {
     @Override
     public BlockPos getSpawnerPosition() {
         return null;
+    }
+
+    @Override
+    public boolean forceSpawnActivationFlag(boolean value) {
+        World world = getSpawnerWorld();
+        long time = world.getTotalWorldTime();
+
+        foamfix_forcedCacheTime = time;
+        foamfix_forcedCache = value;
+
+        return true;
     }
 }

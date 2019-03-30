@@ -46,6 +46,7 @@ import java.util.Map;
 public class FoamyMultipartBakedModel implements IBakedModel {
     private static final MethodHandle SELECTORS_GETTER = MethodHandleHelper.findFieldGetter(MultipartBakedModel.class, "selectors", "field_188626_f");
 
+    @SuppressWarnings("Guava")
     private final Predicate[] predicates;
     private final IBakedModel[] models;
 
@@ -98,6 +99,7 @@ public class FoamyMultipartBakedModel implements IBakedModel {
         return models[0].getParticleTexture();
     }
 
+    @SuppressWarnings("deprecation")
     public ItemCameraTransforms getItemCameraTransforms() {
         return models[0].getItemCameraTransforms();
     }

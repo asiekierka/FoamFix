@@ -140,6 +140,7 @@ public final class HashingStrategies {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static final class ItemTransformVecStrategy implements HashingStrategy<ItemTransformVec3f> {
         @Override
         public int computeHashCode(ItemTransformVec3f transform) {

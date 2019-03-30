@@ -233,7 +233,7 @@ public class PropertyValueMapper {
 
 		entryList = new Entry[properties.size()];
 		List<IProperty<?>> propertiesSortedFitness = Lists.newArrayList(properties);
-		Collections.sort(propertiesSortedFitness, COMPARATOR_BIT_FITNESS);
+		propertiesSortedFitness.sort(COMPARATOR_BIT_FITNESS);
 		int i = 0;
 		for (IProperty p : propertiesSortedFitness) {
 			entryList[i++] = getPropertyEntry(p);
