@@ -53,8 +53,6 @@
  */
 package pl.asie.foamfix.util;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import gnu.trove.strategy.HashingStrategy;
 import gnu.trove.strategy.IdentityHashingStrategy;
 import it.unimi.dsi.fastutil.Hash;

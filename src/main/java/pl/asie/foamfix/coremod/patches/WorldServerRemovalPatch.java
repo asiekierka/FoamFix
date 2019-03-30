@@ -30,11 +30,8 @@ package pl.asie.foamfix.coremod.patches;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-import org.objectweb.asm.util.Textifier;
-import org.objectweb.asm.util.TraceClassVisitor;
 import pl.asie.patchy.TransformerFunction;
 
-import java.io.PrintWriter;
 import java.util.ListIterator;
 
 public class WorldServerRemovalPatch implements TransformerFunction<ClassNode> {

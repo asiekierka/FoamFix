@@ -31,8 +31,6 @@ package pl.asie.foamfix.coremod.patches.jei;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
-import net.minecraft.client.util.ISearchTree;
-import net.minecraft.client.util.SearchTree;
 import net.minecraft.client.util.SearchTreeManager;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.FoamFix;
@@ -40,7 +38,6 @@ import pl.asie.foamfix.client.jei.SearchTreeJEIItems;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Map;
 
 public class SearchTreeJEIManagerInject implements IResourceManagerReloadListener {

@@ -29,7 +29,6 @@
 package pl.asie.foamfix.coremod.injections;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyHelper;

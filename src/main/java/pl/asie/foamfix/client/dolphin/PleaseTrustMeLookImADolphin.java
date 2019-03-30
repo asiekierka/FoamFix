@@ -30,7 +30,10 @@ package pl.asie.foamfix.client.dolphin;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiListWorldSelection;
+import net.minecraft.client.gui.GuiListWorldSelectionEntry;
+import net.minecraft.client.gui.GuiWorldSelection;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
@@ -43,10 +46,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.sql.Ref;
-import java.util.Iterator;
 import java.util.List;
 
 public class PleaseTrustMeLookImADolphin {

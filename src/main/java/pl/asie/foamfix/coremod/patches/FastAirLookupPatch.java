@@ -28,8 +28,8 @@
 
 package pl.asie.foamfix.coremod.patches;
 
-import org.objectweb.asm.tree.*;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
 import pl.asie.patchy.TransformerFunction;
 
 import java.util.ListIterator;

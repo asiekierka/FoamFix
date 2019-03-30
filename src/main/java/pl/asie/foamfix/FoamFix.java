@@ -53,30 +53,20 @@
  */
 package pl.asie.foamfix;
 
-import com.google.common.eventbus.Subscribe;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.RecipeToast;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.api.FoamFixAPI;
-import pl.asie.foamfix.client.FastTextureAtlasSprite;
 import pl.asie.foamfix.common.FoamFixHelper;
 import pl.asie.foamfix.common.PropertyValueDeduplicator;
 import pl.asie.foamfix.common.WorldNuller;
@@ -84,7 +74,6 @@ import pl.asie.foamfix.ghostbuster.CommandGhostBuster;
 import pl.asie.foamfix.ghostbuster.GhostBusterEventHandler;
 import pl.asie.foamfix.shared.FoamFixShared;
 
-import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;

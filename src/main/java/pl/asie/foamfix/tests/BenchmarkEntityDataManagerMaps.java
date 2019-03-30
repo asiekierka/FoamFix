@@ -28,7 +28,7 @@
 
 package pl.asie.foamfix.tests;
 
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -44,7 +44,8 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import pl.asie.foamfix.coremod.common.FoamyArrayBackedDataManagerMap;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @State(Scope.Thread)
 public class BenchmarkEntityDataManagerMaps {

@@ -28,7 +28,7 @@
 
 package pl.asie.foamfix.common;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;

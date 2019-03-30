@@ -28,11 +28,15 @@
 
 package pl.asie.patchy;
 
-import com.google.common.collect.*;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
 import net.minecraft.launchwrapper.IClassTransformer;
 
-import java.util.*;
-import java.util.function.BiFunction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Patchy implements IClassTransformer {
     private final Map<Class, TransformerHandler> handlerMap;

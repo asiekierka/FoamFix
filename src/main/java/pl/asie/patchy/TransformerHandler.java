@@ -28,10 +28,7 @@
 
 package pl.asie.patchy;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public abstract class TransformerHandler<T> {
     private final Patchy owner;

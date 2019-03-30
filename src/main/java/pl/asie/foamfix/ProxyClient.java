@@ -53,43 +53,29 @@
  */
 package pl.asie.foamfix;
 
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer;
-import net.minecraftforge.client.model.pipeline.VertexLighterSmoothAo;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
 import pl.asie.foamfix.common.WorldNuller;
-import pl.asie.foamfix.coremod.VertexLighterOverrideHandler;
-import pl.asie.foamfix.coremod.injections.VertexLighterSmoothAoCheap;
 import pl.asie.foamfix.shared.FoamFixShared;
-import pl.asie.foamfix.util.FoamUtils;
-import pl.asie.foamfix.util.MethodHandleHelper;
 
 import javax.annotation.Nullable;
-import java.lang.invoke.MethodHandle;
 import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
@@ -219,6 +205,6 @@ public class ProxyClient extends ProxyCommon {
 
 	@Override
 	public void refreshResources() {
-		Minecraft.getMinecraft().scheduleResourcesRefresh();
+		FMLClientHandler.instance().scheduleResourcesRefresh((type) -> true);
 	}
 }

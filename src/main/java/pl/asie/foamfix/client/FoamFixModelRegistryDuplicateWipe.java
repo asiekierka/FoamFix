@@ -72,8 +72,6 @@ import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.ProxyClient;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Map;
 
 public class FoamFixModelRegistryDuplicateWipe {

@@ -35,9 +35,7 @@ import pl.asie.patchy.Patchy;
 import pl.asie.patchy.TransformerFunction;
 import pl.asie.patchy.TransformerHandler;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 public class TransformerHandlerClassVisitor extends TransformerHandler<ClassVisitor> {
     public TransformerHandlerClassVisitor(Patchy owner) {

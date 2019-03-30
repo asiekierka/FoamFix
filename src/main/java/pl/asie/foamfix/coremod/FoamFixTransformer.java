@@ -53,32 +53,44 @@
  */
 package pl.asie.foamfix.coremod;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.launchwrapper.LaunchClassLoader;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.ClassRemapper;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.tree.*;
+import pl.asie.foamfix.coremod.injections.crafting.ContainerPatchCrafting;
+import pl.asie.foamfix.coremod.patches.*;
+import pl.asie.foamfix.shared.FoamFixShared;
+import pl.asie.patchy.Patchy;
+import pl.asie.patchy.TransformerHandler;
+import pl.asie.patchy.handlers.TransformerHandlerByteArray;
+import pl.asie.patchy.handlers.TransformerHandlerClassNode;
+import pl.asie.patchy.handlers.TransformerHandlerClassVisitor;
+import pl.asie.patchy.helpers.ConstructorReplacingTransformer;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import net.minecraft.launchwrapper.LaunchClassLoader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.ClassReader;
-import net.minecraft.launchwrapper.IClassTransformer;
-import org.objectweb.asm.tree.*;
-import pl.asie.foamfix.coremod.injections.crafting.ContainerPatchCrafting;
-import pl.asie.foamfix.coremod.patches.*;
-import pl.asie.foamfix.shared.FoamFixShared;
-import pl.asie.patchy.*;
-import pl.asie.patchy.handlers.*;
-import pl.asie.patchy.helpers.ConstructorReplacingTransformer;
-
 public class FoamFixTransformer implements IClassTransformer {
+    private static byte[] getClassBytes(final String className) throws IOException {
+        ClassLoader loader = FoamFixTransformer.class.getClassLoader();
+        if (loader instanceof LaunchClassLoader) {
+            return ((LaunchClassLoader) FoamFixTransformer.class.getClassLoader()).getClassBytes(className);
+        } else {
+            throw new RuntimeException("Incompatible class loader for FoamFixTransformer.getClassBytes: " + loader.getClass().getName());
+        }
+    }
+
     public static ClassNode spliceClasses(final ClassNode data, final String className, final boolean addMethods, final String... methods) {
         try {
-            final byte[] dataSplice = ((LaunchClassLoader) FoamFixTransformer.class.getClassLoader()).getClassBytes(className);
+            final byte[] dataSplice = getClassBytes(className);
             return spliceClasses(data, dataSplice, className, addMethods, methods);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -181,7 +193,7 @@ public class FoamFixTransformer implements IClassTransformer {
 
     public static ClassNode replaceClasses(final ClassNode data, final String className) {
         try {
-            final byte[] dataSplice = ((LaunchClassLoader) FoamFixTransformer.class.getClassLoader()).getClassBytes(className);
+            final byte[] dataSplice = getClassBytes(className);
             return replaceClasses(data, dataSplice, className);
         } catch (IOException e) {
             throw new RuntimeException(e);

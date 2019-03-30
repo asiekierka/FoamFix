@@ -54,23 +54,19 @@
 package pl.asie.foamfix;
 
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.BiMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.LaunchClassLoader;
-import net.minecraft.stats.StatBase;
-import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityFlowerPot;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import pl.asie.foamfix.client.Deduplicator;
 import pl.asie.foamfix.common.TileEntityFasterHopper;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.Manifest;
 
 public class ProxyCommon {
@@ -82,92 +78,96 @@ public class ProxyCommon {
 
 		System.out.println(TileEntity.getKey(TileEntityHopper.class));
 
-		if (FoamFixShared.config.lwRemovePackageManifestMap) {
-			FoamFix.logger.info("Removing LaunchWrapper package manifest map...");
-			try {
-				LaunchClassLoader loader = (LaunchClassLoader) this.getClass().getClassLoader();
+		if (getClass().getClassLoader() instanceof LaunchClassLoader) {
+			if (FoamFixShared.config.lwRemovePackageManifestMap) {
+				FoamFix.logger.info("Removing LaunchWrapper package manifest map...");
+				try {
+					LaunchClassLoader loader = (LaunchClassLoader) getClass().getClassLoader();
 
-				Field pmField = ReflectionHelper.findField(LaunchClassLoader.class, "packageManifests");
-				pmField.set(loader, new Map<Package, Manifest>() {
-					@Override
-					public int size() {
-						return 0;
-					}
+					Field pmField = ReflectionHelper.findField(LaunchClassLoader.class, "packageManifests");
+					pmField.set(loader, new Map<Package, Manifest>() {
+						@Override
+						public int size() {
+							return 0;
+						}
 
-					@Override
-					public boolean isEmpty() {
-						return true;
-					}
+						@Override
+						public boolean isEmpty() {
+							return true;
+						}
 
-					@Override
-					public boolean containsKey(Object o) {
-						return false;
-					}
+						@Override
+						public boolean containsKey(Object o) {
+							return false;
+						}
 
-					@Override
-					public boolean containsValue(Object o) {
-						return false;
-					}
+						@Override
+						public boolean containsValue(Object o) {
+							return false;
+						}
 
-					@Override
-					public Manifest get(Object o) {
-						return null;
-					}
+						@Override
+						public Manifest get(Object o) {
+							return null;
+						}
 
-					@Override
-					public Manifest put(Package o, Manifest o2) {
-						return o2;
-					}
+						@Override
+						public Manifest put(Package o, Manifest o2) {
+							return o2;
+						}
 
-					@Override
-					public Manifest remove(Object o) {
-						return null;
-					}
+						@Override
+						public Manifest remove(Object o) {
+							return null;
+						}
 
-					@Override
-					public void putAll(Map map) {
+						@Override
+						public void putAll(Map map) {
 
-					}
+						}
 
-					@Override
-					public void clear() {
+						@Override
+						public void clear() {
 
-					}
+						}
 
-					@Override
-					public Set keySet() {
-						return Collections.emptySet();
-					}
+						@Override
+						public Set keySet() {
+							return Collections.emptySet();
+						}
 
-					@Override
-					public Collection values() {
-						return Collections.emptySet();
-					}
+						@Override
+						public Collection values() {
+							return Collections.emptySet();
+						}
 
-					@Override
-					public Set<Entry<Package, Manifest>> entrySet() {
-						return Collections.emptySet();
-					}
-				});
-			} catch (Exception e) {
-				e.printStackTrace();
+						@Override
+						public Set<Entry<Package, Manifest>> entrySet() {
+							return Collections.emptySet();
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
 
 	public void init() {
-		if (FoamFixShared.config.lwWeakenResourceCache) {
-			FoamFix.logger.info("Weakening LaunchWrapper resource cache...");
-			try {
-				LaunchClassLoader loader = (LaunchClassLoader) this.getClass().getClassLoader();
+		if (getClass().getClassLoader() instanceof LaunchClassLoader) {
+			if (FoamFixShared.config.lwWeakenResourceCache) {
+				FoamFix.logger.info("Weakening LaunchWrapper resource cache...");
+				try {
+					LaunchClassLoader loader = (LaunchClassLoader) getClass().getClassLoader();
 
-				Field resourceCacheField = ReflectionHelper.findField(LaunchClassLoader.class, "resourceCache");
-				Map oldResourceCache = (Map) resourceCacheField.get(loader);
-				Map newResourceCache = CacheBuilder.newBuilder().weakValues().build().asMap();
-				newResourceCache.putAll(oldResourceCache);
-				resourceCacheField.set(loader, newResourceCache);
-			} catch (Exception e) {
-				e.printStackTrace();
+					Field resourceCacheField = ReflectionHelper.findField(LaunchClassLoader.class, "resourceCache");
+					Map oldResourceCache = (Map) resourceCacheField.get(loader);
+					Map newResourceCache = CacheBuilder.newBuilder().weakValues().build().asMap();
+					newResourceCache.putAll(oldResourceCache);
+					resourceCacheField.set(loader, newResourceCache);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

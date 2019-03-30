@@ -30,15 +30,12 @@ package pl.asie.foamfix.client.jei;
 
 import mezz.jei.gui.ingredients.IIngredientListElement;
 import mezz.jei.ingredients.IngredientFilter;
-import net.minecraft.client.util.ISearchTree;
 import net.minecraft.client.util.SearchTree;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import pl.asie.foamfix.coremod.patches.jei.SearchTreeJEIPatchGlue;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SearchTreeJEIItems extends SearchTree<ItemStack> {

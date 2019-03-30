@@ -28,18 +28,16 @@
 
 package pl.asie.foamfix.common;
 
-import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import pl.asie.foamfix.FoamFix;
 
-import java.lang.invoke.MethodHandle;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by asie on 12/31/16.

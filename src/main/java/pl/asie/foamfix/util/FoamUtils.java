@@ -53,23 +53,11 @@
  */
 package pl.asie.foamfix.util;
 
-import com.google.common.collect.Sets;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.statemap.BlockStateMapper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import pl.asie.foamfix.FoamFix;
 
-import javax.vecmath.Vector3f;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Map;
 
 public final class FoamUtils {
 	public static final MethodHandle PMW_GET_PARENT;

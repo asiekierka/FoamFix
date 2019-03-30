@@ -29,7 +29,6 @@
 package pl.asie.foamfix.common;
 
 import gnu.trove.set.hash.TCustomHashSet;
-import gnu.trove.strategy.HashingStrategy;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;

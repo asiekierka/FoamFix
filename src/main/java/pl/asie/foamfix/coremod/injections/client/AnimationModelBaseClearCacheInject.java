@@ -28,12 +28,7 @@
 
 package pl.asie.foamfix.coremod.injections.client;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
 
 public class AnimationModelBaseClearCacheInject {

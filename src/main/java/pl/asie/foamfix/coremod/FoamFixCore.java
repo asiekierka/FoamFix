@@ -53,23 +53,15 @@
  */
 package pl.asie.foamfix.coremod;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
-import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
-import net.minecraftforge.fml.common.asm.ASMTransformerWrapper;
-import net.minecraftforge.fml.common.asm.transformers.DeobfuscationTransformer;
-import net.minecraftforge.fml.common.asm.transformers.SideTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.shared.FoamFixShared;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 @IFMLLoadingPlugin.Name("Do not report to Forge! (If you haven't disabled the FoamFix coremod, try disabling it in the config! Note that this bit of text will still appear.)")
 @IFMLLoadingPlugin.SortingIndex(1001)
@@ -106,22 +98,23 @@ public class FoamFixCore implements IFMLLoadingPlugin {
                 }
             }
 
-            if (FoamFixShared.config.geBlacklistLibraryTransformers) {
-                LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
-                classLoader.addTransformerExclusion("com.ibm.icu.");
-                classLoader.addTransformerExclusion("com.sun.");
-                classLoader.addTransformerExclusion("gnu.trove.");
-                classLoader.addTransformerExclusion("io.netty.");
-                classLoader.addTransformerExclusion("it.unimi.dsi.fastutil.");
-                classLoader.addTransformerExclusion("joptsimple.");
-                classLoader.addTransformerExclusion("org.apache.");
-                classLoader.addTransformerExclusion("oshi.");
-                classLoader.addTransformerExclusion("scala.");
-            }
+            if (getClass().getClassLoader() instanceof LaunchClassLoader) {
+	            if (FoamFixShared.config.geBlacklistLibraryTransformers) {
+		            LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
+		            classLoader.addTransformerExclusion("com.ibm.icu.");
+		            classLoader.addTransformerExclusion("com.sun.");
+		            classLoader.addTransformerExclusion("gnu.trove.");
+		            classLoader.addTransformerExclusion("io.netty.");
+		            classLoader.addTransformerExclusion("it.unimi.dsi.fastutil.");
+		            classLoader.addTransformerExclusion("joptsimple.");
+		            classLoader.addTransformerExclusion("org.apache.");
+		            classLoader.addTransformerExclusion("oshi.");
+		            classLoader.addTransformerExclusion("scala.");
+	            }
 
-            LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
+	            LaunchClassLoader classLoader = (LaunchClassLoader) getClass().getClassLoader();
 
-            // Not so simple!
+	            // Not so simple!
 /*            try {
                 Field transformersField = ReflectionHelper.findField(LaunchClassLoader.class, "transformers");
                 List<IClassTransformer> transformerList = (List<IClassTransformer>) transformersField.get(classLoader);
@@ -142,6 +135,7 @@ public class FoamFixCore implements IFMLLoadingPlugin {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } */
+            }
 
             FoamFixTransformer.init();
         }

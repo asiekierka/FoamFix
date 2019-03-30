@@ -28,8 +28,9 @@
 
 package pl.asie.foamfix.coremod.injections.client;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.*;
+import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -43,12 +44,11 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.ProgressManager;
-import org.apache.commons.lang3.tuple.Pair;
 import pl.asie.foamfix.util.FoamUtils;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
 public class ModelBakeryParallelInject extends ModelBakery {

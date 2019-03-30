@@ -57,8 +57,6 @@ import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-import pl.asie.foamfix.shared.FoamFixConfig;
-import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.TransformerFunction;
 
 import java.util.Set;

@@ -30,7 +30,6 @@ package pl.asie.foamfix.client.dolphin;
 
 import net.minecraft.client.AnvilConverterException;
 import net.minecraft.util.IProgressUpdate;
-import net.minecraft.world.chunk.storage.AnvilSaveHandler;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;

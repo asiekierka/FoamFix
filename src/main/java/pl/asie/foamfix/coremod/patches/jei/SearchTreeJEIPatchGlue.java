@@ -28,33 +28,10 @@
 
 package pl.asie.foamfix.coremod.patches.jei;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.recipebook.RecipeList;
-import net.minecraft.client.main.GameConfiguration;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.client.util.RecipeBookClient;
-import net.minecraft.client.util.SearchTree;
-import net.minecraft.client.util.SearchTreeManager;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import pl.asie.foamfix.FoamFix;
-import pl.asie.foamfix.client.jei.SearchTreeJEIItems;
 import pl.asie.foamfix.util.MethodHandleHelper;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SearchTreeJEIPatchGlue {
 	public static MethodHandle GET_INGREDIENT_LIST_UNCACHED;

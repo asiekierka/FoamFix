@@ -30,13 +30,11 @@ package pl.asie.patchy.helpers;
 
 import com.google.common.collect.ImmutableSet;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import pl.asie.patchy.TransformerFunction;
 
 import java.util.Set;
-import java.util.function.Function;
 
 public class ConstructorReplacingTransformer implements TransformerFunction<ClassVisitor> {
     private final String from, to;

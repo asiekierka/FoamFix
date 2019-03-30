@@ -28,8 +28,6 @@
 
 package pl.asie.foamfix.tests;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -38,10 +36,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.client.resources.DefaultResourcePack;
-import net.minecraft.client.resources.ResourceIndex;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.util.ResourceLocation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
@@ -49,11 +44,6 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
-import java.io.File;
-import java.io.InputStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
 public class BenchmarkFastutil {

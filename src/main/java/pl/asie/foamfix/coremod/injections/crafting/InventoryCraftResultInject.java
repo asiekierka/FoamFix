@@ -30,7 +30,6 @@ package pl.asie.foamfix.coremod.injections.crafting;
 
 import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.item.crafting.IRecipe;
-import pl.asie.foamfix.shared.FoamFixShared;
 
 import javax.annotation.Nullable;
 

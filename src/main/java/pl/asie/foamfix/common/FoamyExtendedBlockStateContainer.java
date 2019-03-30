@@ -34,7 +34,6 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import pl.asie.foamfix.common.FoamyExtendedBlockState;
 
 import java.util.Optional;
 

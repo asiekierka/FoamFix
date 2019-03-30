@@ -29,9 +29,10 @@
 package pl.asie.foamfix.client.dolphin;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiListWorldSelection;
+import net.minecraft.client.gui.GuiListWorldSelectionEntry;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.world.storage.ISaveFormat;
@@ -91,8 +92,8 @@ public class TotallyADolphinEntry extends GuiListWorldSelectionEntry {
     public void joinWorld() {
         try {
             Class<?> desktopClass = Class.forName("java.awt.Desktop");
-            Object desktopInstance = desktopClass.getMethod("getDesktop", new Class[0]).invoke(null);
-            desktopClass.getMethod("browse", new Class[]{URI.class}).invoke(desktopInstance, new URI("https://github.com/Vexatos/Flamingo/releases"));
+            Object desktopInstance = desktopClass.getMethod("getDesktop").invoke(null);
+            desktopClass.getMethod("browse", URI.class).invoke(desktopInstance, new URI("https://github.com/Vexatos/Flamingo/releases"));
         } catch (InvocationTargetException e) {
             // Did you think you can run away, Linux users?
             if (Util.getOSType() == Util.EnumOS.LINUX || Util.getOSType() == Util.EnumOS.SOLARIS) {

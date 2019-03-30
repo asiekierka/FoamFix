@@ -28,17 +28,14 @@
 
 package pl.asie.foamfix.ghostbuster;
 
-import java.lang.reflect.Field;
-
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.event.world.WorldEvent;
-
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import pl.asie.foamfix.FoamFix;
+
+import java.lang.reflect.Field;
 
 public class GhostBusterEventHandler {
 	@SubscribeEvent

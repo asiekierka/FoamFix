@@ -28,14 +28,11 @@
 
 package pl.asie.foamfix.coremod.injections.crafting;
 
-import net.minecraft.network.datasync.EntityDataManager;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-import pl.asie.foamfix.coremod.common.FoamyArrayBackedDataManagerMap;
 import pl.asie.patchy.TransformerFunction;
 
 import java.util.ListIterator;
-import java.util.Map;
 
 public class ContainerPatchCrafting implements TransformerFunction<ClassNode> {
     @Override
