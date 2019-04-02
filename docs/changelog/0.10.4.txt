@@ -1,0 +1,7 @@
+Additions:
+
+* [#183] API interface for efficiently forcing mob spawner activation without fake players or extra coremodding
+
+Bugs fixed:
+
+* [#183] Add workaround to mob spawner cache tweak for PneumaticCraft: Repressurized
