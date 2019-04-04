@@ -38,6 +38,7 @@ public class CachingMobSpawnerLogicInject extends MobSpawnerBaseLogic implements
     private boolean foamfix_activatedCache;
     private int foamfix_activatedCachePESize;
     private long foamfix_activatedCacheTime;
+
     private boolean foamfix_forcedCache;
     private long foamfix_forcedCacheTime;
 
