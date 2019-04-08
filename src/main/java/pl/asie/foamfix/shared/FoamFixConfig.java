@@ -47,6 +47,7 @@ public class FoamFixConfig {
 	public boolean geDeduplicate, clWipeModelCache, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public boolean clCheapMinimumLighter, clInitOptions, clModelLoaderCleanup;
 	public boolean clParallelModelBaking, clDisableTextureAnimations;
+	public String[] clTextureAnimationsWhitelist;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, geFasterEntityLookup, geFasterPropertyComparisons, geFasterAirLookup, geFasterEntityDataManager;
 	public boolean twDisableRedstoneLight;
@@ -80,6 +81,18 @@ public class FoamFixConfig {
 	public boolean geSmallLightingOptimize = false;
 
 	public boolean resourceDirty;
+
+
+	private String[] getStrings(String name, String category, String defaultValue, String description, boolean requiresRestart, boolean showInGui) {
+		Property prop = config.get(category, name, defaultValue);
+		prop.setDefaultValue(defaultValue);
+		prop.setComment(description + " [default: " + defaultValue + "]");
+		prop.setRequiresMcRestart(requiresRestart);
+		prop.setShowInGui(showInGui);
+		prop.setLanguageKey("foamfix.config." + name);
+		applicableProperties.add(prop);
+		return prop.getString().split(",");
+	}
 
 	private boolean getBoolean(String name, String category, boolean defaultValue, String description, boolean requiresRestart, boolean showInGui) {
 		Property prop = config.get(category, name, defaultValue);
@@ -190,7 +203,8 @@ public class FoamFixConfig {
 				}
 			}
 
-			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations.", false, true);
+			clDisableTextureAnimations = getBoolean("disableTextureAnimations", "client", false, "Disables texture animations for all textures that are not on the whitelist", false, true);
+			clTextureAnimationsWhitelist = getStrings("textureAnimationsWhitelist", "client", "minecraft:", "Defines which textures should be animated. All textures starting with one of the strings will be allowed. Values separated by ','. Requires 'disableTextureAnimations' to be true", false, true);
 			clInitOptions = getBoolean("initOptions", "client", true, "Initialize the options.txt and forge.cfg files with rendering performance-friendly defaults if not present.", true, false);
 //			clCheapMinimumLighter = getBoolean("cheapMinimumLight", "experimental", true, "Replaces the Minimum Smooth Lighting option with a lighter which only provides ambient occlusion, but not smooth light per se.", true, true);
 			clCheapMinimumLighter = false;
