@@ -46,12 +46,11 @@ public class FoamFixConfig {
 	public boolean lwWeakenResourceCache, lwRemovePackageManifestMap;
 	public boolean geDeduplicate, clWipeModelCache, clCleanRedundantModelRegistry, clDynamicItemModels;
 	public boolean clCheapMinimumLighter, clInitOptions, clModelLoaderCleanup;
-	public boolean clParallelModelBaking, clDisableTextureAnimations;
+	public boolean clDisableTextureAnimations;
 	public boolean geBlacklistLibraryTransformers;
 	public boolean geBlockPosPatch, geFasterEntityLookup, geFasterPropertyComparisons, geFasterAirLookup, geFasterEntityDataManager;
 	public boolean twDisableRedstoneLight;
 	public boolean geSmallPropertyStorage, gePatchChunkSerialization;
-	public boolean geCacheShiftCrafting;
 	public boolean twImmediateLightingUpdates;
 	public boolean gbPatchBeds, geFasterHopper, geFixWorldEntityCleanup, clDeduplicateIModels;
 	public boolean gbNotifyNonUnloadedWorlds, gbForgeGCNonUnloaded;
@@ -165,7 +164,6 @@ public class FoamFixConfig {
 			boolean oldClWipeModelCache = clWipeModelCache;
 
 			geMobSpawnerCheckSpeed = getInt("mobSpawnerCheckSpeed", "coremod", 10, 1, 200, "The amount of ticks per player presence check for mob spawners. Set to 1 to disable the patch and match vanilla behaviour.", true, true);
-//			geCacheShiftCrafting = getBoolean("cacheShiftClickCrafting", "coremod", true, "Should the recipe used for shift-clicking be cached? Speeds up shift-crafting noticeably!", true, true);
 
 		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
 			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
@@ -202,7 +200,6 @@ public class FoamFixConfig {
 			clDynamicItemModels = getBoolean("dynamicItemModels", "coremod", true, "Make 3D forms of items be rendered dynamically and cached when necessary.", true, true);
 			// geSmallLightingOptimize = getBoolean("smallLightingOptimize", "experimental", true, "Not fully benchmarked, experimental minor lighting calculation code optimization - according to preliminary tests, it doesn't impact performance while reducing GC churn.");
 			// geFasterSideTransformer = getBoolean("fasterSideTransformer", "coremod", true, "Faster @SideOnly ASM transformer - makes the game load faster");
-			clParallelModelBaking = getBoolean("parallelModelBaking", "experimental", false, "Threaded, parallel model baking.", true, true);
 			if (!isDeobfEnvironment)
 				geFasterEntityLookup = getBoolean("fasterEntityLookup", "coremod", true, "Speeds up entity lookup by optimizing ClassInheritanceMultiMap.getByClass.", true, true);
 			geFasterAirLookup = getBoolean("fasterAirItemLookup", "coremod", true, "Optimizes ItemStack.isEmpty by removing a map lookup. Initially found by Aikar (Paper/0181).", true, true);
