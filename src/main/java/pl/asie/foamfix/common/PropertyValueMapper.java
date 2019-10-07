@@ -37,10 +37,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.properties.*;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.MathHelper;
@@ -203,7 +200,7 @@ public class PropertyValueMapper {
 
 		@Override
 		public int get(Object v) {
-			return values.get(v);
+			return values.get((int) v);
 		}
 
 		public static Entry create(PropertyInteger entry) {
@@ -270,11 +267,12 @@ public class PropertyValueMapper {
 	protected static Entry getPropertyEntry(IProperty property) {
 		Entry e = entryMap.get(property);
 		if (e == null) {
-			if (property instanceof PropertyInteger) {
+			Class<?> propertyClass = property.getClass();
+			if (propertyClass == PropertyInteger.class) {
 				e = IntegerEntry.create((PropertyInteger) property);
-			} else if (property.getClass() == PropertyBool.class && property.getAllowedValues().size() == 2) {
+			} else if (propertyClass == PropertyBool.class && property.getAllowedValues().size() == 2) {
 				e = new BooleanEntry(property);
-			} else if (property instanceof PropertyEnum) {
+			} else if (propertyClass == PropertyEnum.class || propertyClass == PropertyDirection.class) {
 				e = EnumEntrySorted.create((PropertyEnum) property);
 			} else {
 				e = new ObjectEntry(property, false);

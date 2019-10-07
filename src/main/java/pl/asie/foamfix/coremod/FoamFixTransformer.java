@@ -26,31 +26,6 @@
  * additional permission to convey the resulting work.
  */
 
-/**
- * This file is part of FoamFixAPI.
- *
- * FoamFixAPI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * FoamFixAPI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with FoamFixAPI.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Additional permission under GNU GPL version 3 section 7
- *
- * If you modify this Program, or any covered work, by linking or
- * combining it with the Minecraft game engine, the Mojang Launchwrapper,
- * the Mojang AuthLib and the Minecraft Realms library (and/or modified
- * versions of said software), containing parts covered by the terms of
- * their respective licenses, the licensors of this Program grant you
- * additional permission to convey the resulting work.
- */
 package pl.asie.foamfix.coremod;
 
 import com.google.common.collect.Lists;
@@ -63,7 +38,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
-import pl.asie.foamfix.coremod.injections.crafting.ContainerPatchCrafting;
 import pl.asie.foamfix.coremod.patches.*;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.Patchy;
@@ -268,12 +242,6 @@ public class FoamFixTransformer implements IClassTransformer {
 		            false, "bake", "bake"), "net.minecraftforge.client.model.ItemLayerModel");
         }
 
-        if (FoamFixShared.config.clParallelModelBaking) {
-            patchy.addTransformerId("parallelModelBaking_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.ModelBakeryParallelInject",
-		            false, "setupModelRegistry", "func_177570_a"), "net.minecraftforge.client.model.ModelLoader");
-        }
-
         if (FoamFixShared.config.clCheapMinimumLighter) {
             patchy.addTransformerId("cheapMinimumLighter_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.BlockInfoInject",
@@ -390,17 +358,6 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("clearCachesOnUnload_v2");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.AnimationModelBaseClearCacheInject",
                     false, "render", "render"), "net.minecraftforge.client.model.animation.AnimationModelBase");
-        }
-
-        if (FoamFixShared.config.geCacheShiftCrafting) {
-            patchy.addTransformerId("cacheShiftCrafting_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.crafting.InventoryCraftResultInject",
-                    true,
-                    "setRecipeUsed", "func_193056_a",
-                    "foamfix_lastRecipeUsed", "foamfix_lastRecipeUsed",
-                    "foamfix_getLastRecipeUsed", "foamfix_getLastRecipeUsed"),
-                    "net.minecraft.inventory.InventoryCraftResult");
-            handlerCN.add(new ContainerPatchCrafting(), "net.minecraft.inventory.Container");
         }
 
         /* if (FoamFixShared.config.staging4370) {

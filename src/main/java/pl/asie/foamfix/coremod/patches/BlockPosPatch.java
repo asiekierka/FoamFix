@@ -53,6 +53,8 @@
  */
 package pl.asie.foamfix.coremod.patches;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -64,7 +66,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class BlockPosPatch {
-	private static final HashMap<String, String> mutableFieldSwaps = new HashMap<>();
+	private static final BiMap<String, String> mutableFieldSwaps = HashBiMap.create();
 	private static final HashSet<String> mutableDeletedMethods = new HashSet<>();
 	private static final HashSet<String> mutableOwners = new HashSet<>();
 
@@ -90,6 +92,7 @@ public class BlockPosPatch {
 
 	private static class BlockPosClassVisitor extends ClassVisitor {
 		private boolean isMutable;
+		private boolean isVec3i;
 		private boolean hasChanged = false;
 
 		public BlockPosClassVisitor(int api, ClassVisitor next) {
@@ -103,9 +106,8 @@ public class BlockPosPatch {
 		@Override
 		public void visit(int version, int access, String name, String signature,
 		                  String superName, String[] interfaces) {
-			if ("net/minecraft/util/math/BlockPos$MutableBlockPos".equals(name)) {
-				isMutable = true;
-			}
+			isMutable = "net/minecraft/util/math/BlockPos$MutableBlockPos".equals(name);
+			isVec3i = "net/minecraft/util/math/Vec3i".equals(name);
 			if (mutableOwners.contains(superName)) {
 				mutableOwners.add(name);
 			}
@@ -120,6 +122,11 @@ public class BlockPosPatch {
 			if (cv == null) {
 				return null;
 			}
+
+			if (isVec3i && mutableFieldSwaps.containsValue(name)) {
+				return cv.visitField((access & (~(Opcodes.ACC_FINAL | 7)) | Opcodes.ACC_PROTECTED), name, desc, signature, value);
+			}
+
 			if (!isMutable || !mutableFieldSwaps.containsKey(name)) {
 				return cv.visitField(access, name, desc, signature, value);
 			} else {

@@ -1,0 +1,8 @@
+Removed:
+
+* "cacheShiftCrafting" optimization. Use FastWorkbench instead!
+* "parallelModelBaking" optimization. People kept enabling it even though they shouldn't have.
+
+Bugs fixed:
+
+* Mostly guess-based attempts at fixing a variety of GitHub bugs.
