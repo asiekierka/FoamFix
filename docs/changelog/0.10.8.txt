@@ -1,0 +1,1 @@
+* Features incompatible with JustEnoughIDs and SpongeForge are now disabled by default.

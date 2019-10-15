@@ -53,11 +53,47 @@
  */
 package pl.asie.foamfix.shared;
 
+import java.util.function.BooleanSupplier;
+
 public class FoamFixShared {
 	public static final FoamFixConfig config = new FoamFixConfig();
 	public static boolean isCoremod = false;
 	public static int ramSaved = 0;
-	public static boolean fastWorkbenchLoaded;
+	private static Boolean jeidsPresent;
+	private static Boolean spongePresent;
+
+	public static boolean emitWarningIfPresent(String featureName, BooleanSupplier supplier, String modName) {
+		if (supplier.getAsBoolean()) {
+			System.err.println(featureName + " has been force-disabled - " + modName + " detected!");
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean hasJeids() {
+		if (jeidsPresent == null) {
+			try {
+				jeidsPresent = Class.forName("org.dimdev.jeid.JEIDLoadingPlugin") != null;
+			} catch (ClassNotFoundException e) {
+				jeidsPresent = false;
+			}
+		}
+
+		return jeidsPresent;
+	}
+
+	public static boolean hasSponge() {
+		if (spongePresent == null) {
+			try {
+				spongePresent = Class.forName("org.spongepowered.mod.SpongeCoremod") != null;
+			} catch (ClassNotFoundException e) {
+				spongePresent = false;
+			}
+		}
+
+		return spongePresent;
+	}
 
 	public static boolean hasOptifine() {
 		try {

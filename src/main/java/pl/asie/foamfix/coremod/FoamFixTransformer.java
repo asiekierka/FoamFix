@@ -207,17 +207,31 @@ public class FoamFixTransformer implements IClassTransformer {
         TransformerHandler<ClassVisitor> handlerCV = patchy.getHandler(ClassVisitor.class);
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
-            patchy.addTransformerId("smallPropertyStorage_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer",
-		            false, "createState", "createState"), "net.minecraft.block.state.BlockStateContainer");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer",
-		            false, "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
+            boolean compatible = true;
+            if (FoamFixShared.emitWarningIfPresent("coremod.smallPropertyStorage", FoamFixShared::hasJeids, "JustEnoughIDs"))
+                compatible = false;
+
+            if (compatible) {
+                patchy.addTransformerId("smallPropertyStorage_v1");
+                handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer",
+                        false, "createState", "createState"), "net.minecraft.block.state.BlockStateContainer");
+                handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer",
+                        false, "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
+            }
         }
 
         if (FoamFixShared.config.gePatchChunkSerialization) {
-            patchy.addTransformerId("patchChunkSerialization_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockStateContainerSpongeInject",
-                    false, "getSerializedSize", "func_186018_a"), "net.minecraft.world.chunk.BlockStateContainer");
+            boolean compatible = true;
+            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasJeids, "JustEnoughIDs"))
+                compatible = false;
+            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasSponge, "SpongeForge"))
+                compatible = false;
+
+            if (compatible) {
+                patchy.addTransformerId("patchChunkSerialization_v1");
+                handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockStateContainerSpongeInject",
+                        false, "getSerializedSize", "func_186018_a"), "net.minecraft.world.chunk.BlockStateContainer");
+            }
         }
 
         /* if (FoamFixShared.config.geSmallLightingOptimize) {
@@ -249,9 +263,15 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         if (FoamFixShared.config.geBlockPosPatch) {
-            patchy.addTransformerId("blockPosPatch_v1");
-            handlerCN.add(BlockPosPatch::patchVec3i, "net.minecraft.util.math.Vec3i");
-            handlerCV.add(BlockPosPatch::patchOtherClass);
+            boolean compatible = true;
+            if (FoamFixShared.emitWarningIfPresent("coremod.optimizedBlockPos", FoamFixShared::hasSponge, "SpongeForge"))
+                compatible = false;
+
+            if (compatible) {
+                patchy.addTransformerId("blockPosPatch_v1");
+                handlerCN.add(BlockPosPatch::patchVec3i, "net.minecraft.util.math.Vec3i");
+                handlerCV.add(BlockPosPatch::patchOtherClass);
+            }
         }
 
         if (FoamFixShared.config.geFasterEntityLookup) {

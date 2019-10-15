@@ -112,7 +112,6 @@ public class FoamFix {
         stage = 0;
 
         FoamFixShared.config.init(event.getSuggestedConfigurationFile(), false);
-        FoamFixShared.fastWorkbenchLoaded = Loader.isModLoaded("fastbench");
 
         MinecraftForge.EVENT_BUS.register(proxy);
 

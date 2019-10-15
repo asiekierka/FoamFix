@@ -168,7 +168,7 @@ public class FoamFixConfig {
 		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
 			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
 
-			gePatchChunkSerialization = getBoolean("patchChunkSerialization", "general", true, "Fix a bug in chunk serialization leading to crashes. Originally found and fixed by Aaron1011 of Sponge.", true, true);
+			gePatchChunkSerialization = getBoolean("patchChunkSerialization", "coremod", true, "Fix a bug in chunk serialization leading to crashes. Originally found and fixed by Aaron1011 of Sponge.", true, true);
 
 			clJeiCreativeSearch = getBoolean("jeiCreativeSearch", "client", true, "Makes vanilla creative tab search use JEI's lookups - saves a lot of RAM *and* gives you fancy JEI features!", true, true);
 			clWipeModelCache = getBoolean("wipeModelCache", "client", true, "Wipes the IModel cache after baking is finished. Saves a lot of RAM, as most IModels will not be reloaded.", false, true);

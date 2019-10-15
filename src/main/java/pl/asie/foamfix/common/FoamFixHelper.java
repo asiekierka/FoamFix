@@ -31,17 +31,27 @@ package pl.asie.foamfix.common;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
+import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import pl.asie.foamfix.api.IFoamFixHelper;
+import pl.asie.foamfix.shared.FoamFixShared;
 
 public class FoamFixHelper implements IFoamFixHelper {
 	@Override
 	public BlockStateContainer createBlockState(Block block, IProperty<?>... properties) {
+		if (FoamFixShared.hasJeids()) {
+			return new BlockStateContainer(block, properties);
+		}
+
 		return new FoamyBlockStateContainer(block, properties);
 	}
 
 	@Override
 	public BlockStateContainer createExtendedBlockState(Block block, IProperty<?>[] properties, IUnlistedProperty<?>[] unlistedProperties) {
+		if (FoamFixShared.hasJeids()) {
+			return new ExtendedBlockState(block, properties, unlistedProperties);
+		}
+
 		return new FoamyExtendedBlockStateContainer(block, properties, unlistedProperties);
 	}
 }
