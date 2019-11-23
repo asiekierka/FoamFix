@@ -208,7 +208,7 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
             boolean compatible = true;
-            if (FoamFixShared.emitWarningIfPresent("coremod.smallPropertyStorage", FoamFixShared::hasJeids, "JustEnoughIDs"))
+            if (FoamFixShared.emitWarningIfPresent("coremod.smallPropertyStorage", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH))
                 compatible = false;
 
             if (compatible) {
@@ -222,9 +222,9 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.gePatchChunkSerialization) {
             boolean compatible = true;
-            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasJeids, "JustEnoughIDs"))
+            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH))
                 compatible = false;
-            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasSponge, "SpongeForge"))
+            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasSponge, FoamFixShared.MOD_NAME_SPONGE))
                 compatible = false;
 
             if (compatible) {

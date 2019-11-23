@@ -179,7 +179,11 @@ public final class FoamFixModelDeduplicate {
             FoamFix.logger.info("Deduplicating models...");
             try {
                 if (cache != null) {
-                    ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", cache.size() + 2);
+                    int bakeBarLength = 2;
+                    if (FoamFixShared.config.clDeduplicateIModels) {
+                        bakeBarLength += cache.size();
+                    }
+                    ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", bakeBarLength);
 
                     if (ProxyClient.deduplicator == null) {
                         ProxyClient.deduplicator = new Deduplicator();
@@ -243,35 +247,37 @@ public final class FoamFixModelDeduplicate {
                 t.printStackTrace();
             }
 
-            ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
+            if (FoamFixShared.config.clDeduplicateModels) {
+                ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
 
-            if (ProxyClient.deduplicator == null) {
-                ProxyClient.deduplicator = new Deduplicator();
-            }
-
-            ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
-            FoamFix.logger.info("Deduplicating models...");
-
-            for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
-                IBakedModel model = event.getModelRegistry().getObject(loc);
-                String modelName = loc.toString();
-                bakeBar.step(String.format("[%s]", modelName));
-
-                if (model instanceof MultipartBakedModel) {
-                    ProxyClient.deduplicator.successfuls++;
-                    model = new FoamyMultipartBakedModel((MultipartBakedModel) model);
+                if (ProxyClient.deduplicator == null) {
+                    ProxyClient.deduplicator = new Deduplicator();
                 }
 
-                try {
-                    ProxyClient.deduplicator.addObject(loc);
-                    event.getModelRegistry().putObject(loc, (IBakedModel) ProxyClient.deduplicator.deduplicateObject(model, 0));
-                } catch (Exception e) {
+                ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
+                FoamFix.logger.info("Deduplicating models...");
 
+                for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
+                    IBakedModel model = event.getModelRegistry().getObject(loc);
+                    String modelName = loc.toString();
+                    bakeBar.step(String.format("[%s]", modelName));
+
+                    if (model instanceof MultipartBakedModel) {
+                        ProxyClient.deduplicator.successfuls++;
+                        model = new FoamyMultipartBakedModel((MultipartBakedModel) model);
+                    }
+
+                    try {
+                        ProxyClient.deduplicator.addObject(loc);
+                        event.getModelRegistry().putObject(loc, (IBakedModel) ProxyClient.deduplicator.deduplicateObject(model, 0));
+                    } catch (Exception e) {
+
+                    }
                 }
-            }
 
-            ProgressManager.pop(bakeBar);
-            FoamFix.logger.info("Deduplicated " + ProxyClient.deduplicator.successfuls + " (+ " + ProxyClient.deduplicator.successfulTrims + ") objects.");
+                ProgressManager.pop(bakeBar);
+                FoamFix.logger.info("Deduplicated " + ProxyClient.deduplicator.successfuls + " (+ " + ProxyClient.deduplicator.successfulTrims + ") objects.");
+            }
             /* List<Class> map = Lists.newArrayList(ProxyClient.deduplicator.dedupObjDataMap.keySet());
             map.sort(Comparator.comparingInt(a -> ProxyClient.deduplicator.dedupObjDataMap.get(a)));
             for (Class c : map) {

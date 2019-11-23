@@ -76,8 +76,6 @@ public class ProxyCommon {
 			FoamFix.TILE_OVERRIDES.put(TileEntityHopper.class, new ResourceLocation("hopper"));
 		}
 
-		System.out.println(TileEntity.getKey(TileEntityHopper.class));
-
 		if (getClass().getClassLoader() instanceof LaunchClassLoader) {
 			if (FoamFixShared.config.lwRemovePackageManifestMap) {
 				FoamFix.logger.info("Removing LaunchWrapper package manifest map...");

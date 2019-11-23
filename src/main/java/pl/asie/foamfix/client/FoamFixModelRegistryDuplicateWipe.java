@@ -65,6 +65,7 @@ import net.minecraft.item.Item;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.registries.IRegistryDelegate;
@@ -81,7 +82,7 @@ public class FoamFixModelRegistryDuplicateWipe {
         BlockModelShapes bms = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
         ModelManager mgr = bms.getModelManager();
 
-        Field f = ReflectionHelper.findField(ModelManager.class, "modelRegistry", "field_174958_a");
+        Field f = ObfuscationReflectionHelper.findField(ModelManager.class, "field_174958_a");
         try {
             IRegistry<ModelResourceLocation, IBakedModel> registry = (IRegistry<ModelResourceLocation, IBakedModel>) f.get(mgr);
             FoamFix.logger.info("Clearing unnecessary model registry of size " + registry.getKeys().size() + ".");
@@ -91,7 +92,7 @@ public class FoamFixModelRegistryDuplicateWipe {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        f = ReflectionHelper.findField(BlockModelShapes.class, "bakedModelStore", "field_178129_a");
+        f = ObfuscationReflectionHelper.findField(BlockModelShapes.class, "field_178129_a");
         try {
             Map<IBlockState, IBakedModel> modelStore = (Map<IBlockState, IBakedModel>) f.get(bms);
             FoamFix.logger.info("Clearing unnecessary model store of size " + modelStore.size() + ".");

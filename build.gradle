@@ -17,7 +17,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'net.minecrell.licenser'
 
-version = "0.10.8-1.12.2"
+version = "0.10.9-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -114,7 +114,7 @@ task anarchyJar(type: Jar, dependsOn: classes) {
     manifest.attributes "Manifest-Version": "1.0"
     manifest.attributes "FMLCorePluginContainsFMLMod": "true"
     manifest.attributes "FMLCorePlugin": "pl.asie.foamfix.coremod.FoamFixCore"
-    archiveName = (archiveName - ".jar") + "-anarchy.jar"
+//    archiveName = (archiveName - ".jar") + "-anarchy.jar"
 }
 
 task lawfulJar(type: Jar, dependsOn: classes) {
@@ -139,18 +139,18 @@ reobf {
 //assemble.dependsOn(anarchyJar, lawfulJar)
 assemble.dependsOn(anarchyJar)
 
-task signLawfulJar(type: SignJar, dependsOn: lawfulJar) {
-    onlyIf {
-        project.hasProperty('keyStore')
-    }
-
-    keyStore = project.keyStore
-    alias = project.keyStoreAlias
-    storePass = project.keyStorePass
-    keyPass = project.keyStoreKeyPass
-    inputFile = lawfulJar.archivePath
-    outputFile = lawfulJar.archivePath
-}
+//task signLawfulJar(type: SignJar, dependsOn: lawfulJar) {
+//    onlyIf {
+//        project.hasProperty('keyStore')
+//    }
+//
+//    keyStore = project.keyStore
+//    alias = project.keyStoreAlias
+//    storePass = project.keyStorePass
+//    keyPass = project.keyStoreKeyPass
+//    inputFile = lawfulJar.archivePath
+//    outputFile = lawfulJar.archivePath
+//}
 
 task signAnarchyJar(type: SignJar, dependsOn: anarchyJar) {
     onlyIf {

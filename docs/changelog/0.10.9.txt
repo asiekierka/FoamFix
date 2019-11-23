@@ -1,0 +1,4 @@
+* Added the "client.deduplicateModels" option, to disable specifically deduplication of baked models.
+* Fixed disabling the "client.deduplicateModelBakers" option causing the progress bar to not be properly removed.
+* Fixed NotEnoughIDs not auto-disabling the "coremod.smallPropertyStorage" option, which it seems to have issues with.
+* Removed unused debug message in ProxyCommon.preInit.

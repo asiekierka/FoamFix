@@ -56,10 +56,12 @@ package pl.asie.foamfix.shared;
 import java.util.function.BooleanSupplier;
 
 public class FoamFixShared {
+	public static final String MOD_NAME_IDPATCH = "JustEnoughIDs/NotEnoughIDs";
+	public static final String MOD_NAME_SPONGE = "SpongeForge";
 	public static final FoamFixConfig config = new FoamFixConfig();
 	public static boolean isCoremod = false;
 	public static int ramSaved = 0;
-	private static Boolean jeidsPresent;
+	private static Boolean idPatchModPresent;
 	private static Boolean spongePresent;
 
 	public static boolean emitWarningIfPresent(String featureName, BooleanSupplier supplier, String modName) {
@@ -71,16 +73,20 @@ public class FoamFixShared {
 		}
 	}
 
-	public static boolean hasJeids() {
-		if (jeidsPresent == null) {
+	public static boolean hasIdPatch() {
+		if (idPatchModPresent == null) {
 			try {
-				jeidsPresent = Class.forName("org.dimdev.jeid.JEIDLoadingPlugin") != null;
+				idPatchModPresent = Class.forName("org.dimdev.jeid.JEIDLoadingPlugin") != null;
 			} catch (ClassNotFoundException e) {
-				jeidsPresent = false;
+				try {
+					idPatchModPresent = Class.forName("ru.fewizz.neid.Neid") != null;
+				} catch (ClassNotFoundException ee) {
+					idPatchModPresent = false;
+				}
 			}
 		}
 
-		return jeidsPresent;
+		return false;
 	}
 
 	public static boolean hasSponge() {
