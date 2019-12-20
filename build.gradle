@@ -114,7 +114,7 @@ task anarchyJar(type: Jar, dependsOn: classes) {
     manifest.attributes "Manifest-Version": "1.0"
     manifest.attributes "FMLCorePluginContainsFMLMod": "true"
     manifest.attributes "FMLCorePlugin": "pl.asie.foamfix.coremod.FoamFixCore"
-//    archiveName = (archiveName - ".jar") + "-anarchy.jar"
+    archiveName = (archiveName - ".jar") + "-anarchy.jar"
 }
 
 task lawfulJar(type: Jar, dependsOn: classes) {
