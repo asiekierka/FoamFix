@@ -208,8 +208,8 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
             boolean compatible = true;
-            if (FoamFixShared.emitWarningIfPresent("coremod.smallPropertyStorage", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH))
-                compatible = false;
+            /* if (FoamFixShared.emitWarningIfPresent("coremod.smallPropertyStorage", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH))
+                compatible = false; */
 
             if (compatible) {
                 patchy.addTransformerId("smallPropertyStorage_v1");

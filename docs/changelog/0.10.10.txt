@@ -1,0 +1,2 @@
+* Un-force-disabled smallPropertyStorage for NEIDs/JEIDs. This was found to be an Unlimited Chisel Works bug, which was more commonly appearing in large modpacks (= modpacks with NEIDs/JEIDs installed).
+* Fixed PropertyValueMapper crashes in an environment with multi-threaded block state generation.

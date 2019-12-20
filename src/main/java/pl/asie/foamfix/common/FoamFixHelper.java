@@ -39,19 +39,11 @@ import pl.asie.foamfix.shared.FoamFixShared;
 public class FoamFixHelper implements IFoamFixHelper {
 	@Override
 	public BlockStateContainer createBlockState(Block block, IProperty<?>... properties) {
-		if (FoamFixShared.hasIdPatch()) {
-			return new BlockStateContainer(block, properties);
-		}
-
 		return new FoamyBlockStateContainer(block, properties);
 	}
 
 	@Override
 	public BlockStateContainer createExtendedBlockState(Block block, IProperty<?>[] properties, IUnlistedProperty<?>[] unlistedProperties) {
-		if (FoamFixShared.hasIdPatch()) {
-			return new ExtendedBlockState(block, properties, unlistedProperties);
-		}
-
 		return new FoamyExtendedBlockStateContainer(block, properties, unlistedProperties);
 	}
 }

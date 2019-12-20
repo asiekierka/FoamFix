@@ -256,12 +256,9 @@ public class PropertyValueMapper {
 	}
 
 	public static PropertyValueMapper getOrCreate(BlockStateContainer owner) {
-		PropertyValueMapper e = mapperMap.get(owner);
-		if (e == null) {
-			e = new PropertyValueMapper(owner);
-			mapperMap.put(owner, e);
+		synchronized (mapperMap) {
+			return mapperMap.computeIfAbsent(owner, PropertyValueMapper::new);
 		}
-		return e;
 	}
 
 	protected static Entry getPropertyEntry(IProperty property) {
