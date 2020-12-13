@@ -39,6 +39,7 @@ import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
 import pl.asie.foamfix.coremod.patches.*;
+import pl.asie.foamfix.ghostbuster.GhostBusterDefinition;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.Patchy;
 import pl.asie.patchy.TransformerHandler;
@@ -337,14 +338,19 @@ public class FoamFixTransformer implements IClassTransformer {
             ), "net.minecraft.tileentity.MobSpawnerBaseLogic");
         }
 
-        /* if (FoamFixShared.config.gbPatchFluids) {
-            patchy.addTransformerId("gbPatchFluids_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.ghostbuster.injections.GBWrapUpdateTick",
-                    false, "updateTick", "func_180650_b"),
+        if (FoamFixShared.config.gbPatchFluids) {
+            patchy.addTransformerId("gbPatchFluids_v2");
+            handlerCN.add(new GhostBusterDefinitionPatch(GhostBusterDefinition.updateTick(1)),
                     "net.minecraftforge.fluids.BlockFluidClassic",
                     "net.minecraftforge.fluids.BlockFluidFinite",
                     "net.minecraft.block.BlockStaticLiquid");
-        } */
+        }
+
+        if (FoamFixShared.config.gbPatchBopGrass) {
+            patchy.addTransformerId("gbPatchBopGrass_v1");
+            handlerCN.add(new GhostBusterDefinitionPatch(new GhostBusterDefinition("spreadGrass", "spreadGrass", 1, 2, 3)),
+                    "biomesoplenty.common.block.BlockBOPGrass");
+        }
 
         if (FoamFixShared.config.clJeiCreativeSearch) {
             patchy.addTransformerId("clJeiCreativeSearch_v1");

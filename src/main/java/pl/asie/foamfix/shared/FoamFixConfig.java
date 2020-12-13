@@ -64,6 +64,8 @@ public class FoamFixConfig {
 	public int geMobSpawnerCheckSpeed;
 
 	public boolean gbPatchFluids;
+	public boolean gbPatchBopGrass;
+
 	public boolean clJeiCreativeSearch;
 
 	public int refreshTimes = 0;
@@ -166,7 +168,8 @@ public class FoamFixConfig {
 
 			geMobSpawnerCheckSpeed = getInt("mobSpawnerCheckSpeed", "coremod", 10, 1, 200, "The amount of ticks per player presence check for mob spawners. Set to 1 to disable the patch and match vanilla behaviour.", true, true);
 
-		//	gbPatchFluids = getBoolean("gbPatchFluids", "experimental", false, "Should fluids be prevented from ghost chunkloading?", true, true);
+			// gbPatchFluids = getBoolean("patchFluids", "ghostbuster", true, "Should fluids be prevented from ghost chunkloading?", true, true);
+			gbPatchBopGrass = getBoolean("patchBopGrass", "ghostbuster", true, "Should BoP grass be prevented from ghost chunkloading?", true, true);
 			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
 
 			gePatchChunkSerialization = getBoolean("patchChunkSerialization", "coremod", true, "Fix a bug in chunk serialization leading to crashes. Originally found and fixed by Aaron1011 of Sponge.", true, true);
