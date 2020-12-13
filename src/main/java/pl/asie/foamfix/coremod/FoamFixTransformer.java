@@ -207,24 +207,20 @@ public class FoamFixTransformer implements IClassTransformer {
         TransformerHandler<ClassVisitor> handlerCV = patchy.getHandler(ClassVisitor.class);
 
         if (FoamFixShared.config.geSmallPropertyStorage) {
-            boolean compatible = true;
-            /* if (FoamFixShared.emitWarningIfPresent("coremod.smallPropertyStorage", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH))
-                compatible = false; */
+            FoamFixShared.emitWarningIfPresent("coremod.smallPropertyStorage", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH, false);
 
-            if (compatible) {
-                patchy.addTransformerId("smallPropertyStorage_v1");
-                handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer",
-                        false, "createState", "createState"), "net.minecraft.block.state.BlockStateContainer");
-                handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer",
-                        false, "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
-            }
+            patchy.addTransformerId("smallPropertyStorage_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer",
+                    false, "createState", "createState"), "net.minecraft.block.state.BlockStateContainer");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer",
+                    false, "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
         }
 
         if (FoamFixShared.config.gePatchChunkSerialization) {
             boolean compatible = true;
-            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH))
+            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasIdPatch, FoamFixShared.MOD_NAME_IDPATCH, true))
                 compatible = false;
-            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasSponge, FoamFixShared.MOD_NAME_SPONGE))
+            if (FoamFixShared.emitWarningIfPresent("coremod.patchChunkSerialization", FoamFixShared::hasSponge, FoamFixShared.MOD_NAME_SPONGE, true))
                 compatible = false;
 
             if (compatible) {
@@ -233,16 +229,6 @@ public class FoamFixTransformer implements IClassTransformer {
                         false, "getSerializedSize", "func_186018_a"), "net.minecraft.world.chunk.BlockStateContainer");
             }
         }
-
-        /* if (FoamFixShared.config.geSmallLightingOptimize) {
-            transformFunctions.put("net.minecraft.world.World", new TransformerFunction() {
-                @Override
-                public byte[] transform(byte[] data, String transformedName) {
-                    return spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.WorldLightingPatch", transformedName,
-                            "checkLightFor","func_180500_c");
-                }
-            });
-        } */
 
         if (FoamFixShared.config.twImmediateLightingUpdates) {
             patchy.addTransformerId("immediateLightingUpdates_v1");
@@ -264,7 +250,7 @@ public class FoamFixTransformer implements IClassTransformer {
 
         if (FoamFixShared.config.geBlockPosPatch) {
             boolean compatible = true;
-            if (FoamFixShared.emitWarningIfPresent("coremod.optimizedBlockPos", FoamFixShared::hasSponge, "SpongeForge"))
+            if (FoamFixShared.emitWarningIfPresent("coremod.optimizedBlockPos", FoamFixShared::hasSponge, "SpongeForge", true))
                 compatible = false;
 
             if (compatible) {
@@ -379,13 +365,6 @@ public class FoamFixTransformer implements IClassTransformer {
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.AnimationModelBaseClearCacheInject",
                     false, "render", "render"), "net.minecraftforge.client.model.animation.AnimationModelBase");
         }
-
-        /* if (FoamFixShared.config.staging4370) {
-            patchy.addTransformerId("staging4370_v1");
-            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingHashCodeInject",
-                    "hashCode", "hashCode", "foamfix_hashCode", "foamfix_hashCode", "foamfix_hashCode_calced", "foamfix_hashCode_calced"),
-                    "net.minecraft.client.renderer.vertex.VertexFormat");
-        } */
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {

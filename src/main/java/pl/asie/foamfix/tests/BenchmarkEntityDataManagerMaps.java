@@ -52,7 +52,7 @@ public class BenchmarkEntityDataManagerMaps {
 
 	private static final Object[] o = new Object[256];
 	private static final Map<Integer, Object> mapJDK = new HashMap<>();
-	private static final Map<Integer, Object> mapArray = new FoamyArrayBackedDataManagerMap.OneTwelve<>();
+	private static final Map<Integer, Object> mapArray = new FoamyArrayBackedDataManagerMap<>();
 	private static final Map<Integer, Object> mapFastutil = new Int2ObjectOpenHashMap<>();
 	private static final FoamyArrayBackedDataManagerMap<Object> mapArrayUnboxed =(FoamyArrayBackedDataManagerMap<Object>) mapArray;
 	private static final Int2ObjectOpenHashMap<Object> mapFastutilUnboxed =(Int2ObjectOpenHashMap<Object>) mapFastutil;

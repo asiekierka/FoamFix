@@ -41,55 +41,42 @@ import java.util.*;
  * Assumptions we can make:
  * - all keys are non-null
  */
-public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
-    public static class OneTwelve<V> extends FoamyArrayBackedDataManagerMap<V> {
-        private final IntOpenHashSet keySet = new IntOpenHashSet();
-
-        @Override
-        public Set<Integer> keySet() {
-            return keySet;
-        }
-
-        @Override
-        public Set<Entry<Integer, V>> entrySet() {
-            HashSet<Entry<Integer, V>> e = new HashSet<>();
-            IntIterator ii = keySet.iterator();
-            while (ii.hasNext()) {
-                int i = ii.nextInt();
-                e.add(new Entry<Integer, V>() {
-                    @Override
-                    public Integer getKey() {
-                        return i;
-                    }
-
-                    @Override
-                    public V getValue() {
-                        return get(i);
-                    }
-
-                    @Override
-                    public V setValue(V v) {
-                        return put(i, v);
-                    }
-                });
-            }
-            return e;
-        }
-
-        @Override
-        protected void addKey(int i) {
-            keySet.add(i);
-        }
-
-        @Override
-        protected void removeKey(int i) {
-            keySet.rem(i);
-        }
-    }
-
+public class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, V> {
     private final Collection<Object> objects = new ArrayList<>();
     private Object[] keys = new Object[32];
     private int size = 0;
+    private final IntOpenHashSet keySet = new IntOpenHashSet();
+
+    @Override
+    public Set<Integer> keySet() {
+        return keySet;
+    }
+
+    @Override
+    public Set<Entry<Integer, V>> entrySet() {
+        HashSet<Entry<Integer, V>> e = new HashSet<>();
+        IntIterator ii = keySet.iterator();
+        while (ii.hasNext()) {
+            int i = ii.nextInt();
+            e.add(new Entry<Integer, V>() {
+                @Override
+                public Integer getKey() {
+                    return i;
+                }
+
+                @Override
+                public V getValue() {
+                    return get(i);
+                }
+
+                @Override
+                public V setValue(V v) {
+                    return put(i, v);
+                }
+            });
+        }
+        return e;
+    }
 
     @Override
     public int size() {
@@ -126,10 +113,6 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
         int i = (Integer) o;
         return i >= 0 && i < keys.length ? (V) keys[i] : null;
     }
-
-    protected abstract void addKey(int i);
-    protected abstract void removeKey(int i);
-
     @Override
     @SuppressWarnings("unchecked")
     public V put(Integer integer, V v) {
@@ -146,7 +129,7 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
             Object old = keys[i];
             keys[i] = v;
             if (old == null) {
-                addKey(i);
+                keySet.add(i);
                 size++;
             } else {
                 objects.remove(old);
@@ -165,7 +148,7 @@ public abstract class FoamyArrayBackedDataManagerMap<V> implements Map<Integer, 
         if (i >= 0 && i < keys.length) {
             Object old = keys[i];
             keys[i] = null;
-            removeKey(i);
+            keySet.rem(i);
             objects.remove(old);
             if (old != null) size--;
             return (V) old;

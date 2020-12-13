@@ -218,7 +218,7 @@ public class PropertyValueMapper {
 		}
 	}
 
-	private static final Map<IProperty, Entry> entryMap = new IdentityHashMap<>();
+	private static final Map<IProperty<?>, Entry> entryMap = new IdentityHashMap<>();
 	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 
 	private final Entry[] entryList;
@@ -232,7 +232,7 @@ public class PropertyValueMapper {
 		List<IProperty<?>> propertiesSortedFitness = Lists.newArrayList(properties);
 		propertiesSortedFitness.sort(COMPARATOR_BIT_FITNESS);
 		int i = 0;
-		for (IProperty p : propertiesSortedFitness) {
+		for (IProperty<?> p : propertiesSortedFitness) {
 			entryList[i++] = getPropertyEntry(p);
 		}
 

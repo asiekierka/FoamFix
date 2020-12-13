@@ -39,7 +39,7 @@ import java.util.Map;
 
 public class EntityDataManagerPatch implements TransformerFunction<ClassNode> {
     public static Map<Integer, EntityDataManager.DataEntry<?>> newArrayBackedMap() {
-        return new FoamyArrayBackedDataManagerMap.OneTwelve<>();
+        return new FoamyArrayBackedDataManagerMap<>();
     }
 
     @Override

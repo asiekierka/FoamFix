@@ -51,65 +51,56 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix.shared;
+package pl.asie.foamfix.util;
 
-import java.util.function.BooleanSupplier;
+import gnu.trove.map.hash.THashMap;
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.block.statemap.BlockStateMapper;
+import net.minecraft.util.ResourceLocation;
 
-public class FoamFixShared {
-	public static final String MOD_NAME_IDPATCH = "JustEnoughIDs/NotEnoughIDs";
-	public static final String MOD_NAME_SPONGE = "SpongeForge";
-	public static final FoamFixConfig config = new FoamFixConfig();
-	public static boolean isCoremod = false;
-	public static int ramSaved = 0;
-	private static Boolean idPatchModPresent;
-	private static Boolean spongePresent;
+import java.lang.invoke.MethodHandle;
+import java.util.Map;
 
-	public static boolean emitWarningIfPresent(String featureName, BooleanSupplier supplier, String modName, boolean disables) {
-		if (supplier.getAsBoolean()) {
-			if (disables) {
-				System.err.println(featureName + " has been force-disabled - " + modName + " detected!");
-			} else {
-				System.err.println(featureName + " may not work correctly - " + modName + " detected!");
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
+public final class FoamModelUtils {
+	public static final MethodHandle PMW_GET_PARENT;
+	// public static final MethodHandle MLR_GET_TEXTURES;
+	// public static final MethodHandle ML_LOAD_BLOCK;
 
-	public static boolean hasIdPatch() {
-		if (idPatchModPresent == null) {
-			try {
-				idPatchModPresent = Class.forName("org.dimdev.jeid.JEIDLoadingPlugin") != null;
-			} catch (ClassNotFoundException e) {
-				try {
-					idPatchModPresent = Class.forName("ru.fewizz.neid.Neid") != null;
-				} catch (ClassNotFoundException ee) {
-					idPatchModPresent = false;
-				}
-			}
-		}
+	static {
+		/* MethodHandle MLR_GET_TEXTURES_TMP = null;
 
-		return false;
-	}
-
-	public static boolean hasSponge() {
-		if (spongePresent == null) {
-			try {
-				spongePresent = Class.forName("org.spongepowered.mod.SpongeCoremod") != null;
-			} catch (ClassNotFoundException e) {
-				spongePresent = false;
-			}
-		}
-
-		return spongePresent;
-	}
-
-	public static boolean hasOptifine() {
 		try {
-			return Class.forName("optifine.OptiFineTweaker") != null;
-		} catch (ClassNotFoundException e) {
-			return false;
+			Class k = Class.forName("net.minecraftforge.client.model.ModelLoaderRegistry");
+			MLR_GET_TEXTURES_TMP = MethodHandleHelper.findMethod(k, "getTextures", "getTextures");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
+		MLR_GET_TEXTURES = MLR_GET_TEXTURES_TMP; */
+
+		MethodHandle PMW_GET_PARENT_TMP = null;
+
+		try {
+			Class k = Class.forName("net.minecraftforge.client.model.PerspectiveMapWrapper");
+			PMW_GET_PARENT_TMP = MethodHandleHelper.findFieldGetter(k, "parent");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		PMW_GET_PARENT = PMW_GET_PARENT_TMP;
+
+		/* MethodHandle ML_LOAD_BLOCK_TMP = null;
+
+		try {
+			Class k = Class.forName("net.minecraft.client.renderer.block.model.ModelBakery");
+			ML_LOAD_BLOCK_TMP = MethodHandleHelper.findMethod(k, "loadBlock", "loadBlock", BlockStateMapper.class, Block.class, ResourceLocation.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		ML_LOAD_BLOCK = ML_LOAD_BLOCK_TMP; */
+	}
+
+	private FoamModelUtils() {
 	}
 }
