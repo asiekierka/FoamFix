@@ -38,7 +38,15 @@ import net.minecraft.world.chunk.Chunk;
 public class GhostBusterSafeAccessors {
 	public static boolean isAreaLoaded(IBlockAccess access, BlockPos pos, int radius) {
 		if (access instanceof World) {
-			return ((World) access).isAreaLoaded(pos, 1);
+			return ((World) access).isAreaLoaded(pos, radius);
+		} else {
+			return true;
+		}
+	}
+
+	public static boolean isBlockLoaded(IBlockAccess access, BlockPos pos) {
+		if (access instanceof World) {
+			return ((World) access).isBlockLoaded(pos);
 		} else {
 			return true;
 		}

@@ -36,10 +36,10 @@ import pl.asie.patchy.TransformerFunction;
 
 import java.util.Set;
 
-public class ClassGetSimpleNamePatch implements TransformerFunction<ClassVisitor> {
+public class GhostBusterBlockStateAccessPatch implements TransformerFunction<ClassVisitor> {
     public final Set<String> methods;
 
-    public ClassGetSimpleNamePatch(String... methods) {
+    public GhostBusterBlockStateAccessPatch(String... methods) {
         this.methods = ImmutableSet.copyOf(methods);
     }
 
@@ -49,15 +49,23 @@ public class ClassGetSimpleNamePatch implements TransformerFunction<ClassVisitor
     }
 
     private class FFClassVisitor extends ClassVisitor {
+        private String className;
+
         public FFClassVisitor(int api, ClassVisitor next) {
             super(api, next);
+        }
+
+        @Override
+        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+            className = name;
+            super.visit(version, access, name, signature, superName, interfaces);
         }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                                          String signature, String[] exceptions) {
             if (methods.contains(name)) {
-                return new FFMethodVisitor(api, cv.visitMethod(access, name, desc, signature, exceptions));
+                return new FFMethodVisitor(api, className, name, cv.visitMethod(access, name, desc, signature, exceptions));
             } else {
                 return cv.visitMethod(access, name, desc, signature, exceptions);
             }
@@ -65,17 +73,29 @@ public class ClassGetSimpleNamePatch implements TransformerFunction<ClassVisitor
     }
 
     private static class FFMethodVisitor extends MethodVisitor {
-        public FFMethodVisitor(int api, MethodVisitor next) {
+        private final String className;
+        private final String methodName;
+
+        public FFMethodVisitor(int api, String className, String methodName, MethodVisitor next) {
             super(api, next);
+            this.className = className;
+            this.methodName = methodName;
         }
 
         @Override
         public void visitMethodInsn(int opcode, String owner, String name,
                                     String desc, boolean itf) {
-            // INVOKEVIRTUAL java/lang/Class.getSimpleName ()Ljava/lang/String;
-            if (opcode == Opcodes.INVOKEVIRTUAL && "getSimpleName".equals(name) && "java/lang/Class".equals(owner)) {
-                System.out.println("Replaced getSimpleName with getName");
-                super.visitMethodInsn(opcode, owner, "getName", desc, itf);
+            // INVOKEVIRTUAL net/minecraft/world/World.getBlockState (Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/state/IBlockState;
+            if (opcode == Opcodes.INVOKEVIRTUAL
+                    && owner.startsWith("net/minecraft/world/")
+                    && ("getBlockState".equals(name) || "func_180495_p".equals(name))
+            ) {
+                System.out.println("Added ghost buster patch (getBlockState call wrapped) in " + className + " " + methodName + " (" + owner + " " + name + " " + desc + ")");
+                super.visitMethodInsn(Opcodes.INVOKESTATIC,
+                        "pl/asie/foamfix/ghostbuster/GhostBusterSafeAccessors",
+                        "getBlockState",
+                        "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/state/IBlockState;",
+                        false);
             } else {
                 super.visitMethodInsn(opcode, owner, name, desc, itf);
             }

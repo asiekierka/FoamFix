@@ -64,7 +64,9 @@ public class FoamFixConfig {
 	public int geMobSpawnerCheckSpeed;
 
 	public boolean gbPatchFluids;
+	public boolean gbPatchFarmland;
 	public boolean gbPatchBopGrass;
+	public String[] gbCustomRules;
 
 	public boolean clJeiCreativeSearch;
 
@@ -128,6 +130,17 @@ public class FoamFixConfig {
 		}
 	}
 
+	private String[] getStringList(String name, String category, String description, boolean requiresRestart, boolean showInGui) {
+		Property prop = config.get(category, name, new String[0]);
+		prop.setDefaultValues(new String[0]);
+		prop.setComment(description);
+		prop.setRequiresMcRestart(requiresRestart);
+		prop.setShowInGui(showInGui);
+		prop.setLanguageKey("foamfix.config." + name);
+		applicableProperties.add(prop);
+		return prop.getStringList();
+	}
+
 	public void reload() {
 		refreshTimes++;
 
@@ -168,9 +181,11 @@ public class FoamFixConfig {
 
 			geMobSpawnerCheckSpeed = getInt("mobSpawnerCheckSpeed", "coremod", 10, 1, 200, "The amount of ticks per player presence check for mob spawners. Set to 1 to disable the patch and match vanilla behaviour.", true, true);
 
-			// gbPatchFluids = getBoolean("patchFluids", "ghostbuster", true, "Should fluids be prevented from ghost chunkloading?", true, true);
+			gbPatchFluids = getBoolean("patchFluids", "ghostbuster", true, "Should fluids be prevented from ghost chunkloading?", true, true);
+			gbPatchFarmland = getBoolean("patchFarmland", "ghostbuster", true, "Should farmland be prevented from ghost chunkloading?", true, true);
 			gbPatchBopGrass = getBoolean("patchBopGrass", "ghostbuster", true, "Should BoP grass be prevented from ghost chunkloading?", true, true);
 			gbPatchBeds = getBoolean("patchBeds", "ghostbuster", true, "Should beds be prevented from ghost chunkloading?", true, true);
+			gbCustomRules = getStringList("customPatchRulesRadius", "ghostbuster", "Custom patch rules. Format: 'className;methodName;accessAloadPos;posAloadPos;radius'. An AloadPos is the position of the argument in the method - 1 for the first one, 2 for the second one, ...; the radius determines how many blocks have to be around the method for no early return. Untested - please use with care.", true, false);
 
 			gePatchChunkSerialization = getBoolean("patchChunkSerialization", "coremod", true, "Fix a bug in chunk serialization leading to crashes. Originally found and fixed by Aaron1011 of Sponge.", true, true);
 

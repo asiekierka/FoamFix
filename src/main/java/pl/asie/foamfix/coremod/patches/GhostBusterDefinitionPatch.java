@@ -90,33 +90,45 @@ public class GhostBusterDefinitionPatch implements TransformerFunction<ClassNode
 				LabelNode ln = new LabelNode(l);
 				list.add(new VarInsnNode(Opcodes.ALOAD, definition.accessPos));
 				list.add(new VarInsnNode(Opcodes.ALOAD, definition.posPos));
-				switch (definition.radius) {
-					case 0:
-						list.add(new InsnNode(Opcodes.ICONST_0));
-						break;
-					case 1:
-						list.add(new InsnNode(Opcodes.ICONST_1));
-						break;
-					case 2:
-						list.add(new InsnNode(Opcodes.ICONST_2));
-						break;
-					case 3:
-						list.add(new InsnNode(Opcodes.ICONST_3));
-						break;
-					case 4:
-						list.add(new InsnNode(Opcodes.ICONST_4));
-						break;
-					case 5:
-						list.add(new InsnNode(Opcodes.ICONST_5));
-						break;
-					default:
-						throw new RuntimeException("Invalid ghost buster radius: " + definition.radius);
+				if (definition.radius == 0) {
+					list.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+							"pl/asie/foamfix/ghostbuster/GhostBusterSafeAccessors", "isBlockLoaded",
+							"(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)Z", false));
+				} else {
+					switch (definition.radius) {
+						case 1:
+							list.add(new InsnNode(Opcodes.ICONST_1));
+							break;
+						case 2:
+							list.add(new InsnNode(Opcodes.ICONST_2));
+							break;
+						case 3:
+							list.add(new InsnNode(Opcodes.ICONST_3));
+							break;
+						case 4:
+							list.add(new InsnNode(Opcodes.ICONST_4));
+							break;
+						case 5:
+							list.add(new InsnNode(Opcodes.ICONST_5));
+							break;
+						default:
+							throw new RuntimeException("Invalid ghost buster radius: " + definition.radius);
+					}
+					list.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+							"pl/asie/foamfix/ghostbuster/GhostBusterSafeAccessors", "isAreaLoaded",
+							"(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z", false));
 				}
-				list.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-						"pl/asie/foamfix/ghostbuster/GhostBusterSafeAccessors", "isAreaLoaded",
-						"(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z", false));
 				list.add(new JumpInsnNode(Opcodes.IFNE, ln));
-				list.add(new InsnNode(Opcodes.RETURN));
+				if (definition.returnValue != null) {
+					if (definition.returnValue instanceof Boolean) {
+						list.add(new InsnNode(((boolean) definition.returnValue) ? Opcodes.ICONST_1 : Opcodes.ICONST_0));
+						list.add(new InsnNode(Opcodes.IRETURN));
+					} else {
+						throw new RuntimeException("Invalid ghost buster return value: " + definition.returnValue);
+					}
+				} else {
+					list.add(new InsnNode(Opcodes.RETURN));
+				}
 				list.add(ln);
 				list.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
 

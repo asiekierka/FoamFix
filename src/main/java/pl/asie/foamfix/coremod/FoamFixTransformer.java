@@ -38,6 +38,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
+import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.coremod.patches.*;
 import pl.asie.foamfix.ghostbuster.GhostBusterDefinition;
 import pl.asie.foamfix.shared.FoamFixShared;
@@ -320,12 +321,6 @@ public class FoamFixTransformer implements IClassTransformer {
             ), "net.minecraft.client.renderer.texture.TextureAtlasSprite");
         }
 
-        if (FoamFixShared.config.gbPatchBeds) {
-            patchy.addTransformerId("gbPatchBeds_v1");
-            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockBedInject",
-                    false, "neighborChanged", "func_189540_a"), "net.minecraft.block.BlockBed");
-        }
-
         if (FoamFixShared.config.geMobSpawnerCheckSpeed > 2) {
             patchy.addTransformerId("geMobSpawnerCheckSpeed_v2");
             handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.CachingMobSpawnerLogicInject",
@@ -338,18 +333,32 @@ public class FoamFixTransformer implements IClassTransformer {
             ), "net.minecraft.tileentity.MobSpawnerBaseLogic");
         }
 
+        if (FoamFixShared.config.gbPatchBeds) {
+            patchy.addTransformerId("gbPatchBeds_v1");
+            handlerCN.add(data -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.BlockBedInject",
+                    false, "neighborChanged", "func_189540_a"), "net.minecraft.block.BlockBed");
+        }
+
         if (FoamFixShared.config.gbPatchFluids) {
             patchy.addTransformerId("gbPatchFluids_v2");
+            // TODO: The ChunkProvider lookup overhead concerns me, even if technically more suitable.
+            /* handlerCN.add(new GhostBusterDefinitionPatch(new GhostBusterDefinition("canFlowInto", "canFlowInto", 1, 2, 0, false)),
+                    "net.minecraftforge.fluids.BlockFluidClassic"); */
             handlerCN.add(new GhostBusterDefinitionPatch(GhostBusterDefinition.updateTick(1)),
                     "net.minecraftforge.fluids.BlockFluidClassic",
-                    "net.minecraftforge.fluids.BlockFluidFinite",
-                    "net.minecraft.block.BlockStaticLiquid");
+                    "net.minecraftforge.fluids.BlockFluidFinite");
         }
 
         if (FoamFixShared.config.gbPatchBopGrass) {
             patchy.addTransformerId("gbPatchBopGrass_v1");
             handlerCN.add(new GhostBusterDefinitionPatch(new GhostBusterDefinition("spreadGrass", "spreadGrass", 1, 2, 3)),
                     "biomesoplenty.common.block.BlockBOPGrass");
+        }
+
+        if (FoamFixShared.config.gbPatchFarmland) {
+            patchy.addTransformerId("gbPatchFarmland_v1");
+            // TODO: Could be more efficient by making a custom BlockPos iterator.
+            handlerCV.add(new GhostBusterBlockStateAccessPatch("hasWater", "func_176530_e"), "net.minecraft.block.BlockFarmland");
         }
 
         if (FoamFixShared.config.clJeiCreativeSearch) {
@@ -370,6 +379,24 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("clearCachesOnUnload_v2");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.AnimationModelBaseClearCacheInject",
                     false, "render", "render"), "net.minecraftforge.client.model.animation.AnimationModelBase");
+        }
+
+        if (FoamFixShared.config.gbCustomRules != null && FoamFixShared.config.gbCustomRules.length > 0) {
+            for (String s : FoamFixShared.config.gbCustomRules) {
+                String[] sSplit = s.split(";");
+                try {
+                    GhostBusterDefinition definition = new GhostBusterDefinition(
+                            sSplit[1],
+                            sSplit[1],
+                            Integer.parseInt(sSplit[2]),
+                            Integer.parseInt(sSplit[3]),
+                            Integer.parseInt(sSplit[4])
+                    );
+                    handlerCN.add(new GhostBusterDefinitionPatch(definition), sSplit[0]);
+                } catch (Throwable t) {
+                    throw new RuntimeException("Could not parse custom rule: " + s, t);
+                }
+            }
         }
     }
 
