@@ -344,8 +344,9 @@ public class FoamFixTransformer implements IClassTransformer {
             // TODO: The ChunkProvider lookup overhead concerns me, even if technically more suitable.
             /* handlerCN.add(new GhostBusterDefinitionPatch(new GhostBusterDefinition("canFlowInto", "canFlowInto", 1, 2, 0, false)),
                     "net.minecraftforge.fluids.BlockFluidClassic"); */
+            handlerCN.add(new GhostBusterDefinitionPatch(GhostBusterDefinition.updateTick(4)),
+                    "net.minecraftforge.fluids.BlockFluidClassic");
             handlerCN.add(new GhostBusterDefinitionPatch(GhostBusterDefinition.updateTick(1)),
-                    "net.minecraftforge.fluids.BlockFluidClassic",
                     "net.minecraftforge.fluids.BlockFluidFinite");
         }
 
