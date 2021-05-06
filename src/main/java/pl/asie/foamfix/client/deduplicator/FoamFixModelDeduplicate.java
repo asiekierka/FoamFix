@@ -51,7 +51,7 @@
  * their respective licenses, the licensors of this Program grant you
  * additional permission to convey the resulting work.
  */
-package pl.asie.foamfix.client;
+package pl.asie.foamfix.client.deduplicator;
 
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
@@ -71,7 +71,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import pl.asie.foamfix.FoamFix;
-import pl.asie.foamfix.ProxyClient;
+import pl.asie.foamfix.client.FoamyMultipartBakedModel;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.MethodHandleHelper;
 

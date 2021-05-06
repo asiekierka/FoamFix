@@ -72,6 +72,7 @@ import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import pl.asie.foamfix.client.*;
+import pl.asie.foamfix.client.deduplicator.FoamFixModelDeduplicate;
 import pl.asie.foamfix.common.WorldNuller;
 import pl.asie.foamfix.shared.FoamFixShared;
 
