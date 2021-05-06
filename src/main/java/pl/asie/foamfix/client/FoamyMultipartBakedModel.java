@@ -39,6 +39,7 @@ import pl.asie.foamfix.util.MethodHandleHelper;
 
 import javax.annotation.Nullable;
 import java.lang.invoke.MethodHandle;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class FoamyMultipartBakedModel implements IBakedModel {
         if (state == null) {
             return ImmutableList.of();
         } else {
-            List<BakedQuad> list = Lists.newArrayList();
+            List<BakedQuad> list = new ArrayList<>(predicates.length);
             for (int i = 0; i < predicates.length; i++) {
                 if (predicates[i].apply(state)) {
                     list.addAll(models[i].getQuads(state, side, rand++));

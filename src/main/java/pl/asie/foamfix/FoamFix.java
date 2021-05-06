@@ -170,10 +170,4 @@ public class FoamFix {
             }
         }
     }
-
-    private static final DecimalFormat RAM_SAVED_DF = new DecimalFormat("0.#");
-
-    public static void updateRamSaved() {
-//        logger.info("So far, FoamFixAPI saved you (at least, approximately - guessing a bit here) " + RAM_SAVED_DF.format((FoamFixShared.ramSaved / 1048576.0f)) + " MB! (Note that not every optimization can be counted here.)");
-    }
 }

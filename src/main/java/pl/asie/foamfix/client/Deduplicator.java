@@ -91,22 +91,25 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import static pl.asie.foamfix.tests.BenchmarkBlockPos.a;
+
 @SuppressWarnings("deprecation")
 public class Deduplicator {
-    private static final Set<Class> DEDUP0_CLASS = Sets.newIdentityHashSet();
+    public interface DeduplicatorFunction {
+        Object deduplicate(Object o) throws Throwable;
+    }
+
     private static final Set<Class> BLACKLIST_CLASS = Sets.newIdentityHashSet();
     private static final Set<Class> IMMUTABLE_CLASS = Sets.newIdentityHashSet();
     private static final Set<Class> TRIM_ARRAYS_CLASSES = Sets.newIdentityHashSet();
-    private static final Map<Class, Set<MethodHandle[]>> CLASS_FIELDS = new IdentityHashMap<>();
-    private static final Map<Class, MethodHandle> COLLECTION_CONSTRUCTORS = new IdentityHashMap<>();
 
     private static final Style STYLE_EMPTY = new Style();
 
-    private static final MethodHandle EM_KEY_UNIVERSE_GETTER = MethodHandleHelper.findFieldGetter(EnumMap.class, "keyUniverse");
-    private static final MethodHandle EM_KEY_UNIVERSE_SETTER = MethodHandleHelper.findFieldSetter(EnumMap.class, "keyUniverse");
+    // private static final MethodHandle EM_KEY_UNIVERSE_GETTER = MethodHandleHelper.findFieldGetter(EnumMap.class, "keyUniverse");
+    // private static final MethodHandle EM_KEY_UNIVERSE_SETTER = MethodHandleHelper.findFieldSetter(EnumMap.class, "keyUniverse");
 
     private static final MethodHandle FIELD_UNPACKED_DATA_GETTER = MethodHandleHelper.findFieldGetter(UnpackedBakedQuad.class, "unpackedData");
-    private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");
+    // private static final MethodHandle FIELD_UNPACKED_DATA_SETTER = MethodHandleHelper.findFieldSetter(UnpackedBakedQuad.class, "unpackedData");
 
     private static final MethodHandle IPAM_MW_TRANSFORMS_GETTER = MethodHandleHelper.findFieldGetter(PerspectiveMapWrapper.class, "transforms");
     private static final MethodHandle IPAM_MW_TRANSFORMS_SETTER = MethodHandleHelper.findFieldSetter(PerspectiveMapWrapper.class, "transforms");
@@ -123,17 +126,15 @@ public class Deduplicator {
 
     private final Map<Object, java.util.Optional> JAVA_OPTIONALS = new IdentityHashMap<>();
     private final Map<Object, com.google.common.base.Optional> GUAVA_OPTIONALS = new IdentityHashMap<>();
-    // private final IDeduplicatingStorage<Object[]> KEY_UNIVERSE_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.OBJECT_ARRAY);
     private final IDeduplicatingStorage<float[]> FLOATA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY);
     private final IDeduplicatingStorage<float[][]> FLOATAA_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.FLOAT_ARRAY_ARRAY);
-    private final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
     private final IDeduplicatingStorage<ItemCameraTransforms> ICT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_CAMERA_TRANSFORMS);
-    // private final IDeduplicatingStorage<ItemTransformVec3f> IT3_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.ITEM_TRANSFORM_VEC3F);
+    private final IDeduplicatingStorage<Object> RESOURCE_LOCATION_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
+    private final IDeduplicatingStorage<Object> IMMUTABLE_COLLECTION_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
     private final Set<Object> deduplicatedObjects = Sets.newIdentityHashSet();
-    // public final TObjectIntMap<Class> dedupObjDataMap = new TObjectIntHashMap<>();
 
-    public Deduplicator() {
-    }
+    private final Map<Class, DeduplicatorFunction> DEDUPLICATOR_FUNCTIONS = new IdentityHashMap<>();
+    private final Map<Class, DeduplicatorFunction> DEDUPLICATOR_0_FUNCTIONS = new IdentityHashMap<>();
 
     private static void addClassFromName(Set<Class> set, String className) {
         try {
@@ -144,13 +145,6 @@ public class Deduplicator {
     }
 
     static {
-        DEDUP0_CLASS.add(TRSRTransformation.class);
-        DEDUP0_CLASS.add(Style.class);
-        DEDUP0_CLASS.add(Vec3d.class);
-        DEDUP0_CLASS.add(Vec3i.class);
-        DEDUP0_CLASS.add(BlockPos.class);
-        DEDUP0_CLASS.add(ItemCameraTransforms.class);
-
         TRIM_ARRAYS_CLASSES.add(TextComponentKeybind.class);
         TRIM_ARRAYS_CLASSES.add(TextComponentScore.class);
         TRIM_ARRAYS_CLASSES.add(TextComponentSelector.class);
@@ -222,75 +216,118 @@ public class Deduplicator {
         return true;
     }
 
-    public void addObject(Object o) {
-        OBJECT_STORAGE.deduplicate(o);
+    public void addResourceLocation(Object o) {
+        RESOURCE_LOCATION_STORAGE.deduplicate(o);
     }
 
-    public void addObjects(Collection coll) {
+    public void addResourceLocation(Collection coll) {
         for (Object o : coll)
-            OBJECT_STORAGE.deduplicate(o);
+            RESOURCE_LOCATION_STORAGE.deduplicate(o);
     }
 
-    public Object deduplicate0(Object o) {
-        Object n = o;
-        int size = 0;
+    public Deduplicator() {
+        DEDUPLICATOR_0_FUNCTIONS.put(float[].class, (o) -> FLOATA_STORAGE.deduplicate((float[]) o));
+        DeduplicatorFunction FLOATA_DEDUP = DEDUPLICATOR_0_FUNCTIONS.get(float[].class);
 
-        if (o instanceof float[]) {
-            size = 24 + ((float[]) o).length * 4;
-            n = FLOATA_STORAGE.deduplicate((float[]) o);
-        } else if (o instanceof float[][]) {
-            size = 16 + ((float[][]) o).length * 4; // assuming 32-bit pointers (worse case)
+        DEDUPLICATOR_0_FUNCTIONS.put(float[][].class, (o) -> {
             float[][] arr = FLOATAA_STORAGE.deduplicate((float[][]) o);
             if (arr != o) {
-                n = arr;
                 successfuls += arr.length;
             } else {
                 for (int i = 0; i < arr.length; i++) {
-                    arr[i] = (float[]) deduplicate0(arr[i]);
+                    float[] n = (float[]) FLOATA_DEDUP.deduplicate(arr[i]);
+                    if (n != arr[i]) successfuls++;
+                    arr[i] = n;
                 }
             }
-        } else if (o instanceof float[][][]) {
+            return arr;
+        });
+        DeduplicatorFunction FLOATAA_DEDUP = DEDUPLICATOR_0_FUNCTIONS.get(float[][].class);
+
+        DEDUPLICATOR_0_FUNCTIONS.put(float[][][].class, (o) -> {
             float[][][] arr = (float[][][]) o;
             for (int i = 0; i < arr.length; i++) {
-                arr[i] = (float[][]) deduplicate0(arr[i]);
+                float[][] n = (float[][]) FLOATAA_DEDUP.deduplicate(arr[i]);
+                if (n != arr[i]) successfuls++;
+                arr[i] = n;
             }
-        } else if (o instanceof ImmutableList || o instanceof ImmutableSet || o instanceof ImmutableMap) {
-            n = OBJECT_STORAGE.deduplicate(o);
-        } else {
-            Class c = o.getClass();
-            if (o instanceof ResourceLocation) {
-                if (ResourceLocation.class == c || ModelResourceLocation.class == c) {
-                    size = 16; // can't be bothered to measure string size
-                    n = OBJECT_STORAGE.deduplicate(o);
-                } else {
-                    return o;
-                }
-            } else if (Vec3d.class == c || Vec3i.class == c || BlockPos.class == c) {
-                size = 16; // can't be bothered to measure string size
-                n = OBJECT_STORAGE.deduplicate(o);
-            } else if (Style.class == c) {
-                if (FoamFixShared.isCoremod) {
-                    n = deduplicateStyleIfCoremodPresent((Style) o);
-                } else {
-                    return o;
-                }
-            } else if (TRSRTransformation.class == c) {
-                size = 257; // size after full, x86_64
-                n = OBJECT_STORAGE.deduplicate(o);
-            } else if (ItemCameraTransforms.class == c) {
-                size = 80; // minimum size
-                n = ICT_STORAGE.deduplicate((ItemCameraTransforms) o);
-            } else {
-                throw new RuntimeException("Unsupported: " + c);
-            }
+            return arr;
+        });
+        DeduplicatorFunction FLOATAAA_DEDUP = DEDUPLICATOR_0_FUNCTIONS.get(float[][][].class);
+
+        DEDUPLICATOR_0_FUNCTIONS.put(ResourceLocation.class, RESOURCE_LOCATION_STORAGE::deduplicate);
+        for (Class c : Lists.newArrayList(ModelResourceLocation.class, Vec3d.class, Vec3i.class, BlockPos.class, TRSRTransformation.class)) {
+            final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
+            DEDUPLICATOR_0_FUNCTIONS.put(c, OBJECT_STORAGE::deduplicate);
         }
 
-        if (n != o) {
-            successfuls++;
-            //dedupObjDataMap.adjustOrPutValue(o.getClass(), 1, 1);
-            FoamFixShared.ramSaved += size;
+        if (FoamFixShared.isCoremod) {
+            DEDUPLICATOR_0_FUNCTIONS.put(Style.class, obj -> deduplicateStyleIfCoremodPresent((Style) obj));
+        } else {
+            DEDUPLICATOR_0_FUNCTIONS.put(Style.class, obj -> obj);
         }
-        return n;
+
+        DEDUPLICATOR_0_FUNCTIONS.put(ItemCameraTransforms.class, obj -> ICT_STORAGE.deduplicate((ItemCameraTransforms) obj));
+
+        DEDUPLICATOR_FUNCTIONS.put(BlockPartFace.class, o -> {
+            float[] n = (float[]) FLOATA_DEDUP.deduplicate(((BlockPartFace) o).blockFaceUV.uvs);
+            if (n != ((BlockPartFace) o).blockFaceUV.uvs) {
+                successfuls++;
+            }
+            return o;
+        });
+
+        if (FoamFixShared.config.expUnpackBakedQuads) {
+            DEDUPLICATOR_FUNCTIONS.put(BakedQuad.class, o -> {
+                BakedQuad quad = (BakedQuad) o;
+                UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(quad.getFormat());
+                quad.pipe(builder);
+                o = builder.build();
+                return o;
+            });
+        } else {
+            DEDUPLICATOR_FUNCTIONS.put(BakedQuad.class, o -> o);
+        }
+        DEDUPLICATOR_FUNCTIONS.put(UnpackedBakedQuad.class, o -> {
+            try {
+                float[][][] array = (float[][][]) FIELD_UNPACKED_DATA_GETTER.invokeExact((UnpackedBakedQuad) o);
+                FLOATAAA_DEDUP.deduplicate(array);
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+            return o;
+        });
+
+        DEDUPLICATOR_FUNCTIONS.put(ItemOverrideList.class, obj -> {
+            if (obj != ItemOverrideList.NONE) {
+                List list = (List) IOL_OVERRIDES_GETTER.invokeExact((ItemOverrideList) obj);
+                if (list.isEmpty()) {
+                    successfuls++;
+                    return ItemOverrideList.NONE;
+                }
+            }
+            return obj;
+        });
+
+        DEDUPLICATOR_FUNCTIONS.put(AnimationItemOverrideList.class, obj -> {
+            List list = (List) IOL_OVERRIDES_GETTER.invokeExact((ItemOverrideList) obj);
+            if (list.isEmpty()) {
+                successfuls++;
+                IOL_OVERRIDES_SETTER.invokeExact((ItemOverrideList) obj, (List) ImmutableList.of());
+            }
+            return obj;
+        });
+    }
+
+    private DeduplicatorFunction getDeduplicate0Func(Class c) {
+        DeduplicatorFunction func = DEDUPLICATOR_0_FUNCTIONS.get(c);
+        if (func == null) {
+            if (ImmutableList.class.isAssignableFrom(c) || ImmutableMap.class.isAssignableFrom(c) || ImmutableSet.class.isAssignableFrom(c)) {
+                func = IMMUTABLE_COLLECTION_STORAGE::deduplicate;
+                DEDUPLICATOR_0_FUNCTIONS.put(c, func);
+            }
+        }
+        return func;
     }
 
     private Style deduplicateStyleIfCoremodPresent(Style s) {
@@ -339,315 +376,417 @@ public class Deduplicator {
             }
         }
 
-        if (o instanceof IBakedModel) {
-            if (c == SimpleBakedModel.class) {
-                for (EnumFacing facing : EnumFacing.VALUES) {
-                    List l = ((IBakedModel) o).getQuads(null, facing, 0);
-                    trimArray(l);
-                }
-            }
+        DeduplicatorFunction func = DEDUPLICATOR_FUNCTIONS.get(c);
+        if (func == null) {
+            boolean continueProcessing = true;
 
-            if (o instanceof PerspectiveMapWrapper) {
-                try {
-                    Object to = IPAM_MW_TRANSFORMS_GETTER.invoke(o);
-                    Object toD = deduplicate0(to);
-                    if (toD != null && to != toD) {
-                        IPAM_MW_TRANSFORMS_SETTER.invoke(o, toD);
-                    }
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            } else if (c == BakedItemModel.class) {
-                try {
-                    Object to = BIM_TRANSFORMS_GETTER.invoke(o);
-                    Object toD = deduplicate0(to);
-                    if (toD != null && to != toD) {
-                        BIM_TRANSFORMS_SETTER.invoke(o, toD);
-                    }
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
-        } else if (c == BlockPartFace.class) {
-            //noinspection ConstantConditions
-            ((BlockPartFace) o).blockFaceUV.uvs = (float[]) deduplicate0(((BlockPartFace) o).blockFaceUV.uvs);
-            return o;
-        } else if (o instanceof BakedQuad) {
-            if (c == BakedQuad.class) {
-                if (FoamFixShared.config.expUnpackBakedQuads) {
-                    BakedQuad quad = (BakedQuad) o;
-                    UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(quad.getFormat());
-                    quad.pipe(builder);
-                    o = builder.build();
-                    c = UnpackedBakedQuad.class;
-                }
-            }
+            if (o instanceof IBakedModel) {
+                DeduplicatorFunction immMapFunc = getDeduplicate0Func(ImmutableMap.class);
 
-            if (c == UnpackedBakedQuad.class) {
-                try {
-                    float[][][] array = (float[][][]) FIELD_UNPACKED_DATA_GETTER.invokeExact((UnpackedBakedQuad) o);
-                    // float[][][]s are not currently deduplicated
-                    deduplicate0(array);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
-            return o;
-        } else if (o instanceof ResourceLocation || DEDUP0_CLASS.contains(c)) {
-            return deduplicate0(o);
-        } else if (o instanceof Item || o instanceof Block || o instanceof World
-                || o instanceof Entity || o instanceof Logger || o instanceof IRegistry
-                || o instanceof SimpleReloadableResourceManager || o instanceof IResourcePack
-                || o instanceof IRecipe || o instanceof Ingredient
-                || o instanceof LanguageManager || o instanceof BlockPos.MutableBlockPos) {
-            BLACKLIST_CLASS.add(c);
-            return o;
-        } else if (o instanceof ItemOverrideList && o != ItemOverrideList.NONE) {
-            try {
-                List list = (List) IOL_OVERRIDES_GETTER.invokeExact((ItemOverrideList) o);
-                if (list.isEmpty()) {
-                    if (c == ItemOverrideList.class) {
-                        successfuls++;
-                        return ItemOverrideList.NONE;
-                    } else if (c == AnimationItemOverrideList.class) {
-                        IOL_OVERRIDES_SETTER.invokeExact((ItemOverrideList) o, (List) ImmutableList.of());
-                        successfuls++;
-                    }
-                }
-            } catch (Throwable t) {
-
-            }
-            return o;
-        } else if (o instanceof java.util.Optional) {
-            java.util.Optional opt = (java.util.Optional) o;
-            if (opt.isPresent()) {
-                Object b = deduplicateObject(opt.get(), recursion + 1);
-                if (b != null) {
-                    if (JAVA_OPTIONALS.containsKey(b)) {
-                        successfuls++;
-                        return JAVA_OPTIONALS.get(b);
-                    }
-
-                    if (b != opt.get()) {
-                        java.util.Optional opt2 = java.util.Optional.of(b);
-                        JAVA_OPTIONALS.put(b, opt2);
-                        return opt2;
-                    } else {
-                        JAVA_OPTIONALS.put(opt.get(), opt);
-                        return opt;
-                    }
-                }
-            } else {
-                return opt;
-            }
-        } else if (o instanceof com.google.common.base.Optional) {
-            Optional opt = (Optional) o;
-            if (opt.isPresent()) {
-                Object b = deduplicateObject(opt.get(), recursion + 1);
-                if (b != null) {
-                    if (GUAVA_OPTIONALS.containsKey(b)) {
-                        successfuls++;
-                        return GUAVA_OPTIONALS.get(b);
-                    }
-
-                    if (b != opt.get()) {
-                        com.google.common.base.Optional opt2 = com.google.common.base.Optional.of(b);
-                        GUAVA_OPTIONALS.put(b, opt2);
-                        return opt2;
-                    } else {
-                        GUAVA_OPTIONALS.put(opt.get(), opt);
-                        return opt;
-                    }
-                }
-            } else {
-                return opt;
-            }
-        } else if (o instanceof Multimap) {
-            if (o instanceof ImmutableMultimap || o instanceof SortedSetMultimap) {
-                for (Object value : ((Multimap) o).values()) {
-                    deduplicateObject(value, recursion + 1);
-                }
-            } else {
-                for (Object key : ((Multimap) o).keySet()) {
-                    List l = Lists.newArrayList(((Multimap) o).values());
-                    for (int i = 0; i < l.size(); i++) {
-                        l.set(i, deduplicateObject(l.get(i), recursion + 1));
-                    }
-
-                    ((Multimap) o).replaceValues(key, l);
-                }
-            }
-            return o;
-        } else if (o instanceof Map) {
-            for (Object v : ((Map) o).keySet()) {
-                deduplicateObject(v, recursion + 1);
-            }
-
-            if (o instanceof SortedMap || IMMUTABLE_CLASS.contains(c)) {
-                for (Object v : ((Map) o).values()) {
-                    deduplicateObject(v, recursion + 1);
-                }
-            } else if (o instanceof ImmutableMap) {
-                ImmutableMap im = (ImmutableMap) o;
-                ImmutableMap.Builder newMap = (o instanceof ImmutableBiMap) ? ImmutableBiMap.builder() : ImmutableMap.builder();
-                boolean deduplicated = false;
-                for (Object key : im.keySet()) {
-                    Object a = im.get(key);
-                    Object b = deduplicateObject(a, recursion + 1);
-                    newMap.put(key, b != null ? b : a);
-                    if (b != null && b != a)
-                        deduplicated = true;
-                }
-                return deduplicated ? newMap.build() : o;
-            } else {
-                try {
-                    for (Object key : ((Map) o).keySet()) {
-                        Object value = ((Map) o).get(key);
-                        Object valueD = deduplicateObject(value, recursion + 1);
-                        if (valueD != null && value != valueD)
-                            ((Map) o).put(key, valueD);
-                    }
-                } catch (UnsupportedOperationException e) {
-                    IMMUTABLE_CLASS.add(c);
-                    for (Object v : ((Map) o).values()) {
-                        deduplicateObject(v, recursion + 1);
-                    }
-                }
-            }
-            return o;
-        } else if (o instanceof Collection) {
-            if (o instanceof List) {
-                if (IMMUTABLE_CLASS.contains(c)) {
-                    List l = (List) o;
-                    for (int i = 0; i < l.size(); i++) {
-                        deduplicateObject(l.get(i), recursion + 1);
-                    }
-                } else if (o instanceof ImmutableList) {
-                    ImmutableList il = (ImmutableList) o;
-                    ImmutableList.Builder builder = ImmutableList.builder();
-                    boolean deduplicated = false;
-                    for (int i = 0; i < il.size(); i++) {
-                        Object a = il.get(i);
-                        Object b = deduplicateObject(a, recursion + 1);
-                        builder.add(b != null ? b : a);
-                        if (b != null && b != a)
-                            deduplicated = true;
-                    }
-                    if (deduplicated) {
-                        return builder.build();
-                    }
-                } else {
-                    List l = (List) o;
-                    try {
-                        for (int i = 0; i < l.size(); i++) {
-                            l.set(i, deduplicateObject(l.get(i), recursion + 1));
-                        }
-                    } catch (UnsupportedOperationException e) {
-                        IMMUTABLE_CLASS.add(c);
-                        for (int i = 0; i < l.size(); i++) {
-                            deduplicateObject(l.get(i), recursion + 1);
-                        }
-                    }
-                }
-                return o;
-            } else if (o instanceof ImmutableSet) {
-                if (!(o instanceof ImmutableSortedSet)) {
-                    ImmutableSet.Builder builder = new ImmutableSet.Builder();
-                    for (Object o1 : ((Set) o)) {
-                        builder.add(deduplicateObject(o1, recursion + 1));
-                    }
-                    o = builder.build();
-                } else {
-                    for (Object o1 : ((Set) o)) {
-                        deduplicateObject(o1, recursion + 1);
-                    }
-                }
-                return o;
-            } else {
-                if (o instanceof Set && !(o instanceof SortedSet)) {
-                    if (!COLLECTION_CONSTRUCTORS.containsKey(c)) {
+                if (o instanceof PerspectiveMapWrapper) {
+                    func = obj -> {
                         try {
-                            COLLECTION_CONSTRUCTORS.put(c, MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class)));
-                        } catch (Exception e) {
-                            COLLECTION_CONSTRUCTORS.put(c, null);
-                        }
-                    }
-
-                    MethodHandle constructor = COLLECTION_CONSTRUCTORS.get(c);
-                    if (constructor != null) {
-                        try {
-                            Collection nc = (Collection) constructor.invoke();
-                            if (nc != null) {
-                                for (Object o1 : ((Collection) o)) {
-                                    nc.add(deduplicateObject(o1, recursion + 1));
-                                }
-                                return nc;
+                            Object to = IPAM_MW_TRANSFORMS_GETTER.invoke(obj);
+                            Object toD = immMapFunc.deduplicate(to);
+                            if (toD != null && to != toD) {
+                                successfuls++;
+                                IPAM_MW_TRANSFORMS_SETTER.invoke(obj, toD);
                             }
                         } catch (Throwable t) {
-                            COLLECTION_CONSTRUCTORS.put(c, null);
+                            t.printStackTrace();
+                        }
+                        return obj;
+                    };
+                } else if (c == BakedItemModel.class) {
+                    func = obj -> {
+                        try {
+                            Object to = BIM_TRANSFORMS_GETTER.invoke(obj);
+                            Object toD = immMapFunc.deduplicate(to);
+                            if (toD != null && to != toD) {
+                                successfuls++;
+                                BIM_TRANSFORMS_SETTER.invoke(obj, toD);
+                            }
+                        } catch (Throwable t) {
+                            t.printStackTrace();
+                        }
+                        return obj;
+                    };
+                } else if (c == SimpleBakedModel.class) {
+                    func = obj -> {
+                        for (EnumFacing facing : EnumFacing.VALUES) {
+                            List l = ((IBakedModel) obj).getQuads(null, facing, 0);
+                            trimArray(l);
+                        }
+                        return obj;
+                    };
+                }
+            } else if (o instanceof BakedQuad) {
+                BLACKLIST_CLASS.add(c);
+                return o;
+            } else if (o instanceof Item || o instanceof Block || o instanceof World
+                    || o instanceof Entity || o instanceof Logger || o instanceof IRegistry
+                    || o instanceof SimpleReloadableResourceManager || o instanceof IResourcePack
+                    || o instanceof IRecipe || o instanceof Ingredient
+                    || o instanceof LanguageManager || o instanceof BlockPos.MutableBlockPos) {
+                BLACKLIST_CLASS.add(c);
+                return o;
+            } else if (o instanceof ItemOverrideList) {
+                BLACKLIST_CLASS.add(c);
+                return o;
+            } else if (o instanceof java.util.Optional) {
+                func = obj -> {
+                    java.util.Optional opt = (java.util.Optional) obj;
+                    if (opt.isPresent()) {
+                        Object b = deduplicateObject(opt.get(), recursion + 1);
+                        if (b != null) {
+                            if (JAVA_OPTIONALS.containsKey(b)) {
+                                successfuls++;
+                                return JAVA_OPTIONALS.get(b);
+                            }
+
+                            if (b != opt.get()) {
+                                java.util.Optional opt2 = java.util.Optional.of(b);
+                                JAVA_OPTIONALS.put(b, opt2);
+                                return opt2;
+                            } else {
+                                JAVA_OPTIONALS.put(opt.get(), opt);
+                                return opt;
+                            }
+                        } else {
+                            return opt;
+                        }
+                    } else {
+                        return opt;
+                    }
+                };
+                continueProcessing = false;
+            } else if (o instanceof com.google.common.base.Optional) {
+                func = obj -> {
+                    Optional opt = (Optional) obj;
+                    if (opt.isPresent()) {
+                        Object b = deduplicateObject(opt.get(), recursion + 1);
+                        if (b != null) {
+                            if (GUAVA_OPTIONALS.containsKey(b)) {
+                                successfuls++;
+                                return GUAVA_OPTIONALS.get(b);
+                            }
+
+                            if (b != opt.get()) {
+                                com.google.common.base.Optional opt2 = com.google.common.base.Optional.of(b);
+                                GUAVA_OPTIONALS.put(b, opt2);
+                                return opt2;
+                            } else {
+                                GUAVA_OPTIONALS.put(opt.get(), opt);
+                                return opt;
+                            }
+                        } else {
+                            return opt;
+                        }
+                    } else {
+                        return opt;
+                    }
+                };
+                continueProcessing = false;
+            } else if (o instanceof Multimap) {
+                if (o instanceof ImmutableMultimap || o instanceof SortedSetMultimap) {
+                    func = obj -> {
+                        for (Object value : ((Multimap) obj).values()) {
+                            deduplicateObject(value, recursion + 1);
+                        }
+                        return obj;
+                    };
+                } else {
+                    func = obj -> {
+                        for (Object key : ((Multimap) obj).keySet()) {
+                            List l = Lists.newArrayList(((Multimap) obj).values());
+                            for (int i = 0; i < l.size(); i++) {
+                                l.set(i, deduplicateObject(l.get(i), recursion + 1));
+                            }
+
+                            ((Multimap) obj).replaceValues(key, l);
+                        }
+                        return obj;
+                    };
+                }
+                continueProcessing = false;
+            } else if (o instanceof Map) {
+                if (o instanceof SortedMap || IMMUTABLE_CLASS.contains(c)) {
+                    func = obj -> {
+                        for (Object v : ((Map) obj).keySet()) {
+                            deduplicateObject(v, recursion + 1);
+                        }
+
+                        for (Object v : ((Map) obj).values()) {
+                            deduplicateObject(v, recursion + 1);
+                        }
+                        return obj;
+                    };
+                } else if (o instanceof ImmutableBiMap) {
+                    func = obj -> {
+                        ImmutableMap im = (ImmutableMap) obj;
+                        ImmutableMap.Builder newMap = ImmutableBiMap.builder();
+                        boolean deduplicated = false;
+                        for (Object key : im.keySet()) {
+                            key = deduplicateObject(key, recursion + 1);
+                            Object a = im.get(key);
+                            Object b = deduplicateObject(a, recursion + 1);
+                            newMap.put(key, b != null ? b : a);
+                            if (b != null && b != a)
+                                deduplicated = true;
+                        }
+                        return deduplicated ? newMap.build() : obj;
+                    };
+                } else if (o instanceof ImmutableMap) {
+                    func = obj -> {
+                        ImmutableMap im = (ImmutableMap) obj;
+                        ImmutableMap.Builder newMap = ImmutableMap.builder();
+                        boolean deduplicated = false;
+                        for (Object key : im.keySet()) {
+                            key = deduplicateObject(key, recursion + 1);
+                            Object a = im.get(key);
+                            Object b = deduplicateObject(a, recursion + 1);
+                            newMap.put(key, b != null ? b : a);
+                            if (b != null && b != a)
+                                deduplicated = true;
+                        }
+                        return deduplicated ? newMap.build() : obj;
+                    };
+                } else {
+                    func = obj -> {
+                        try {
+                            for (Object key : ((Map) obj).keySet()) {
+                                key = deduplicateObject(key, recursion + 1);
+                                Object value = ((Map) obj).get(key);
+                                Object valueD = deduplicateObject(value, recursion + 1);
+                                if (valueD != null && value != valueD)
+                                    ((Map) obj).put(key, valueD);
+                            }
+                        } catch (UnsupportedOperationException e) {
+                            IMMUTABLE_CLASS.add(c);
+                            DEDUPLICATOR_FUNCTIONS.remove(c);
+                            for (Object v : ((Map) obj).values()) {
+                                deduplicateObject(v, recursion + 1);
+                            }
+                        }
+                        return obj;
+                    };
+                }
+                continueProcessing = false;
+            } else if (o instanceof Collection) {
+                if (o instanceof List) {
+                    if (IMMUTABLE_CLASS.contains(c)) {
+                        func = obj -> {
+                            List l = (List) obj;
+                            for (int i = 0; i < l.size(); i++) {
+                                deduplicateObject(l.get(i), recursion + 1);
+                            }
+                            return obj;
+                        };
+                    } else if (o instanceof ImmutableList) {
+                        func = obj -> {
+                            ImmutableList il = (ImmutableList) obj;
+                            ImmutableList.Builder builder = ImmutableList.builder();
+                            boolean deduplicated = false;
+                            for (int i = 0; i < il.size(); i++) {
+                                Object a = il.get(i);
+                                Object b = deduplicateObject(a, recursion + 1);
+                                builder.add(b != null ? b : a);
+                                if (b != null && b != a)
+                                    deduplicated = true;
+                            }
+                            if (deduplicated) {
+                                return builder.build();
+                            } else {
+                                return obj;
+                            }
+                        };
+                    } else {
+                        func = obj -> {
+                            List l = (List) obj;
+                            try {
+                                for (int i = 0; i < l.size(); i++) {
+                                    l.set(i, deduplicateObject(l.get(i), recursion + 1));
+                                }
+                            } catch (UnsupportedOperationException e) {
+                                IMMUTABLE_CLASS.add(c);
+                                DEDUPLICATOR_FUNCTIONS.remove(c);
+                                for (int i = 0; i < l.size(); i++) {
+                                    deduplicateObject(l.get(i), recursion + 1);
+                                }
+                            }
+                            return obj;
+                        };
+                    }
+                } else if (o instanceof ImmutableSet) {
+                    if (!(o instanceof ImmutableSortedSet)) {
+                        func = obj -> {
+                            ImmutableSet.Builder builder = new ImmutableSet.Builder();
+                            for (Object o1 : ((Set) obj)) {
+                                builder.add(deduplicateObject(o1, recursion + 1));
+                            }
+                            return builder.build();
+                        };
+                    } else {
+                        func = obj -> {
+                            for (Object o1 : ((Set) obj)) {
+                                deduplicateObject(o1, recursion + 1);
+                            }
+                            return obj;
+                        };
+                    }
+                } else {
+                    if (o instanceof Set && !(o instanceof SortedSet)) {
+                        MethodHandle constructor;
+                        try {
+                            constructor = MethodHandles.publicLookup().findConstructor(c, MethodType.methodType(void.class));
+                        } catch (Exception e) {
+                            constructor = null;
+                        }
+                        if (constructor != null) {
+                            try {
+                                Collection nctest = (Collection) constructor.invoke();
+                                if (nctest != null) {
+                                    final MethodHandle constructorFinal = constructor;
+                                    func = obj -> {
+                                        Collection nc = (Collection) constructorFinal.invoke();
+                                        for (Object o1 : ((Collection) obj)) {
+                                            nc.add(deduplicateObject(o1, recursion + 1));
+                                        }
+                                        return nc;
+                                    };
+                                }
+                            } catch (Throwable t) {
+                                func = null;
+                            }
                         }
                     }
-                }
 
-                // fallback
-                for (Object o1 : ((Collection) o)) {
-                    deduplicateObject(o1, recursion + 1);
+                    // fallback
+                    if (func == null) {
+                        func = obj -> {
+                            for (Object o1 : ((Collection) obj)) {
+                                deduplicateObject(o1, recursion + 1);
+                            }
+                            return obj;
+                        };
+                    }
                 }
-                return o;
+                continueProcessing = false;
+            } else if (c.isArray()) {
+                func = obj -> {
+                    for (int i = 0; i < Array.getLength(obj); i++) {
+                        Object entry = Array.get(obj, i);
+                        Object entryD = deduplicateObject(entry, recursion + 1);
+                        if (entryD != null && entry != entryD)
+                            Array.set(obj, i, entryD);
+                    }
+                    return obj;
+                };
+                continueProcessing = false;
             }
-        } else if (c.isArray()) {
-            for (int i = 0; i < Array.getLength(o); i++) {
-                Object entry = Array.get(o, i);
-                Object entryD = deduplicateObject(entry, recursion + 1);
-                if (entryD != null && entry != entryD)
-                    Array.set(o, i, entryD);
+
+            if (func == null) {
+                DeduplicatorFunction d0func = getDeduplicate0Func(c);
+                if (d0func == null) {
+                    func = obj -> obj;
+                } else {
+                    func = obj -> {
+                        Object n = d0func.deduplicate(obj);
+                        if (n != obj) {
+                            successfuls++;
+                        }
+                        return n;
+                    };
+                    continueProcessing = false;
+                }
             }
+
+            if (continueProcessing) {
+                boolean canTrim = o instanceof Predicate || TRIM_ARRAYS_CLASSES.contains(c);
+
+                ImmutableSet.Builder<MethodHandle[]> fsBuilder = ImmutableSet.builder();
+                {
+                    Class cc = c;
+                    do {
+                        for (Field f : cc.getDeclaredFields()) {
+                            if ((f.getModifiers() & Modifier.STATIC) != 0)
+                                continue;
+
+                            if (shouldCheckClass(f.getType())) {
+                                try {
+                                    f.setAccessible(true);
+                                    fsBuilder.add(new MethodHandle[]{
+                                            MethodHandles.lookup().unreflectGetter(f),
+                                            MethodHandles.lookup().unreflectSetter(f)
+                                    });
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    } while ((cc = cc.getSuperclass()) != Object.class);
+                }
+                ImmutableSet<MethodHandle[]> methodHandles = fsBuilder.build();
+
+                if (!methodHandles.isEmpty()) {
+                    final DeduplicatorFunction oldFunc = func;
+                    if (canTrim) {
+                        func = obj -> {
+                            obj = oldFunc.deduplicate(obj);
+                            for (MethodHandle[] mh : methodHandles) {
+                                try {
+                                    // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
+                                    Object value = mh[0].invoke(obj);
+                                    Object valueD = deduplicateObject(value, recursion + 1);
+
+                                    if (valueD != null) {
+                                        trimArray(valueD);
+                                        if (valueD != value) {
+                                            mh[1].invoke(obj, valueD);
+                                        }
+                                    }
+                                } catch (IllegalAccessException e) {
+
+                                } catch (Throwable t) {
+                                    t.printStackTrace();
+                                }
+                            }
+                            return obj;
+                        };
+                    } else {
+                        func = obj -> {
+                            obj = oldFunc.deduplicate(obj);
+                            for (MethodHandle[] mh : methodHandles) {
+                                try {
+                                    // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
+                                    Object value = mh[0].invoke(obj);
+                                    Object valueD = deduplicateObject(value, recursion + 1);
+
+                                    if (valueD != null) {
+                                        if (valueD != value) {
+                                            mh[1].invoke(obj, valueD);
+                                        }
+                                    }
+                                } catch (IllegalAccessException e) {
+
+                                } catch (Throwable t) {
+                                    t.printStackTrace();
+                                }
+                            }
+                            return obj;
+                        };
+                    }
+                }
+            }
+
+            DEDUPLICATOR_FUNCTIONS.put(c, func);
+        }
+
+        try {
+            Object n = func.deduplicate(o);
+            return n;
+        } catch (Throwable t) {
             return o;
         }
-
-        boolean canTrim = o instanceof Predicate || TRIM_ARRAYS_CLASSES.contains(c);
-
-        for (MethodHandle[] mh : CLASS_FIELDS.computeIfAbsent(c, (cl) -> {
-            ImmutableSet.Builder<MethodHandle[]> fsBuilder = ImmutableSet.builder();
-            Class cc = cl;
-            do {
-                for (Field f : cc.getDeclaredFields()) {
-                    if ((f.getModifiers() & Modifier.STATIC) != 0)
-                        continue;
-
-                    if (shouldCheckClass(f.getType())) {
-                        try {
-                            f.setAccessible(true);
-                            fsBuilder.add(new MethodHandle[]{
-                                    MethodHandles.lookup().unreflectGetter(f),
-                                    MethodHandles.lookup().unreflectSetter(f)
-                            });
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            } while ((cc = cc.getSuperclass()) != Object.class);
-            return fsBuilder.build();
-        })) {
-            try {
-                // System.out.println("-" + Strings.repeat("-", recursion) + "* " + f.getName());
-                Object value = mh[0].invoke(o);
-                Object valueD = deduplicateObject(value, recursion + 1);
-
-                if (valueD != null) {
-                    if (canTrim) trimArray(valueD);
-                    if (valueD != value) {
-                        mh[1].invoke(o, valueD);
-                    }
-                }
-            } catch (IllegalAccessException e) {
-
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
-        }
-
-        return o;
     }
 }

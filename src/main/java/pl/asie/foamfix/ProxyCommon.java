@@ -171,7 +171,6 @@ public class ProxyCommon {
 	}
 
 	public void postInit() {
-		FoamFix.updateRamSaved();
 	}
 
     public void refreshResources() {

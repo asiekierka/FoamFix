@@ -79,7 +79,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
-	public static Deduplicator deduplicator = new Deduplicator();
 	public static int bakingStage = 0;
 
 	public static final IBakedModel DUMMY_MODEL = new IBakedModel() {
@@ -140,10 +139,6 @@ public class ProxyClient extends ProxyCommon {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-
-		if (!FoamFixShared.config.geDeduplicate) {
-			deduplicator = null;
 		}
 
 		if (FoamFixShared.config.clDynamicItemModels) {

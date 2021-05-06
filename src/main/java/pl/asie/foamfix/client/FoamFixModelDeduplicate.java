@@ -174,118 +174,110 @@ public final class FoamFixModelDeduplicate {
             FoamFix.logger.info("Cleared " + itemsCleared + " objects.");
             cache = Collections.emptyMap();
         }
+        if (FoamFixShared.config.geDeduplicate || FoamFixShared.config.clDeduplicateModels) {
+            Deduplicator deduplicator = new Deduplicator();
 
-        if (FoamFixShared.config.geDeduplicate) {
-            FoamFix.logger.info("Deduplicating models...");
-            try {
-                if (cache != null) {
-                    int bakeBarLength = 2;
-                    if (FoamFixShared.config.clDeduplicateIModels) {
-                        bakeBarLength += cache.size();
-                    }
-                    ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", bakeBarLength);
+            deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
 
-                    if (ProxyClient.deduplicator == null) {
-                        ProxyClient.deduplicator = new Deduplicator();
-                    }
+            deduplicator.addResourceLocation(ForgeRegistries.BLOCKS.getKeys());
+            deduplicator.addResourceLocation(ForgeRegistries.ITEMS.getKeys());
 
-                    ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
-
-                    ProxyClient.deduplicator.addObjects(ForgeRegistries.BLOCKS.getKeys());
-                    ProxyClient.deduplicator.addObjects(ForgeRegistries.ITEMS.getKeys());
-
-                    try {
-                        bakeBar.step("Vertex formats");
-
-                        for (Field f : DefaultVertexFormats.class.getDeclaredFields()) {
-                            if (f.getType() == VertexFormat.class) {
-                                f.setAccessible(true);
-                                ProxyClient.deduplicator.deduplicateObject(f.get(null), 0);
-                            }
+            if (FoamFixShared.config.geDeduplicate) {
+                FoamFix.logger.info("Deduplicating...");
+                try {
+                    if (cache != null) {
+                        int bakeBarLength = 2;
+                        if (FoamFixShared.config.clDeduplicateIModels) {
+                            bakeBarLength += cache.size();
                         }
-                    } catch (Exception e) {
+                        ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", bakeBarLength);
 
-                    }
+                        try {
+                            bakeBar.step("Vertex formats");
 
-                    if (FoamFixShared.config.clDeduplicateIModels) {
-                        for (ResourceLocation loc : cache.keySet()) {
-                            IModel model = cache.get(loc);
-                            String modelName = loc.toString();
-                            bakeBar.step(String.format("[%s]", modelName));
-
-                            try {
-                                ProxyClient.deduplicator.addObject(loc);
-                                ProxyClient.deduplicator.deduplicateObject(model, 0);
-                            } catch (Exception e) {
-
+                            for (Field f : DefaultVertexFormats.class.getDeclaredFields()) {
+                                if (f.getType() == VertexFormat.class) {
+                                    f.setAccessible(true);
+                                    deduplicator.deduplicateObject(f.get(null), 0);
+                                }
                             }
+                        } catch (Exception e) {
+
                         }
-                    }
 
-                    try {
-                        bakeBar.step("Stats");
+                        if (FoamFixShared.config.clDeduplicateIModels) {
+                            for (ResourceLocation loc : cache.keySet()) {
+                                IModel model = cache.get(loc);
+                                String modelName = loc.toString();
+                                bakeBar.step(String.format("[%s]", modelName));
 
-                        for (Field f : StatList.class.getDeclaredFields()) {
-                            if (f.getType() == StatBase[].class) {
-                                f.setAccessible(true);
-                                for (StatBase statBase : (StatBase[]) f.get(null)) {
-                                    ProxyClient.deduplicator.deduplicateObject(statBase, 0);
+                                try {
+                                    deduplicator.addResourceLocation(loc);
+                                    deduplicator.deduplicateObject(model, 0);
+                                } catch (Exception e) {
+
                                 }
                             }
                         }
 
-                        for (StatBase statBase : StatList.ALL_STATS) {
-                            ProxyClient.deduplicator.deduplicateObject(statBase, 0);
-                        }
-                    } catch (Exception e) {
+                        try {
+                            bakeBar.step("Stats");
 
+                            for (Field f : StatList.class.getDeclaredFields()) {
+                                if (f.getType() == StatBase[].class) {
+                                    f.setAccessible(true);
+                                    for (StatBase statBase : (StatBase[]) f.get(null)) {
+                                        deduplicator.deduplicateObject(statBase, 0);
+                                    }
+                                }
+                            }
+
+                            for (StatBase statBase : StatList.ALL_STATS) {
+                                deduplicator.deduplicateObject(statBase, 0);
+                            }
+                        } catch (Exception e) {
+
+                        }
+
+                        ProgressManager.pop(bakeBar);
+                    }
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+
+                if (FoamFixShared.config.clDeduplicateModels) {
+                    ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
+
+                    deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
+                    FoamFix.logger.info("Deduplicating models...");
+
+                    for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
+                        IBakedModel model = event.getModelRegistry().getObject(loc);
+                        String modelName = loc.toString();
+                        bakeBar.step(String.format("[%s]", modelName));
+
+                        if (model.getClass() == MultipartBakedModel.class) {
+                            deduplicator.successfuls++;
+                            model = new FoamyMultipartBakedModel((MultipartBakedModel) model);
+                        }
+
+                        try {
+                            deduplicator.addResourceLocation(loc);
+                            event.getModelRegistry().putObject(loc, (IBakedModel) deduplicator.deduplicateObject(model, 0));
+                        } catch (Exception e) {
+
+                        }
                     }
 
                     ProgressManager.pop(bakeBar);
+                    FoamFix.logger.info("Deduplicated " + deduplicator.successfuls + " (+ " + deduplicator.successfulTrims + ") objects.");
                 }
-            } catch (Throwable t) {
-                t.printStackTrace();
             }
-
-            if (FoamFixShared.config.clDeduplicateModels) {
-                ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
-
-                if (ProxyClient.deduplicator == null) {
-                    ProxyClient.deduplicator = new Deduplicator();
-                }
-
-                ProxyClient.deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
-                FoamFix.logger.info("Deduplicating models...");
-
-                for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
-                    IBakedModel model = event.getModelRegistry().getObject(loc);
-                    String modelName = loc.toString();
-                    bakeBar.step(String.format("[%s]", modelName));
-
-                    if (model instanceof MultipartBakedModel) {
-                        ProxyClient.deduplicator.successfuls++;
-                        model = new FoamyMultipartBakedModel((MultipartBakedModel) model);
-                    }
-
-                    try {
-                        ProxyClient.deduplicator.addObject(loc);
-                        event.getModelRegistry().putObject(loc, (IBakedModel) ProxyClient.deduplicator.deduplicateObject(model, 0));
-                    } catch (Exception e) {
-
-                    }
-                }
-
-                ProgressManager.pop(bakeBar);
-                FoamFix.logger.info("Deduplicated " + ProxyClient.deduplicator.successfuls + " (+ " + ProxyClient.deduplicator.successfulTrims + ") objects.");
-            }
-            /* List<Class> map = Lists.newArrayList(ProxyClient.deduplicator.dedupObjDataMap.keySet());
-            map.sort(Comparator.comparingInt(a -> ProxyClient.deduplicator.dedupObjDataMap.get(a)));
+            /* List<Class> map = Lists.newArrayList(deduplicator.dedupObjDataMap.keySet());
+            map.sort(Comparator.comparingInt(a -> deduplicator.dedupObjDataMap.get(a)));
             for (Class c : map) {
-                FoamFix.logger.info(c.getSimpleName() + " = " + ProxyClient.deduplicator.dedupObjDataMap.get(c));
+                FoamFix.logger.info(c.getSimpleName() + " = " + deduplicator.dedupObjDataMap.get(c));
             } */
         }
-
-        ProxyClient.deduplicator = null; // release deduplicator to save memory
-        FoamFix.updateRamSaved();
     }
 }
