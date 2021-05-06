@@ -188,10 +188,6 @@ public class ProxyClient extends ProxyCommon {
 		if (FoamFixShared.config.clCleanRedundantModelRegistry) {
 			MinecraftForge.EVENT_BUS.register(new FoamFixModelRegistryDuplicateWipe());
 		}
-
-		if (cleanup != null) {
-			cleanup.tick();
-		}
 	}
 
 	@Override

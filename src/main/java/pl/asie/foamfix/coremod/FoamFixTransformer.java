@@ -399,6 +399,11 @@ public class FoamFixTransformer implements IClassTransformer {
                 }
             }
         }
+
+        if (FoamFixShared.config.clModelLoaderCleanup) {
+            patchy.addTransformerId("modelLoaderCleanup_v1");
+            handlerCN.add(new ModelLoaderCleanupPatch(), "net.minecraft.client.renderer.block.model.ModelManager");
+        }
     }
 
     public byte[] transform(final String name, final String transformedName, final byte[] dataOrig) {
