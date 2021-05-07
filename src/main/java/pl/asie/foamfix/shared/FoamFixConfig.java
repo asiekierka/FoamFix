@@ -59,6 +59,7 @@ public class FoamFixConfig {
 	public boolean expUnpackBakedQuads;
 	public boolean txEnable, gbEnableWrapper, gbWrapperCountNotifyBlock;
 	public boolean clClearCachesOnUnload;
+	public boolean clModelResourceLocationFastConstruct;
 	public int txFasterAnimation;
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 	public int geMobSpawnerCheckSpeed;
@@ -164,6 +165,7 @@ public class FoamFixConfig {
 		gbEnableWrapper = getBoolean("enableDebuggingWrapper", "ghostbuster", false, "Wrap ChunkProviderServers to be able to provide the /ghostbuster command for debugging ghost chunkloads.", true, true);
 		gbWrapperCountNotifyBlock = getBoolean("wrapperShowsNeighborUpdates", "ghostbuster", false, "Should the /ghostbuster debugger show neighbor updates?", false, true);
 		clClearCachesOnUnload = getBoolean("clearCachesOnWorldUnload", "client", true, "Clears caches on world unload a bit faster than usual. Prevents temporary memory leaks. More effective in Anarchy.", true, true);
+		clModelResourceLocationFastConstruct = getBoolean("modelResourceLocationFastConstruct", "client", true, "Faster/less memory-churning construction mechanism for ModelResourceLocation objects. Identified by malte0811 in FerriteCore - implemented in a distinct way.", true, true);
 
 		gbForgeGCNonUnloaded = getBoolean("nonUnloadedWorldsForceGCOnCheck", "ghostbuster", false, "For FoamFix debugging/development purposes only.", false, false);
 		gbNotifyNonUnloadedWorlds = getBoolean("checkNonUnloadedWorldClients", "ghostbuster", true, "Checks if worlds do not unload after a specified amount of time, and notifies the user if that is the case.", true, true);

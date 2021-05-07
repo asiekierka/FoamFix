@@ -112,7 +112,8 @@ public class FoamFixTransformer implements IClassTransformer {
                         MethodNode oldMn = nodeData.methods.get(j);
                         System.out.println("Spliced in METHOD: " + targetClassName + "." + mn.name);
                         nodeData.methods.set(j, mn);
-                        if (nodeData.superName != null && nodeData.name.equals(nodeSplice.superName)) {
+                        boolean isConstructor = oldMn.name.charAt(0) == '<';
+                        if (nodeData.superName != null && nodeData.name.equals(nodeSplice.superName) && !isConstructor) {
                             ListIterator<AbstractInsnNode> nodeListIterator = mn.instructions.iterator();
                             while (nodeListIterator.hasNext()) {
                                 AbstractInsnNode node = nodeListIterator.next();
@@ -126,8 +127,10 @@ public class FoamFixTransformer implements IClassTransformer {
                             }
                         }
 
-                        oldMn.name = methodList.get((methodList.indexOf(oldMn.name)) & (~1)) + "_foamfix_old";
-                        nodeData.methods.add(oldMn);
+                        if (!isConstructor) { // forbid <init>/<clinit>
+                            oldMn.name = methodList.get((methodList.indexOf(oldMn.name)) & (~1)) + "_foamfix_old";
+                            nodeData.methods.add(oldMn);
+                        }
                         added = true;
                         break;
                     }
@@ -380,6 +383,13 @@ public class FoamFixTransformer implements IClassTransformer {
             patchy.addTransformerId("clearCachesOnUnload_v2");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.AnimationModelBaseClearCacheInject",
                     false, "render", "render"), "net.minecraftforge.client.model.animation.AnimationModelBase");
+        }
+
+        //if (FoamFixShared.config.clClearCachesOnUnload) {
+        {
+            patchy.addTransformerId("modelResourceLocationFastConstruct_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.ModelResourceLocationFastConstructInject",
+                    false, "<init>", "<init>"), "net.minecraft.client.renderer.block.model.ModelResourceLocation");
         }
 
         if (FoamFixShared.config.gbCustomRules != null && FoamFixShared.config.gbCustomRules.length > 0) {

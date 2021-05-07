@@ -116,8 +116,6 @@ public class ProxyClient extends ProxyCommon {
 		}
 	};
 
-	private ModelLoaderCleanup cleanup;
-
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onModelRegistry(ModelRegistryEvent event) {
 		bakingStage = 0;
@@ -144,11 +142,6 @@ public class ProxyClient extends ProxyCommon {
 
 		if (FoamFixShared.config.clDynamicItemModels) {
 			FoamFixDynamicItemModels.register();
-		}
-
-		if (FoamFixShared.config.clModelLoaderCleanup) {
-			cleanup = new ModelLoaderCleanup();
-			MinecraftForge.EVENT_BUS.register(cleanup);
 		}
 
 		updateFasterAnimationFlag();
