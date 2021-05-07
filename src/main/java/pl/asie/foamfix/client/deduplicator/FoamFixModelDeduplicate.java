@@ -246,7 +246,10 @@ public final class FoamFixModelDeduplicate {
                 }
 
                 if (FoamFixShared.config.clDeduplicateModels) {
-                    ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", event.getModelRegistry().getKeys().size());
+                    int stepCounter = 0;
+                    int stepEvery = FoamFixShared.config.clDeduplicateStepEvery;
+                    int stepCount = (event.getModelRegistry().getKeys().size() + (stepEvery - 1)) / stepEvery;
+                    ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", stepCount);
 
                     deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
                     FoamFix.logger.info("Deduplicating models...");
@@ -254,7 +257,10 @@ public final class FoamFixModelDeduplicate {
                     for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
                         IBakedModel model = event.getModelRegistry().getObject(loc);
                         String modelName = loc.toString();
-                        bakeBar.step(String.format("[%s]", modelName));
+                        if (stepEvery == 1 || (stepCounter % stepEvery) == 0) {
+                            bakeBar.step(modelName);
+                        }
+                        stepCounter++;
 
                         if (model.getClass() == MultipartBakedModel.class) {
                             deduplicator.successfuls++;
