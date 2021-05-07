@@ -79,6 +79,7 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.client.FoamyItemLayerModel;
 import pl.asie.foamfix.client.IDeduplicatingStorage;
+import pl.asie.foamfix.client.condition.FoamyConditionPropertyValue;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.DeduplicatingStorageTrove;
 import pl.asie.foamfix.util.HashingStrategies;
@@ -284,7 +285,8 @@ public class Deduplicator {
         Deduplicator0Function FLOATAAA_DEDUP = DEDUPLICATOR_0_FUNCTIONS.get(float[][][].class);
 
         DEDUPLICATOR_0_FUNCTIONS.put(ResourceLocation.class, RESOURCE_LOCATION_STORAGE::deduplicate);
-        for (Class c : Lists.newArrayList(ModelResourceLocation.class, Vec3d.class, Vec3i.class, BlockPos.class, TRSRTransformation.class)) {
+        for (Class c : Lists.newArrayList(ModelResourceLocation.class, Vec3d.class, Vec3i.class, BlockPos.class, TRSRTransformation.class,
+                FoamyConditionPropertyValue.PredicateNegative.class, FoamyConditionPropertyValue.PredicatePositive.class)) {
             final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
             DEDUPLICATOR_0_FUNCTIONS.put(c, OBJECT_STORAGE::deduplicate);
         }
@@ -388,7 +390,6 @@ public class Deduplicator {
         }
     }
 
-    private static final Set<Class> cSet = new HashSet<>();
     private static final boolean cSetProp;
 
     static {
@@ -716,6 +717,20 @@ public class Deduplicator {
             boolean canTrim = Predicate.class.isAssignableFrom(c) || TRIM_ARRAYS_CLASSES.contains(c);
             MethodHandles.Lookup lookup = MethodHandles.lookup();
 
+            if (cSetProp) {
+                Class cc = c;
+                do {
+                    for (Field f : cc.getDeclaredFields()) {
+                        if ((f.getModifiers() & Modifier.STATIC) != 0)
+                            continue;
+
+                        if (shouldCheckClass(f.getType())) {
+                            System.out.println("-> " + f.getType().getName());
+                        }
+                    }
+                } while ((cc = cc.getSuperclass()) != Object.class);
+            }
+
             ImmutableList.Builder<MethodHandle> fsBuilder = ImmutableList.builder();
             {
                 Class cc = c;
@@ -805,14 +820,11 @@ public class Deduplicator {
         if (!deduplicatedObjects.add(o))
             return o;
 
-        if (cSetProp) {
-            if (cSet.add(c)) {
-                System.out.println(Strings.repeat("-", parentRecursion) + "- " + c.getName());
-            }
-        }
-
         DeduplicatorFunction func = DEDUPLICATOR_FUNCTIONS.get(c);
         if (func == null) {
+            if (cSetProp) {
+                System.out.println(Strings.repeat("-", parentRecursion) + "- " + c.getName());
+            }
             func = createDeduplicatorFunction(c);
             DEDUPLICATOR_FUNCTIONS.put(c, func);
         }

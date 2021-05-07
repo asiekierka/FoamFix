@@ -271,6 +271,12 @@ public class FoamFixTransformer implements IClassTransformer {
                     "net.minecraft.world.chunk.Chunk");
         }
 
+        if (FoamFixShared.config.clSmallModelConditions) {
+            patchy.addTransformerId("smallModelConditions_v1");
+            handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.client.renderer.block.model.multipart.ConditionPropertyValue", "pl.asie.foamfix.client.condition.FoamyConditionPropertyValue"),
+                    "net.minecraft.client.renderer.block.model.multipart.Selector$Deserializer");
+        }
+
         if (FoamFixShared.config.geFasterAirLookup) {
             patchy.addTransformerId("fasterAirLookup_v1");
             handlerCN.add(new FastAirLookupPatch(), "net.minecraft.item.ItemStack");

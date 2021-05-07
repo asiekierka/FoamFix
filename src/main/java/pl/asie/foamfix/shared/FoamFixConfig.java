@@ -64,6 +64,7 @@ public class FoamFixConfig {
 	public int txMaxAnimationMipLevel, txCacheAnimationMaxFrames;
 	public int geMobSpawnerCheckSpeed;
 	public int clDeduplicateStepEvery;
+	public boolean clSmallModelConditions;
 
 	public boolean gbPatchFluids;
 	public boolean gbPatchFarmland;
@@ -168,6 +169,7 @@ public class FoamFixConfig {
 		clClearCachesOnUnload = getBoolean("clearCachesOnWorldUnload", "client", true, "Clears caches on world unload a bit faster than usual. Prevents temporary memory leaks. More effective in Anarchy.", true, true);
 		clModelResourceLocationFastConstruct = getBoolean("modelResourceLocationFastConstruct", "client", true, "Faster/less memory-churning construction mechanism for ModelResourceLocation objects. Identified by malte0811 in FerriteCore - implemented in a distinct way.", true, true);
 		clDeduplicateStepEvery = getInt("deduplicateModelsStepEvery", "client", 1, 1, 10000, "Step every X models on the progress bar while deduplicating baked models.", false, false);
+		clSmallModelConditions = getBoolean("smallModelConditions", "client", true, "More optimized multipart model condition storage. Inspired by malte0811's research.", true, true);
 
 		gbForgeGCNonUnloaded = getBoolean("nonUnloadedWorldsForceGCOnCheck", "ghostbuster", false, "For FoamFix debugging/development purposes only.", false, false);
 		gbNotifyNonUnloadedWorlds = getBoolean("checkNonUnloadedWorldClients", "ghostbuster", true, "Checks if worlds do not unload after a specified amount of time, and notifies the user if that is the case.", true, true);
