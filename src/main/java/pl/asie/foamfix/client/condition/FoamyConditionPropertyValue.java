@@ -128,6 +128,62 @@ public class FoamyConditionPropertyValue extends ConditionPropertyValue {
         }
     }
 
+    public static final class SingletonPredicatePositive implements Predicate<IBlockState> {
+        private final IProperty<?> property;
+        private final Object value;
+
+        protected SingletonPredicatePositive(IProperty<?> property, Object value) {
+            this.property = property;
+            this.value = value;
+        }
+
+        @Override
+        public boolean apply(@Nullable IBlockState state) {
+            return state != null && state.getValue(property).equals(value);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SingletonPredicatePositive that = (SingletonPredicatePositive) o;
+            return property == that.property && value == that.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * property.hashCode() + (value != null ? value.hashCode() : 0);
+        }
+    }
+
+    public static final class SingletonPredicateNegative implements Predicate<IBlockState> {
+        private final IProperty<?> property;
+        private final Object value;
+
+        protected SingletonPredicateNegative(IProperty<?> property, Object value) {
+            this.property = property;
+            this.value = value;
+        }
+
+        @Override
+        public boolean apply(@Nullable IBlockState state) {
+            return state == null || !state.getValue(property).equals(value);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SingletonPredicateNegative that = (SingletonPredicateNegative) o;
+            return property == that.property && value == that.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * property.hashCode() + (value != null ? value.hashCode() : 0);
+        }
+    }
+
     private static final Splitter SPLITTER = Splitter.on('|').omitEmptyStrings();
 
     public FoamyConditionPropertyValue(String keyIn, String valueIn) {
@@ -163,7 +219,11 @@ public class FoamyConditionPropertyValue extends ConditionPropertyValue {
                     }
                 }
 
-                return negate ? new PredicateNegative(property, values) : new PredicatePositive(property, values);
+                if (negate) {
+                    return values.length > 1 ? new PredicateNegative(property, values) : new SingletonPredicateNegative(property, values[0]);
+                } else {
+                    return values.length > 1 ? new PredicatePositive(property, values) : new SingletonPredicatePositive(property, values[0]);
+                }
             }
         }
     }

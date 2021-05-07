@@ -49,18 +49,23 @@ public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
 			return createState_foamfix_old(block, properties, unlistedProperties);
 		}
 
-		if (unlistedProperties == null || unlistedProperties.isEmpty()) {
-			return new FoamyBlockState(PropertyValueMapper.getOrCreate(this), block, properties);
-		} else {
-			boolean has = false;
-			for (Optional o : unlistedProperties.values()) {
-				if (o.isPresent()) {
-					has = true;
-					break;
+		PropertyValueMapper mapper = PropertyValueMapper.getOrCreate(this);
+		if (mapper.isValid()) {
+			if (unlistedProperties == null || unlistedProperties.isEmpty()) {
+				return new FoamyBlockState(mapper, block, properties);
+			} else {
+				boolean has = false;
+				for (Optional o : unlistedProperties.values()) {
+					if (o.isPresent()) {
+						has = true;
+						break;
+					}
 				}
-			}
 
-			return new FoamyExtendedBlockState(PropertyValueMapper.getOrCreate(this), block, properties, unlistedProperties, has);
+				return new FoamyExtendedBlockState(mapper, block, properties, unlistedProperties, has);
+			}
+		} else {
+			return createState_foamfix_old(block, properties, unlistedProperties);
 		}
 	}
 

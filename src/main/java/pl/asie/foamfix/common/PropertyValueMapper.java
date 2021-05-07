@@ -220,6 +220,7 @@ public class PropertyValueMapper {
 
 	private static final Map<IProperty<?>, Entry> entryMap = new IdentityHashMap<>();
 	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
+	private static final int MAX_BIT_POS = 31;
 
 	private final Entry[] entryList;
 	private final TObjectIntMap<String> entryPositionMap;
@@ -248,11 +249,19 @@ public class PropertyValueMapper {
 			lastEntry = ee;
 		}
 
-		if (lastEntry == null) {
-			stateMap = new IBlockState[1 << bitPos];
+		if (bitPos <= MAX_BIT_POS) {
+			if (lastEntry == null) {
+				stateMap = new IBlockState[1 << bitPos];
+			} else {
+				stateMap = new IBlockState[(1 << (bitPos - lastEntry.bits)) * lastEntry.property.getAllowedValues().size()];
+			}
 		} else {
-			stateMap = new IBlockState[(1 << (bitPos - lastEntry.bits)) * lastEntry.property.getAllowedValues().size()];
+			stateMap = null;
 		}
+	}
+
+	public boolean isValid() {
+		return stateMap != null;
 	}
 
 	public static PropertyValueMapper getOrCreate(BlockStateContainer owner) {

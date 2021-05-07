@@ -48,8 +48,8 @@ public class FoamyMultipartBakedModel implements IBakedModel {
     private static final MethodHandle SELECTORS_GETTER = MethodHandleHelper.findFieldGetter(MultipartBakedModel.class, "selectors", "field_188626_f");
 
     @SuppressWarnings("Guava")
-    private final Predicate[] predicates;
-    private final IBakedModel[] models;
+    public final Predicate[] predicates;
+    public final IBakedModel[] models;
 
     @SuppressWarnings("unchecked")
     public FoamyMultipartBakedModel(MultipartBakedModel parent) {

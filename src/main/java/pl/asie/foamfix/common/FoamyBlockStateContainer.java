@@ -47,7 +47,12 @@ public class FoamyBlockStateContainer extends BlockStateContainer {
 			return createState_foamfix_old(block, properties, unlistedProperties);
 		}
 
-		return new FoamyBlockState(PropertyValueMapper.getOrCreate(this), block, properties);
+		PropertyValueMapper mapper = PropertyValueMapper.getOrCreate(this);
+		if (mapper.isValid()) {
+			return new FoamyBlockState(mapper, block, properties);
+		} else {
+			return createState_foamfix_old(block, properties, unlistedProperties);
+		}
 	}
 
 	protected BlockStateContainer.StateImplementation createState_foamfix_old(Block block, ImmutableMap<IProperty<?>, Comparable<?>> properties, ImmutableMap<IUnlistedProperty<?>, Optional<?>> unlistedProperties) {

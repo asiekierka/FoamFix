@@ -38,13 +38,11 @@ import java.util.Map;
 
 public class FoamyBlockState extends BlockStateContainer.StateImplementation {
 	protected final PropertyValueMapper owner;
-	protected final ImmutableMap<IProperty<?>, Comparable<?>> properties;
 	protected int value;
 
 	public FoamyBlockState(PropertyValueMapper owner, Block blockIn, ImmutableMap < IProperty<?>, Comparable<? >> propertiesIn) {
 		super(blockIn, propertiesIn);
 		this.owner = owner;
-		this.properties = propertiesIn;
 	}
 
 	@Override

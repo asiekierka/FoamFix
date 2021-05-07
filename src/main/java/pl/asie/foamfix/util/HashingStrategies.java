@@ -59,6 +59,8 @@ import it.unimi.dsi.fastutil.Hash;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import org.lwjgl.util.vector.Vector3f;
+import pl.asie.foamfix.client.FoamyMultipartBakedModel;
+import pl.asie.foamfix.client.deduplicator.FoamyMultipartBakedModelHashingStrategy;
 
 import java.util.Arrays;
 import java.util.Objects;

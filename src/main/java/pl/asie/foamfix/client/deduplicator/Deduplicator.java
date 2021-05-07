@@ -78,7 +78,10 @@ import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.client.FoamyItemLayerModel;
+import pl.asie.foamfix.client.FoamyMultipartBakedModel;
 import pl.asie.foamfix.client.IDeduplicatingStorage;
+import pl.asie.foamfix.client.condition.FoamyConditionAnd;
+import pl.asie.foamfix.client.condition.FoamyConditionOr;
 import pl.asie.foamfix.client.condition.FoamyConditionPropertyValue;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.foamfix.util.DeduplicatingStorageTrove;
@@ -91,6 +94,7 @@ import javax.vecmath.Vector4f;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.ref.Reference;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -286,9 +290,16 @@ public class Deduplicator {
 
         DEDUPLICATOR_0_FUNCTIONS.put(ResourceLocation.class, RESOURCE_LOCATION_STORAGE::deduplicate);
         for (Class c : Lists.newArrayList(ModelResourceLocation.class, Vec3d.class, Vec3i.class, BlockPos.class, TRSRTransformation.class,
-                FoamyConditionPropertyValue.PredicateNegative.class, FoamyConditionPropertyValue.PredicatePositive.class)) {
+                FoamyConditionPropertyValue.PredicateNegative.class, FoamyConditionPropertyValue.PredicatePositive.class, FoamyConditionPropertyValue.class,
+                FoamyConditionOr.PredicateImpl.class, FoamyConditionAnd.PredicateImpl.class,
+                FoamyConditionPropertyValue.SingletonPredicateNegative.class, FoamyConditionPropertyValue.SingletonPredicatePositive.class)) {
             final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
             DEDUPLICATOR_0_FUNCTIONS.put(c, OBJECT_STORAGE::deduplicate);
+        }
+
+        {
+            final IDeduplicatingStorage<FoamyMultipartBakedModel> FOAMY_MULTIPART_STORAGE = new DeduplicatingStorageTrove<>(new FoamyMultipartBakedModelHashingStrategy());
+            DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> FOAMY_MULTIPART_STORAGE.deduplicate((FoamyMultipartBakedModel) obj));
         }
 
         if (FoamFixShared.isCoremod) {
@@ -402,7 +413,10 @@ public class Deduplicator {
         boolean isIdentity = false;
         boolean continueProcessing = true;
 
-        if (IBakedModel.class.isAssignableFrom(c)) {
+        if (Reference.class.isAssignableFrom(c)) {
+            func = (obj, recursion) -> deduplicateObject(((Reference) obj).get(), recursion + 1);
+            continueProcessing = false;
+        } else if (IBakedModel.class.isAssignableFrom(c)) {
             Deduplicator0Function immMapFunc = getDeduplicate0Func(ImmutableMap.class);
 
             if (PerspectiveMapWrapper.class.isAssignableFrom(c)) {

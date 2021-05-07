@@ -162,14 +162,11 @@ public class FoamFixConfig {
 		clDeduplicateModels = getBoolean("deduplicateModels", "client", true, "Deduplicates baked models. The original feature.", false, true);
 		clDeduplicateIModels = getBoolean("deduplicateModelBakers", "client", true, "Deduplicates IModels too. Takes a few seconds more, but shaves off another bit of RAM.", false, true);
 		clCleanRedundantModelRegistry = getBoolean("clearDuplicateModelRegistry", "client", true, "Clears the baked models generated in the first pass *before* entering the second pass, instead of *after*. While this doesn't reduce memory usage in-game, it does reduce it noticeably during loading.", true, true);
-		clModelLoaderCleanup = getBoolean("modelLoaderCleanup", "client", true, "Remove unnecessary data from a pointlessly cached ModelLoader instance.", true, true);
 		expUnpackBakedQuads = getBoolean("unpackBakedQuads", "experimental", false, "Unpacks all baked quads. Increases RAM usage, but might speed some things up.", false, true);
 		gbEnableWrapper = getBoolean("enableDebuggingWrapper", "ghostbuster", false, "Wrap ChunkProviderServers to be able to provide the /ghostbuster command for debugging ghost chunkloads.", true, true);
 		gbWrapperCountNotifyBlock = getBoolean("wrapperShowsNeighborUpdates", "ghostbuster", false, "Should the /ghostbuster debugger show neighbor updates?", false, true);
 		clClearCachesOnUnload = getBoolean("clearCachesOnWorldUnload", "client", true, "Clears caches on world unload a bit faster than usual. Prevents temporary memory leaks. More effective in Anarchy.", true, true);
-		clModelResourceLocationFastConstruct = getBoolean("modelResourceLocationFastConstruct", "client", true, "Faster/less memory-churning construction mechanism for ModelResourceLocation objects. Identified by malte0811 in FerriteCore - implemented in a distinct way.", true, true);
 		clDeduplicateStepEvery = getInt("deduplicateModelsStepEvery", "client", 1, 1, 10000, "Step every X models on the progress bar while deduplicating baked models.", false, false);
-		clSmallModelConditions = getBoolean("smallModelConditions", "client", true, "More optimized multipart model condition storage. Inspired by malte0811's research.", true, true);
 
 		gbForgeGCNonUnloaded = getBoolean("nonUnloadedWorldsForceGCOnCheck", "ghostbuster", false, "For FoamFix debugging/development purposes only.", false, false);
 		gbNotifyNonUnloadedWorlds = getBoolean("checkNonUnloadedWorldClients", "ghostbuster", true, "Checks if worlds do not unload after a specified amount of time, and notifies the user if that is the case.", true, true);
@@ -232,6 +229,10 @@ public class FoamFixConfig {
 			geFasterEntityDataManager = getBoolean("fasterEntityDataManager", "experimental", false, "Optimizes the backing map for EntityDataManager, saving memory *and* CPU time! May cause issues, however - please test and report back!", true, true);
 			geFasterHopper = getBoolean("fasterHopper", "coremod", true, "Speeds up the hopper's calculations.", true, true);
 			geFixWorldEntityCleanup = getBoolean("fixWorldEntityCleanup", "coremod", true, "Fixes the server not removing unloaded entities/tile entities if no chunkloaders are active. Thanks to CreativeMD for finding this!", true, true);
+
+			clModelLoaderCleanup = getBoolean("modelLoaderCleanup", "client", true, "Remove unnecessary data from a pointlessly cached ModelLoader instance.", true, true);
+			clModelResourceLocationFastConstruct = getBoolean("modelResourceLocationFastConstruct", "client", true, "Faster/less memory-churning construction mechanism for ModelResourceLocation objects. Identified by malte0811 in FerriteCore - implemented in a distinct way.", true, true);
+			clSmallModelConditions = getBoolean("smallModelConditions", "client", true, "More optimized multipart model condition storage. Inspired by malte0811's research.", true, true);
 		}
 
 		if (refreshTimes > 1) {
