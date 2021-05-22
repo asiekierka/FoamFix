@@ -153,13 +153,13 @@ public class ProxyClient extends ProxyCommon {
 			boolean copyImageSupported = caps.OpenGL43 || caps.GL_ARB_copy_image;
 			if (!copyImageSupported) {
 				if (FoamFixShared.config.txFasterAnimation == 2) {
-					FoamFix.logger.warn("Fast animated textures require OpenGL 4.3 or ARB_copy_image extension, which were not detected. Using original slow path.");
+					FoamFix.getLogger().warn("Fast animated textures require OpenGL 4.3 or ARB_copy_image extension, which were not detected. Using original slow path.");
 				}
 				FoamFix.shouldFasterAnimation = false;
 			} else {
 			    String vendor = GL11.glGetString(GL11.GL_VENDOR);
 			    if (/* "Advanced Micro Devices, Inc.".equals(vendor) || "ATI Technologies Inc.".equals(vendor) || vendor.startsWith("AMD ") || vendor.startsWith("ATI ") || */ FoamFixShared.config.txFasterAnimation == 2) {
-                    FoamFix.logger.info("Using fast animated textures.");
+                    FoamFix.getLogger().info("Using fast animated textures.");
                     FoamFix.shouldFasterAnimation = true;
                 } else {
                     // FoamFix.logger.warn("Fast animated textures currently only seem to boost performance on AMD cards. Using original slow path.");

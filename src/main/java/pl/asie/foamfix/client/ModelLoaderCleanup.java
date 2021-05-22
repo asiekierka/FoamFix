@@ -42,7 +42,7 @@ public class ModelLoaderCleanup {
 
 	public static void cleanup(ModelLoader loader) {
 		if (FoamFixShared.config.clModelLoaderCleanup) {
-			FoamFix.logger.info("Cleaning up ModelLoader...");
+			FoamFix.getLogger().info("Cleaning up ModelLoader...");
 			try {
 				((Map) LOADING_EXCEPTIONS_GETTER.invoke(loader)).clear();
 			} catch (Throwable t) {

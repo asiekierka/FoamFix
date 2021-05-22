@@ -154,7 +154,7 @@ public final class FoamFixModelDeduplicate {
 
         if (FoamFixShared.config.clWipeModelCache) {
             int itemsCleared = 0;
-            FoamFix.logger.info("Clearing ModelLoaderRegistry cache (" + cache.size() + " items)...");
+            FoamFix.getLogger().info("Clearing ModelLoaderRegistry cache (" + cache.size() + " items)...");
             int cacheSize = cache.size();
             cache.entrySet().removeIf((e) -> {
                 ResourceLocation r = e.getKey();
@@ -171,7 +171,7 @@ public final class FoamFixModelDeduplicate {
             });
             itemsCleared += cacheSize - cache.size();
 
-            FoamFix.logger.info("Cleared " + itemsCleared + " objects.");
+            FoamFix.getLogger().info("Cleared " + itemsCleared + " objects.");
             cache = Collections.emptyMap();
         }
         if (FoamFixShared.config.geDeduplicate || FoamFixShared.config.clDeduplicateModels) {
@@ -183,7 +183,7 @@ public final class FoamFixModelDeduplicate {
             deduplicator.addResourceLocation(ForgeRegistries.ITEMS.getKeys());
 
             if (FoamFixShared.config.geDeduplicate) {
-                FoamFix.logger.info("Deduplicating...");
+                FoamFix.getLogger().info("Deduplicating...");
                 try {
                     if (cache != null) {
                         int bakeBarLength = 2;
@@ -252,7 +252,7 @@ public final class FoamFixModelDeduplicate {
                     ProgressManager.ProgressBar bakeBar = ProgressManager.push("FoamFix: deduplicating", stepCount);
 
                     deduplicator.maxRecursion = FoamFixShared.config.clDeduplicateRecursionLevel;
-                    FoamFix.logger.info("Deduplicating models...");
+                    FoamFix.getLogger().info("Deduplicating models...");
 
                     for (ModelResourceLocation loc : event.getModelRegistry().getKeys()) {
                         IBakedModel model = event.getModelRegistry().getObject(loc);
@@ -276,7 +276,7 @@ public final class FoamFixModelDeduplicate {
                     }
 
                     ProgressManager.pop(bakeBar);
-                    FoamFix.logger.info("Deduplicated " + deduplicator.successfuls + " (+ " + deduplicator.successfulTrims + ") objects.");
+                    FoamFix.getLogger().info("Deduplicated " + deduplicator.successfuls + " (+ " + deduplicator.successfulTrims + ") objects.");
                 }
             }
             /* List<Class> map = Lists.newArrayList(deduplicator.dedupObjDataMap.keySet());

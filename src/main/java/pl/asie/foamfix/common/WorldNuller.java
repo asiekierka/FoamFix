@@ -55,7 +55,7 @@ public class WorldNuller {
 	}
 
 	public static void initClient() {
-		FoamFix.logger.info("Registered client-side world unload notifier!");
+		FoamFix.getLogger().info("Registered client-side world unload notifier!");
 		MinecraftForge.EVENT_BUS.register(new ClientNuller());
 	}
 
@@ -80,7 +80,7 @@ public class WorldNuller {
 		}
 
 		static void log(String msg) {
-			FoamFix.logger.info(msg);
+			FoamFix.getLogger().info(msg);
 		}
 
 		static boolean spam = true;

@@ -85,7 +85,7 @@ public class FoamFixModelRegistryDuplicateWipe {
         Field f = ObfuscationReflectionHelper.findField(ModelManager.class, "field_174958_a");
         try {
             IRegistry<ModelResourceLocation, IBakedModel> registry = (IRegistry<ModelResourceLocation, IBakedModel>) f.get(mgr);
-            FoamFix.logger.info("Clearing unnecessary model registry of size " + registry.getKeys().size() + ".");
+            FoamFix.getLogger().info("Clearing unnecessary model registry of size " + registry.getKeys().size() + ".");
             for (ModelResourceLocation l : registry.getKeys()) {
                 registry.putObject(l, ProxyClient.DUMMY_MODEL);
             }
@@ -95,7 +95,7 @@ public class FoamFixModelRegistryDuplicateWipe {
         f = ObfuscationReflectionHelper.findField(BlockModelShapes.class, "field_178129_a");
         try {
             Map<IBlockState, IBakedModel> modelStore = (Map<IBlockState, IBakedModel>) f.get(bms);
-            FoamFix.logger.info("Clearing unnecessary model store of size " + modelStore.size() + ".");
+            FoamFix.getLogger().info("Clearing unnecessary model store of size " + modelStore.size() + ".");
             modelStore.clear();
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,7 +104,7 @@ public class FoamFixModelRegistryDuplicateWipe {
             f = ReflectionHelper.findField(ItemModelMesherForge.class, "models");
             try {
                 Map<IRegistryDelegate<Item>, TIntObjectHashMap<IBakedModel>> modelStore = (Map<IRegistryDelegate<Item>, TIntObjectHashMap<IBakedModel>>) f.get(imm);
-                FoamFix.logger.info("Clearing unnecessary item shapes cache of size " + modelStore.size() + ".");
+                FoamFix.getLogger().info("Clearing unnecessary item shapes cache of size " + modelStore.size() + ".");
                 modelStore.clear();
             } catch (Exception e) {
                 e.printStackTrace();

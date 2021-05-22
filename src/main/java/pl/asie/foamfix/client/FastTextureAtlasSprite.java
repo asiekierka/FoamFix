@@ -238,7 +238,7 @@ public class FastTextureAtlasSprite extends TextureAtlasSprite implements IFoamF
         while(error != GL11.GL_NO_ERROR) {
             String errorString = GLU.gluErrorString(error);
 
-            FoamFix.logger.error("GL Error: " + errorString + "(" + error + ") @ " + desc);
+            FoamFix.getLogger().error("GL Error: " + errorString + "(" + error + ") @ " + desc);
 
             error = GL11.glGetError();
         }

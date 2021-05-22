@@ -78,7 +78,7 @@ public class ProxyCommon {
 
 		if (getClass().getClassLoader() instanceof LaunchClassLoader) {
 			if (FoamFixShared.config.lwRemovePackageManifestMap) {
-				FoamFix.logger.info("Removing LaunchWrapper package manifest map...");
+				FoamFix.getLogger().info("Removing LaunchWrapper package manifest map...");
 				try {
 					LaunchClassLoader loader = (LaunchClassLoader) getClass().getClassLoader();
 
@@ -154,7 +154,7 @@ public class ProxyCommon {
 	public void init() {
 		if (getClass().getClassLoader() instanceof LaunchClassLoader) {
 			if (FoamFixShared.config.lwWeakenResourceCache) {
-				FoamFix.logger.info("Weakening LaunchWrapper resource cache...");
+				FoamFix.getLogger().info("Weakening LaunchWrapper resource cache...");
 				try {
 					LaunchClassLoader loader = (LaunchClassLoader) getClass().getClassLoader();
 

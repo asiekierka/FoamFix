@@ -48,7 +48,7 @@ public class SearchTreeJEIManagerInject implements IResourceManagerReloadListene
 				Field f = ReflectionHelper.findField(SearchTreeManager.class, "trees", "field_194013_c");
 				Map m = (Map) f.get(Minecraft.getMinecraft().getSearchTreeManager());
 				m.put(SearchTreeManager.ITEMS, new SearchTreeJEIItems());
-				FoamFix.logger.info("JEI search tree manager injection complete!");
+				FoamFix.getLogger().info("JEI search tree manager injection complete!");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

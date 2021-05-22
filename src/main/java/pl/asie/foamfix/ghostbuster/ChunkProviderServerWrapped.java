@@ -69,7 +69,7 @@ public class ChunkProviderServerWrapped extends ChunkProviderServer {
 				}
 
 				if (i >= 0) {
-					FoamFix.logger.info("Block in chunk [" + x + ", " + z + "] may be ghostloaded!");
+					FoamFix.getLogger().info("Block in chunk [" + x + ", " + z + "] may be ghostloaded!");
 
 					for (StackTraceElement ste : stea) {
 						try {
@@ -78,7 +78,7 @@ public class ChunkProviderServerWrapped extends ChunkProviderServer {
 								break;
 							}
 							if ((i++) > 0) {
-								FoamFix.logger.info("- " + ste.toString());
+								FoamFix.getLogger().info("- " + ste.toString());
 							}
 						} catch (Exception e) {
 

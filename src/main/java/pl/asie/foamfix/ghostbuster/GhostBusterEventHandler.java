@@ -41,7 +41,7 @@ public class GhostBusterEventHandler {
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event) {
 		if (event.getWorld() instanceof WorldServer) {
-			FoamFix.logger.info("Overriding ChunkProviderServer in dimension " + event.getWorld().provider.getDimension() + "!");
+			FoamFix.getLogger().info("Overriding ChunkProviderServer in dimension " + event.getWorld().provider.getDimension() + "!");
 			ChunkProviderServerWrapped wrapped = new ChunkProviderServerWrapped((WorldServer) event.getWorld());
 
 			try {

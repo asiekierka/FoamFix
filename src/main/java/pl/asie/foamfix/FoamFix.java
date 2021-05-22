@@ -59,7 +59,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -74,7 +73,6 @@ import pl.asie.foamfix.ghostbuster.CommandGhostBuster;
 import pl.asie.foamfix.ghostbuster.GhostBusterEventHandler;
 import pl.asie.foamfix.shared.FoamFixShared;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,12 +85,19 @@ public class FoamFix {
     @SidedProxy(clientSide = "pl.asie.foamfix.ProxyClient", serverSide = "pl.asie.foamfix.ProxyCommon", modId = "foamfix")
     public static ProxyCommon proxy;
 
-    public static Logger logger;
+    private static Logger logger;
     public static int stage;
     public static boolean shouldFasterAnimation = false;
 
     public static Item getItemAir() {
         return AIR == null ? (AIR = Item.getItemFromBlock(Blocks.AIR)) : AIR;
+    }
+
+    public static Logger getLogger() {
+        if (logger == null) {
+            logger = LogManager.getLogger("foamfix");
+        }
+        return logger;
     }
 
     @Mod.EventHandler
@@ -108,7 +113,6 @@ public class FoamFix {
     public void preInit(FMLPreInitializationEvent event) {
         FoamFixAPI.HELPER = new FoamFixHelper();
 
-        logger = LogManager.getLogger("foamfix");
         stage = 0;
 
         FoamFixShared.config.init(event.getSuggestedConfigurationFile(), false);
@@ -125,7 +129,7 @@ public class FoamFix {
         if (FoamFixShared.config.geDeduplicate) {
             PropertyValueDeduplicator deduplicator = new PropertyValueDeduplicator();
             deduplicator.deduplicate();
-            logger.info("Deduplicated " + deduplicator.successfuls + " property sets.");
+            getLogger().info("Deduplicated " + deduplicator.successfuls + " property sets.");
         }
 
         if (FoamFixShared.config.gbEnableWrapper) {
