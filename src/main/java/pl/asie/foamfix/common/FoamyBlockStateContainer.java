@@ -37,6 +37,8 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import java.util.Optional;
 
 public class FoamyBlockStateContainer extends BlockStateContainer {
+	private PropertyValueMapper foamfix_mapper;
+
 	public FoamyBlockStateContainer(Block blockIn, IProperty<?>... properties) {
 		super(blockIn, properties);
 	}
@@ -47,9 +49,12 @@ public class FoamyBlockStateContainer extends BlockStateContainer {
 			return createState_foamfix_old(block, properties, unlistedProperties);
 		}
 
-		PropertyValueMapper mapper = PropertyValueMapper.getOrCreate(this);
-		if (mapper.isValid()) {
-			return new FoamyBlockState(mapper, block, properties);
+		if (foamfix_mapper == null) {
+			foamfix_mapper = new PropertyValueMapper(this);
+		}
+
+		if (foamfix_mapper.isValid()) {
+			return new FoamyBlockState(foamfix_mapper, block, properties);
 		} else {
 			return createState_foamfix_old(block, properties, unlistedProperties);
 		}

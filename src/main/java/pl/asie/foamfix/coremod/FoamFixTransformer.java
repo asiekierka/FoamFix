@@ -102,14 +102,14 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         for (int i = 0; i < nodeSplice.methods.size(); i++) {
-            if (methodSet.contains(nodeSplice.methods.get(i).name)) {
-                MethodNode mn = nodeSplice.methods.get(i);
+            MethodNode mn = nodeSplice.methods.get(i);
+            if (methodSet.contains(mn.name)) {
                 boolean added = false;
 
                 for (int j = 0; j < nodeData.methods.size(); j++) {
-                    if (nodeData.methods.get(j).name.equals(mn.name)
-                            && nodeData.methods.get(j).desc.equals(mn.desc)) {
-                        MethodNode oldMn = nodeData.methods.get(j);
+                    MethodNode oldMn = nodeData.methods.get(j);
+                    if (oldMn.name.equals(mn.name)
+                            && oldMn.desc.equals(mn.desc)) {
                         System.out.println("Spliced in METHOD: " + targetClassName + "." + mn.name);
                         nodeData.methods.set(j, mn);
                         boolean isConstructor = oldMn.name.charAt(0) == '<';
@@ -145,13 +145,14 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         for (int i = 0; i < nodeSplice.fields.size(); i++) {
-            if (methodSet.contains(nodeSplice.fields.get(i).name)) {
-                FieldNode mn = nodeSplice.fields.get(i);
+            FieldNode mn = nodeSplice.fields.get(i);
+            if (methodSet.contains(mn.name)) {
                 boolean added = false;
 
                 for (int j = 0; j < nodeData.fields.size(); j++) {
-                    if (nodeData.fields.get(j).name.equals(mn.name)
-                            && nodeData.fields.get(j).desc.equals(mn.desc)) {
+                    FieldNode otherNode = nodeData.fields.get(j);
+                    if (otherNode.name.equals(mn.name)
+                            && otherNode.desc.equals(mn.desc)) {
                         System.out.println("Spliced in FIELD: " + targetClassName + "." + mn.name);
                         nodeData.fields.set(j, mn);
                         added = true;
@@ -216,9 +217,9 @@ public class FoamFixTransformer implements IClassTransformer {
 
             patchy.addTransformerId("smallPropertyStorage_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyBlockStateContainer",
-                    false, "createState", "createState"), "net.minecraft.block.state.BlockStateContainer");
+                    false, "createState", "createState", "foamfix_mapper", "foamfix_mapper"), "net.minecraft.block.state.BlockStateContainer");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.common.FoamyExtendedBlockStateContainer",
-                    false, "createState", "createState"), "net.minecraftforge.common.property.ExtendedBlockState");
+                    false, "createState", "createState", "foamfix_mapper", "foamfix_mapper"), "net.minecraftforge.common.property.ExtendedBlockState");
         }
 
         if (FoamFixShared.config.gePatchChunkSerialization) {

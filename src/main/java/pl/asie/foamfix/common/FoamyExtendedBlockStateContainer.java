@@ -38,6 +38,8 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import java.util.Optional;
 
 public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
+	private PropertyValueMapper foamfix_mapper;
+
 	public FoamyExtendedBlockStateContainer(Block blockIn, IProperty<?>[] properties, IUnlistedProperty<?>[] unlistedProperties) {
 		super(blockIn, properties, unlistedProperties);
 	}
@@ -49,10 +51,13 @@ public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
 			return createState_foamfix_old(block, properties, unlistedProperties);
 		}
 
-		PropertyValueMapper mapper = PropertyValueMapper.getOrCreate(this);
-		if (mapper.isValid()) {
+		if (foamfix_mapper == null) {
+			foamfix_mapper = new PropertyValueMapper(this);
+		}
+
+		if (foamfix_mapper.isValid()) {
 			if (unlistedProperties == null || unlistedProperties.isEmpty()) {
-				return new FoamyBlockState(mapper, block, properties);
+				return new FoamyBlockState(foamfix_mapper, block, properties);
 			} else {
 				boolean has = false;
 				for (Optional o : unlistedProperties.values()) {
@@ -62,7 +67,7 @@ public class FoamyExtendedBlockStateContainer extends ExtendedBlockState {
 					}
 				}
 
-				return new FoamyExtendedBlockState(mapper, block, properties, unlistedProperties, has);
+				return new FoamyExtendedBlockState(foamfix_mapper, block, properties, unlistedProperties, has);
 			}
 		} else {
 			return createState_foamfix_old(block, properties, unlistedProperties);

@@ -219,7 +219,6 @@ public class PropertyValueMapper {
 	}
 
 	private static final Map<IProperty<?>, Entry> entryMap = new IdentityHashMap<>();
-	private static final Map<BlockStateContainer, PropertyValueMapper> mapperMap = new IdentityHashMap<>();
 	private static final int MAX_BIT_POS = 31;
 
 	private final Entry[] entryList;
@@ -262,12 +261,6 @@ public class PropertyValueMapper {
 
 	public boolean isValid() {
 		return stateMap != null;
-	}
-
-	public static PropertyValueMapper getOrCreate(BlockStateContainer owner) {
-		synchronized (mapperMap) {
-			return mapperMap.computeIfAbsent(owner, PropertyValueMapper::new);
-		}
 	}
 
 	protected static Entry getPropertyEntry(IProperty property) {
