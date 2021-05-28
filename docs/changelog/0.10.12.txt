@@ -1,0 +1,8 @@
+This is a kind of "Last Hurrah" update. It is strongly recommended.
+
+* Improved the performance of the model data deduplication step.
+* Slightly improved the memory usage of smallPropertyValue-created BlockStates.
+* Incorporated minor memory usage optimization ideas from malte0811's FerriteCore (with permission) - these have a much bigger impact on 1.14+, but they also won't hurt in 1.12.2.
+* Fixed a memory leak issue with Railcraft tanks (#271).
+* Minor code improvements; they may help fix some issues, but no promises.
+

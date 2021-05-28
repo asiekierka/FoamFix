@@ -1,0 +1,3 @@
+* Added minor network optimization.
+* Added config option to change deflater compression strength.
+* Fixed model bug with client.smallModelConditions.

@@ -1,0 +1,2 @@
+* Fixed multiple "ghost chunkloading" bugs across the 1.12.2 codebase, particularly involving Biomes o' Plenty grass, but also vanilla farmland and modded fluids.
+* Minor code cleanup.
