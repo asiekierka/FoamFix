@@ -37,6 +37,7 @@ public class FoamFixShared {
 	public static boolean isCoremod = false;
 	private static Boolean idPatchModPresent;
 	private static Boolean spongePresent;
+	public static int neDeflaterCompression;
 
 	public static boolean emitWarningIfPresent(String featureName, BooleanSupplier supplier, String modName, boolean disables) {
 		if (supplier.getAsBoolean()) {

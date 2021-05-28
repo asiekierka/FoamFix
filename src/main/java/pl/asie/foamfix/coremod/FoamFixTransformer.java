@@ -40,6 +40,7 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
 import pl.asie.foamfix.FoamFix;
 import pl.asie.foamfix.coremod.patches.*;
+import pl.asie.foamfix.coremod.patches.network.DeflaterCompressionLevelPatch;
 import pl.asie.foamfix.ghostbuster.GhostBusterDefinition;
 import pl.asie.foamfix.shared.FoamFixShared;
 import pl.asie.patchy.Patchy;
@@ -280,6 +281,19 @@ public class FoamFixTransformer implements IClassTransformer {
                     "net.minecraft.client.renderer.block.model.multipart.Selector$Deserializer");
             handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.client.renderer.block.model.multipart.ConditionAnd", "pl.asie.foamfix.client.condition.FoamyConditionAnd"),
                     "net.minecraft.client.renderer.block.model.multipart.Selector$Deserializer");
+        }
+
+        if (FoamFixShared.config.neMicroOptimizations) {
+            patchy.addTransformerId("neMicroOptimizations_writeString_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.network.PacketBufferInject",
+                    false, "writeString", "func_180714_a"), "net.minecraft.network.PacketBuffer");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.network.ByteBufUtilsInject",
+                    false, "writeUTF8String"), "net.minecraftforge.fml.common.network.ByteBufUtils");
+        }
+
+        if (FoamFixShared.neDeflaterCompression >= 0) {
+            patchy.addTransformerId("neDeflaterCompression");
+            handlerCN.add(new DeflaterCompressionLevelPatch(), "net.minecraft.network.NettyCompressionEncoder");
         }
 
         if (FoamFixShared.config.geFasterAirLookup) {
