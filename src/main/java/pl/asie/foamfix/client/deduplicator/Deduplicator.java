@@ -76,6 +76,7 @@ import net.minecraftforge.client.model.animation.ModelBlockAnimation;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.common.IWorldGenerator;
 import org.apache.logging.log4j.Logger;
 import pl.asie.foamfix.client.FoamyItemLayerModel;
 import pl.asie.foamfix.client.FoamyMultipartBakedModel;
@@ -236,6 +237,7 @@ public class Deduplicator {
                     || Entity.class.isAssignableFrom(c) || Logger.class.isAssignableFrom(c) || IRegistry.class.isAssignableFrom(c)
                     || SimpleReloadableResourceManager.class.isAssignableFrom(c) || IResourcePack.class.isAssignableFrom(c)
                     || IProperty.class.isAssignableFrom(c) || IUnlistedProperty.class.isAssignableFrom(c)
+                    || IWorldGenerator.class.isAssignableFrom(c)
                     || IRecipe.class.isAssignableFrom(c) || Ingredient.class.isAssignableFrom(c) || IBlockState.class.isAssignableFrom(c)
                     || LanguageManager.class.isAssignableFrom(c) || BlockPos.MutableBlockPos.class.isAssignableFrom(c)) {
                 result = false;
@@ -289,12 +291,18 @@ public class Deduplicator {
         Deduplicator0Function FLOATAAA_DEDUP = DEDUPLICATOR_0_FUNCTIONS.get(float[][][].class);
 
         DEDUPLICATOR_0_FUNCTIONS.put(ResourceLocation.class, RESOURCE_LOCATION_STORAGE::deduplicate);
-        for (Class c : Lists.newArrayList(ModelResourceLocation.class, Vec3d.class, Vec3i.class, BlockPos.class, TRSRTransformation.class,
-                FoamyConditionPropertyValue.PredicateNegative.class, FoamyConditionPropertyValue.PredicatePositive.class, FoamyConditionPropertyValue.class,
-                FoamyConditionOr.PredicateImpl.class, FoamyConditionAnd.PredicateImpl.class,
-                FoamyConditionPropertyValue.SingletonPredicateNegative.class, FoamyConditionPropertyValue.SingletonPredicatePositive.class)) {
+        for (Class c : Lists.newArrayList(ModelResourceLocation.class, Vec3d.class, Vec3i.class, BlockPos.class, TRSRTransformation.class)) {
             final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
             DEDUPLICATOR_0_FUNCTIONS.put(c, OBJECT_STORAGE::deduplicate);
+        }
+
+        if (FoamFixShared.config.clSmallModelConditions) {
+            for (Class c : Lists.newArrayList(FoamyConditionPropertyValue.PredicateNegative.class, FoamyConditionPropertyValue.PredicatePositive.class, FoamyConditionPropertyValue.class,
+                    FoamyConditionOr.PredicateImpl.class, FoamyConditionAnd.PredicateImpl.class,
+                    FoamyConditionPropertyValue.SingletonPredicateNegative.class, FoamyConditionPropertyValue.SingletonPredicatePositive.class)) {
+                final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
+                DEDUPLICATOR_0_FUNCTIONS.put(c, OBJECT_STORAGE::deduplicate);
+            }
         }
 
         {

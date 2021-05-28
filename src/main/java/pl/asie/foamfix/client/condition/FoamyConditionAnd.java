@@ -82,6 +82,7 @@ public class FoamyConditionAnd implements ICondition {
         this.conditions = conditionsIn;
     }
 
+    @Override
     public Predicate<IBlockState> getPredicate(final BlockStateContainer blockState) {
         Predicate[] predicates = StreamSupport.stream(conditions.spliterator(), false)
                 .map(cond -> cond == null ? null : cond.getPredicate(blockState))

@@ -80,6 +80,7 @@ public class FoamyConditionOr implements ICondition {
         this.conditions = conditionsIn;
     }
 
+    @Override
     public Predicate<IBlockState> getPredicate(final BlockStateContainer blockState) {
         Predicate[] predicates = StreamSupport.stream(conditions.spliterator(), false)
                 .map(cond -> cond == null ? null : cond.getPredicate(blockState))
@@ -88,7 +89,7 @@ public class FoamyConditionOr implements ICondition {
         if (predicates.length <= 1) {
             return predicates[0];
         } else {
-            return new FoamyConditionAnd.PredicateImpl(predicates);
+            return new PredicateImpl(predicates);
         }
     }
 }
