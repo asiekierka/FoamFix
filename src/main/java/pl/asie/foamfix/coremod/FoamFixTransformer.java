@@ -274,7 +274,7 @@ public class FoamFixTransformer implements IClassTransformer {
         }
 
         if (FoamFixShared.config.clSmallModelConditions) {
-            patchy.addTransformerId("smallModelConditions_v1");
+            patchy.addTransformerId("smallModelConditions_v2");
             handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.client.renderer.block.model.multipart.ConditionPropertyValue", "pl.asie.foamfix.client.condition.FoamyConditionPropertyValue"),
                     "net.minecraft.client.renderer.block.model.multipart.Selector$Deserializer");
             handlerCV.add(new ConstructorReplacingTransformer("net.minecraft.client.renderer.block.model.multipart.ConditionOr", "pl.asie.foamfix.client.condition.FoamyConditionOr"),

@@ -29,6 +29,7 @@
 package pl.asie.foamfix.client.condition;
 
 import com.google.common.base.*;
+import gnu.trove.strategy.HashingStrategy;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -63,24 +64,23 @@ public class FoamyConditionPropertyValue extends ConditionPropertyValue {
             return true;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PredicateNegative that = (PredicateNegative) o;
-            if (property == that.property) {
-                if (values.length != that.values.length) return false;
-                for (int i = 0; i < values.length; i++) {
-                    if (values[i] != that.values[i]) return false;
-                }
-                return true;
+        public static final class HashingStrategy implements gnu.trove.strategy.HashingStrategy<PredicateNegative> {
+            @Override
+            public int computeHashCode(PredicateNegative object) {
+                return 31 * object.property.hashCode() + Arrays.hashCode(object.values);
             }
-            return false;
-        }
 
-        @Override
-        public int hashCode() {
-            return 31 * property.hashCode() + Arrays.hashCode(values);
+            @Override
+            public boolean equals(PredicateNegative o1, PredicateNegative o2) {
+                if (o1.property == o2.property) {
+                    if (o1.values.length != o2.values.length) return false;
+                    for (int i = 0; i < o1.values.length; i++) {
+                        if (o1.values[i] != o2.values[i]) return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
         }
     }
 
@@ -107,24 +107,23 @@ public class FoamyConditionPropertyValue extends ConditionPropertyValue {
             return false;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PredicatePositive that = (PredicatePositive) o;
-            if (property == that.property) {
-                if (values.length != that.values.length) return false;
-                for (int i = 0; i < values.length; i++) {
-                    if (values[i] != that.values[i]) return false;
-                }
-                return true;
+        public static final class HashingStrategy implements gnu.trove.strategy.HashingStrategy<PredicatePositive> {
+            @Override
+            public int computeHashCode(PredicatePositive object) {
+                return 31 * object.property.hashCode() + Arrays.hashCode(object.values);
             }
-            return false;
-        }
 
-        @Override
-        public int hashCode() {
-            return 31 * property.hashCode() + Arrays.hashCode(values);
+            @Override
+            public boolean equals(PredicatePositive o1, PredicatePositive o2) {
+                if (o1.property == o2.property) {
+                    if (o1.values.length != o2.values.length) return false;
+                    for (int i = 0; i < o1.values.length; i++) {
+                        if (o1.values[i] != o2.values[i]) return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
         }
     }
 
@@ -142,17 +141,16 @@ public class FoamyConditionPropertyValue extends ConditionPropertyValue {
             return state != null && state.getValue(property).equals(value);
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SingletonPredicatePositive that = (SingletonPredicatePositive) o;
-            return property == that.property && value == that.value;
-        }
+        public static final class HashingStrategy implements gnu.trove.strategy.HashingStrategy<SingletonPredicatePositive> {
+            @Override
+            public int computeHashCode(SingletonPredicatePositive object) {
+                return 31 * object.property.hashCode() + (object.value != null ? object.value.hashCode() : 0);
+            }
 
-        @Override
-        public int hashCode() {
-            return 31 * property.hashCode() + (value != null ? value.hashCode() : 0);
+            @Override
+            public boolean equals(SingletonPredicatePositive o1, SingletonPredicatePositive o2) {
+                return o1.property == o2.property && o1.value == o2.value;
+            }
         }
     }
 
@@ -170,17 +168,16 @@ public class FoamyConditionPropertyValue extends ConditionPropertyValue {
             return state == null || !state.getValue(property).equals(value);
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SingletonPredicateNegative that = (SingletonPredicateNegative) o;
-            return property == that.property && value == that.value;
-        }
+        public static final class HashingStrategy implements gnu.trove.strategy.HashingStrategy<SingletonPredicateNegative> {
+            @Override
+            public int computeHashCode(SingletonPredicateNegative object) {
+                return 31 * object.property.hashCode() + (object.value != null ? object.value.hashCode() : 0);
+            }
 
-        @Override
-        public int hashCode() {
-            return 31 * property.hashCode() + (value != null ? value.hashCode() : 0);
+            @Override
+            public boolean equals(SingletonPredicateNegative o1, SingletonPredicateNegative o2) {
+                return o1.property == o2.property && o1.value == o2.value;
+            }
         }
     }
 
@@ -228,18 +225,15 @@ public class FoamyConditionPropertyValue extends ConditionPropertyValue {
         }
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof FoamyConditionPropertyValue)) {
-            return false;
-        } else {
-            FoamyConditionPropertyValue other = (FoamyConditionPropertyValue) obj;
-            return other.key.equals(key) && other.value.equals(value);
+    public static final class HashingStrategy implements gnu.trove.strategy.HashingStrategy<FoamyConditionPropertyValue> {
+        @Override
+        public int computeHashCode(FoamyConditionPropertyValue object) {
+            return 31 * object.key.hashCode() + object.value.hashCode();
         }
-    }
 
-    @Override
-    public int hashCode() {
-        return 31 * key.hashCode() + value.hashCode();
+        @Override
+        public boolean equals(FoamyConditionPropertyValue o1, FoamyConditionPropertyValue o2) {
+            return o2.key.equals(o1.key) && o2.value.equals(o1.value);
+        }
     }
 }

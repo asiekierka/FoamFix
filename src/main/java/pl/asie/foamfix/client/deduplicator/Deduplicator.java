@@ -297,11 +297,39 @@ public class Deduplicator {
         }
 
         if (FoamFixShared.config.clSmallModelConditions) {
-            for (Class c : Lists.newArrayList(FoamyConditionPropertyValue.PredicateNegative.class, FoamyConditionPropertyValue.PredicatePositive.class, FoamyConditionPropertyValue.class,
-                    FoamyConditionOr.PredicateImpl.class, FoamyConditionAnd.PredicateImpl.class,
-                    FoamyConditionPropertyValue.SingletonPredicateNegative.class, FoamyConditionPropertyValue.SingletonPredicatePositive.class)) {
-                final IDeduplicatingStorage<Object> OBJECT_STORAGE = new DeduplicatingStorageTrove<>(HashingStrategies.GENERIC);
-                DEDUPLICATOR_0_FUNCTIONS.put(c, OBJECT_STORAGE::deduplicate);
+            {
+                final IDeduplicatingStorage<FoamyConditionOr.PredicateImpl> STORAGE = new DeduplicatingStorageTrove<>(new FoamyConditionOr.PredicateImpl.HashingStrategy());
+                DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> STORAGE.deduplicate((FoamyConditionOr.PredicateImpl) obj));
+            }
+
+            {
+                final IDeduplicatingStorage<FoamyConditionAnd.PredicateImpl> STORAGE = new DeduplicatingStorageTrove<>(new FoamyConditionAnd.PredicateImpl.HashingStrategy());
+                DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> STORAGE.deduplicate((FoamyConditionAnd.PredicateImpl) obj));
+            }
+
+            {
+                final IDeduplicatingStorage<FoamyConditionPropertyValue> STORAGE = new DeduplicatingStorageTrove<>(new FoamyConditionPropertyValue.HashingStrategy());
+                DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> STORAGE.deduplicate((FoamyConditionPropertyValue) obj));
+            }
+
+            {
+                final IDeduplicatingStorage<FoamyConditionPropertyValue.SingletonPredicatePositive> STORAGE = new DeduplicatingStorageTrove<>(new FoamyConditionPropertyValue.SingletonPredicatePositive.HashingStrategy());
+                DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> STORAGE.deduplicate((FoamyConditionPropertyValue.SingletonPredicatePositive) obj));
+            }
+
+            {
+                final IDeduplicatingStorage<FoamyConditionPropertyValue.SingletonPredicateNegative> STORAGE = new DeduplicatingStorageTrove<>(new FoamyConditionPropertyValue.SingletonPredicateNegative.HashingStrategy());
+                DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> STORAGE.deduplicate((FoamyConditionPropertyValue.SingletonPredicateNegative) obj));
+            }
+
+            {
+                final IDeduplicatingStorage<FoamyConditionPropertyValue.PredicateNegative> STORAGE = new DeduplicatingStorageTrove<>(new FoamyConditionPropertyValue.PredicateNegative.HashingStrategy());
+                DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> STORAGE.deduplicate((FoamyConditionPropertyValue.PredicateNegative) obj));
+            }
+
+            {
+                final IDeduplicatingStorage<FoamyConditionPropertyValue.PredicatePositive> STORAGE = new DeduplicatingStorageTrove<>(new FoamyConditionPropertyValue.PredicatePositive.HashingStrategy());
+                DEDUPLICATOR_0_FUNCTIONS.put(FoamyMultipartBakedModel.class, (obj) -> STORAGE.deduplicate((FoamyConditionPropertyValue.PredicatePositive) obj));
             }
         }
 

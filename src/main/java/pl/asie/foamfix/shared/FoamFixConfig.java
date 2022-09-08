@@ -234,7 +234,7 @@ public class FoamFixConfig {
 
 			clModelLoaderCleanup = getBoolean("modelLoaderCleanup", "client", true, "Remove unnecessary data from a pointlessly cached ModelLoader instance.", true, true);
 			clModelResourceLocationFastConstruct = getBoolean("modelResourceLocationFastConstruct", "client", true, "Faster/less memory-churning construction mechanism for ModelResourceLocation objects. Identified by malte0811 in FerriteCore - implemented in a distinct way.", true, true);
-			clSmallModelConditions = getBoolean("smallModelConditions", "client", true, "More optimized multipart model condition storage. Inspired by malte0811's research.", true, true);
+			clSmallModelConditions = getBoolean("smallModelConditionsV2", "client", true, "More optimized multipart model condition storage. Inspired by malte0811's research. Now not broken!", true, true);
 			clOpenUrlLinux = getBoolean("openUrlLinux", "client", true, "Fix opening URLs on Linux-based installs.", true, true);
 
 			FoamFixShared.neDeflaterCompression = getInt("packetCompressionLevel", "network", -1, -1, 9, "Set the packet compression level, from 0 to 9. -1 preserves the default settings.", true, true);

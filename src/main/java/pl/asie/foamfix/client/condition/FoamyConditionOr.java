@@ -32,6 +32,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
+import gnu.trove.strategy.HashingStrategy;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.multipart.ICondition;
@@ -59,17 +60,16 @@ public class FoamyConditionOr implements ICondition {
             return false;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PredicateImpl predicate = (PredicateImpl) o;
-            return Arrays.equals(predicates, predicate.predicates);
-        }
+        public static final class HashingStrategy implements gnu.trove.strategy.HashingStrategy<PredicateImpl> {
+            @Override
+            public int computeHashCode(PredicateImpl object) {
+                return Arrays.hashCode(object.predicates);
+            }
 
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(predicates);
+            @Override
+            public boolean equals(PredicateImpl o1, PredicateImpl o2) {
+                return Arrays.equals(o1.predicates, o2.predicates);
+            }
         }
     }
 
