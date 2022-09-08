@@ -1,23 +1,38 @@
 buildscript {
-	repositories {
-		jcenter()
-		maven { url = "http://files.minecraftforge.net/maven" }
-		maven {
-			url "https://plugins.gradle.org/m2/"
-		}
-	}
-	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-		classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
-		classpath "gradle.plugin.net.minecrell:licenser:0.3"
-	}
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "https://maven.minecraftforge.net/"
+        }
+        maven {
+            url = "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            name 'FancyGradle'
+            url 'https://gitlab.com/api/v4/projects/26758973/packages/maven'
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
+        classpath group: 'wtf.gofancy.fancygradle', name: 'wtf.gofancy.fancygradle.gradle.plugin', version: '1.1.+'
+    }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'net.minecrell.licenser'
+apply plugin: 'java'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'wtf.gofancy.fancygradle'
 
-version = "0.10.14-1.12.2"
+fancyGradle {
+    patches {
+        resources
+        coremods
+        codeChickenLib
+        asm
+    }
+}
+
+version = "0.10.15-1.12.2"
 group= "pl.asie.foamfix" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "foamfix"
 
@@ -25,145 +40,92 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
-    version = "1.12.2-14.23.5.2847"
-    runDir = "run"
-    
-    mappings = "snapshot_20180808"
-    makeObfSourceJar = false
+    mappings channel: "stable", version: "39-1.12"
 
-    replace '@VERSION@', project.version
+    runs {
+        client {
+            workingDirectory project.file('run')
+            jvmArgs '-Dfml.coreMods.load=pl.asie.foamfix.coremod.FoamFixCore'
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                foamfix {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            jvmArgs '-Dfml.coreMods.load=pl.asie.foamfix.coremod.FoamFixCore'
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                foamfix {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+
+    accessTransformer = file('src/main/resources/foamfix_at.cfg')
 }
 
 repositories {
 	mavenCentral()
 }
 
-license {
+/* license {
 	sourceSets = [project.sourceSets.main]
 	header = project.file("docs/licenses/COPYING")
 	ignoreFailures = true
-	exclude '**/*.lang'
-	exclude '**/*.info'
-	exclude '**/*.mcmeta'
+	exclude '***.lang'
+	exclude '***.info'
+	exclude '***.mcmeta'
 
-	matching('**/pl/asie/foamfix/api/**') {
+	matching('**pl/asie/foamfix/api**') {
 		header = project.file("docs/licenses/LICENSE-API")
 	}
 
-	matching('**/pl/asie/foamfix/common/WorldNuller.java') {
+	matching('**pl/asie/foamfix/common/WorldNuller.java') {
 		header = project.file("docs/licenses/LICENSE-neptunepink")
 	}
-}
-
-configurations {
-	shadow
-	compile.extendsFrom shadow
-}
+} */
 
 repositories {
 	maven {
 		name 'DVS1 Maven FS'
-		url 'http://dvs1.progwml6.com/files/maven'
+		url 'https://dvs1.progwml6.com/files/maven'
 	}
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.12.2:4.15.0.291"
-	compile "org.openjdk.jmh:jmh-generator-annprocess:1.20"
+    minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2860"
+
+    compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.15.0.291")
+    compileOnly "org.openjdk.jmh:jmh-generator-annprocess:1.20"
 }
 
 processResources {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
-
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    inputs.property "version", "${project.version}"
+    inputs.property "mcversion", "1.12.2"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    filesMatching(['mcmod.info']) {
+        expand 'version':"${project.version}", 'mcversion':'1.12.2'
     }
 }
 
-jar.dependsOn shadowJar
-jar.enabled = false
-
-shadowJar {
-    archiveName = tasks.jar.archiveName
-    configurations = [project.configurations.shadow]
-}
-
-reobfJar {
-	setJar(tasks.shadowJar.archivePath)
-}
-reobfJar.dependsOn shadowJar
-
-task anarchyJar(type: Jar, dependsOn: classes) {
-    from(sourceSets.main.output)
+jar {
     exclude("META-INF/BenchmarkList")
     exclude("META-INF/CompilerHints")
     exclude("assets/foamfix/flamingo.png")
     exclude("pl/asie/foamfix/client/dolphin")
     exclude("pl/asie/foamfix/tests")
-    manifest.attributes "Manifest-Version": "1.0"
-    manifest.attributes "FMLCorePluginContainsFMLMod": "true"
-    manifest.attributes "FMLCorePlugin": "pl.asie.foamfix.coremod.FoamFixCore"
-    archiveName = (archiveName - ".jar") + "-anarchy.jar"
-}
-
-task lawfulJar(type: Jar, dependsOn: classes) {
-    from(sourceSets.main.output)
-    exclude("META-INF/BenchmarkList")
-    exclude("META-INF/CompilerHints")
-    exclude("assets/foamfix/flamingo.png")
-    exclude("pl/asie/foamfix/client/dolphin")
-    exclude("pl/asie/foamfix/tests")
-
-    exclude("pl/asie/foamfix/coremod")
-    exclude("pl/asie/patchy")
-
-    archiveName = (archiveName - ".jar") + "-law.jar"
-}
-
-reobf {
-    anarchyJar { mappingType = 'SEARGE' }
-//    lawfulJar { mappingType = 'SEARGE' }
-}
-
-//assemble.dependsOn(anarchyJar, lawfulJar)
-assemble.dependsOn(anarchyJar)
-
-//task signLawfulJar(type: SignJar, dependsOn: lawfulJar) {
-//    onlyIf {
-//        project.hasProperty('keyStore')
-//    }
-//
-//    keyStore = project.keyStore
-//    alias = project.keyStoreAlias
-//    storePass = project.keyStorePass
-//    keyPass = project.keyStoreKeyPass
-//    inputFile = lawfulJar.archivePath
-//    outputFile = lawfulJar.archivePath
-//}
-
-task signAnarchyJar(type: SignJar, dependsOn: anarchyJar) {
-    onlyIf {
-        project.hasProperty('keyStore')
+    exclude("foamfix_at.cfg")
+    manifest {
+        attributes FMLCorePlugin: "pl.asie.foamfix.coremod.FoamFixCore"
+        attributes FMLCorePluginContainsFMLMod: "true"
     }
-
-    keyStore = project.keyStore
-    alias = project.keyStoreAlias
-    storePass = project.keyStorePass
-    keyPass = project.keyStoreKeyPass
-    inputFile = anarchyJar.archivePath
-    outputFile = anarchyJar.archivePath
 }
-
-//build.dependsOn(signLawfulJar, signAnarchyJar)
-build.dependsOn(signAnarchyJar)
