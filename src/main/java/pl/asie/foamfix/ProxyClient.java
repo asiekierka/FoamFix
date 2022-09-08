@@ -77,6 +77,7 @@ import pl.asie.foamfix.common.WorldNuller;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import javax.annotation.Nullable;
+import java.net.URI;
 import java.util.List;
 
 public class ProxyClient extends ProxyCommon {
@@ -191,5 +192,14 @@ public class ProxyClient extends ProxyCommon {
 	@Override
 	public void refreshResources() {
 		FMLClientHandler.instance().scheduleResourcesRefresh((type) -> true);
+	}
+
+	@Override
+	public void openUrlLinux(URI url) {
+		try {
+			new ProcessBuilder().command("xdg-open", url.toString()).start();
+		} catch (Throwable t) {
+			FoamFix.getLogger().error("Couldn't open link!", t);
+		}
 	}
 }

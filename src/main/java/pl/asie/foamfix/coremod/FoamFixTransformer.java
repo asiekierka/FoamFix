@@ -283,6 +283,12 @@ public class FoamFixTransformer implements IClassTransformer {
                     "net.minecraft.client.renderer.block.model.multipart.Selector$Deserializer");
         }
 
+        if (FoamFixShared.config.clOpenUrlLinux) {
+            patchy.addTransformerId("openUrlLinux_v1");
+            handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.client.GuiScreenLinuxInject",
+                    false, "openWebLink", "func_175282_a"));
+        }
+
         if (FoamFixShared.config.neMicroOptimizations) {
             patchy.addTransformerId("neMicroOptimizations_writeString_v1");
             handlerCN.add((data) -> spliceClasses(data, "pl.asie.foamfix.coremod.injections.network.PacketBufferInject",

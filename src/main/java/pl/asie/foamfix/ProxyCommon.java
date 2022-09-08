@@ -63,6 +63,7 @@ import pl.asie.foamfix.common.TileEntityFasterHopper;
 import pl.asie.foamfix.shared.FoamFixShared;
 
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -179,4 +180,7 @@ public class ProxyCommon {
 	public void updateFasterAnimationFlag() {
 
 	}
+
+    public void openUrlLinux(URI url) {
+    }
 }
