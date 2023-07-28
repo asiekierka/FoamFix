@@ -14,9 +14,13 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.69'
         classpath group: 'wtf.gofancy.fancygradle', name: 'wtf.gofancy.fancygradle.gradle.plugin', version: '1.1.+'
     }
+}
+
+plugins {
+    id "com.github.hierynomus.license" version "0.16.1"
 }
 
 apply plugin: 'java'
@@ -77,8 +81,8 @@ repositories {
 	mavenCentral()
 }
 
-/* license {
-	sourceSets = [project.sourceSets.main]
+license {
+/*	sourceSets = [project.sourceSets.main] */
 	header = project.file("docs/licenses/COPYING")
 	ignoreFailures = true
 	exclude '***.lang'
@@ -92,7 +96,7 @@ repositories {
 	matching('**pl/asie/foamfix/common/WorldNuller.java') {
 		header = project.file("docs/licenses/LICENSE-neptunepink")
 	}
-} */
+}
 
 repositories {
 	maven {
